@@ -26,3 +26,6 @@ Before writing any code, initializing files, or installing dependencies, you mus
 * **Do Not** touch the `main` branch.
 * **Do Not** push to a remote repository without confirmation if credentials are not pre-configured.
 * **Do Not** delete existing project documentation unless specifically requested.
+
+## 📝 Documentation
+After generating any Artifact, immediately save a copy as a markdown file in the .antigravity/history/ directory of the agy branch.
