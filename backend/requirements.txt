@@ -23,6 +23,7 @@ gunicorn==21.2.0
 
 # Settings / Env
 pydantic-settings==2.7.0
+email-validator==2.1.0  # Required for Pydantic EmailStr
 
 # Testing
 pytest==8.3.4
