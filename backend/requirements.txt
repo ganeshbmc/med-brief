@@ -13,13 +13,20 @@ asyncpg==0.30.0         # Async Postgres driver for prod
 
 # Auth
 python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  # Pinned to fix passlib incompatibility code
 
 # HTTP Client (for PubMed API)
 httpx==0.28.1
 
+# Production Server
+gunicorn==21.2.0
+
 # Settings / Env
 pydantic-settings==2.7.0
+email-validator==2.1.0  # Required for Pydantic EmailStr
+python-multipart==0.0.6  # Required for FastAPI form data
 
 # Testing
 pytest==8.3.4
