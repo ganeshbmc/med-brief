@@ -1,0 +1,27 @@
+# Tasks
+
+- [/] Phase 1: Planning (Discovery)
+    - [x] Analyze Instructions (`AGENT.md`, `README.md`)
+    - [x] Check Git Branch (`agy`)
+    - [ ] Clarify Requirements (Key Questions)
+    - [/] Tech Stack & Architecture Design (Drafted in `implementation_plan.md`)
+    - [ ] User Approval of Technical Design Artifact
+- [ ] Phase 2: Project Setup
+    - [ ] Create project directory structure
+    - [ ] Set up Docker and Docker Compose
+    - [ ] Initialize Git repository (if needed)
+- [ ] Phase 3: Backend Development (FastAPI)
+    - [ ] Initialize FastAPI app
+    - [ ] Configure database (SQLAlchemy + Alembic)
+    - [ ] Implement Auth (JWT)
+    - [ ] Implement PubMed Service (Entrez API)
+    - [ ] Create API Endpoints
+- [ ] Phase 4: Frontend Development (Vue 3)
+    - [ ] Initialize Vue 3 app with Vite
+    - [ ] Setup Bootstrap 5
+    - [ ] Create Components (Login, Dashboard)
+    - [ ] Implement State Management (Pinia)
+    - [ ] Integrate with Backend API
+- [ ] Phase 5: Verification
+    - [ ] Manual test of user flow
+    - [ ] Verify PubMed integration

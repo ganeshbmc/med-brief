@@ -26,3 +26,8 @@ Before writing any code, initializing files, or installing dependencies, you mus
 * **Do Not** touch the `main` branch.
 * **Do Not** push to a remote repository without confirmation if credentials are not pre-configured.
 * **Do Not** delete existing project documentation unless specifically requested.
+
+## 📝 Documentation & Artifact Backup
+**CRITICAL:** To prevent data loss during agent crashes:
+1.  Every time you update `implementation_plan.md` or `task.md` (or any other artifact) in the official memory, you **MUST** immediately save a separate copy to the `.antigravity/history/` directory.
+2.  Use the same filename (e.g., `.antigravity/history/implementation_plan.md`). Overwrite existing files to ensure the history folder always has the latest version.
