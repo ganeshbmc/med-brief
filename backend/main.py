@@ -1,8 +1,12 @@
 # MedBrief Backend
 
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.routers import auth, journals, profiles, briefs
 from app.config import settings
@@ -25,10 +29,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS for frontend
+# CORS - allow all origins in production for Railway's random subdomains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],  # Allow all for Railway deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +48,27 @@ app.include_router(briefs.router, prefix="/api/briefs", tags=["Briefs"])
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+
+# Serve frontend static files (if built)
+FRONTEND_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if FRONTEND_DIST.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+    
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        """Serve Vue frontend for all non-API routes."""
+        # Don't serve frontend for API or auth routes
+        if full_path.startswith(("api/", "auth/", "health", "seed")):
+            return {"detail": "Not Found"}
+        
+        # Serve the requested file if it exists
+        file_path = FRONTEND_DIST / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+        
+        # Fall back to index.html for SPA routing
+        return FileResponse(FRONTEND_DIST / "index.html")
 
 
 @app.post("/seed")

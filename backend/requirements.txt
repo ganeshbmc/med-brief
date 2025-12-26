@@ -18,6 +18,9 @@ passlib[bcrypt]==1.7.4
 # HTTP Client (for PubMed API)
 httpx==0.28.1
 
+# Production Server
+gunicorn==21.2.0
+
 # Settings / Env
 pydantic-settings==2.7.0
 
