@@ -95,3 +95,18 @@ This session focused on enhancing the Dashboard UI and adding article management
 - SQLite database at `backend/medbrief.db`
 - Contains users, profiles, journals tables
 - Test user credentials would be whatever was registered during testing
+
+### 6. Railway Deployment (Production)
+- **Status**: Deployed & Verified ✅
+- **URL**: https://medbrief.redmedai.com
+- **Repository**: https://github.com/ganeshbmc/med-brief
+- **Branch**: `agy` (Auto-deploy enabled)
+- **Features**:
+  - **Backend**: Gunicorn server with dynamic port
+  - **Database**: PostgreSQL (via Railway service)
+  - **Frontend**: Static files served by FastAPI backend
+  - **Seeding**: `/seed` endpoint populated production DB with 80 journals
+- **Fixes Applied**:
+  - `email-validator` & `python-multipart` added
+  - `bcrypt==4.0.1` pinned to resolve `passlib` incompatibility
+  - `main.py` configured for production CORS and static file serving
