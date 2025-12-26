@@ -51,9 +51,16 @@ async def health_check():
 
 
 # Serve frontend static files (if built)
-FRONTEND_DIST = Path(__file__).parent.parent.parent / "frontend" / "dist"
-if FRONTEND_DIST.exists():
-    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+# Check Docker path first (/app/static), then local dev path
+STATIC_DIR = Path(__file__).parent / "static"  # Docker: /app/static
+if not STATIC_DIR.exists():
+    STATIC_DIR = Path(__file__).parent.parent.parent / "frontend" / "dist"  # Dev: ../frontend/dist
+
+if STATIC_DIR.exists():
+    # Mount assets directory
+    assets_dir = STATIC_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
@@ -63,12 +70,12 @@ if FRONTEND_DIST.exists():
             return {"detail": "Not Found"}
         
         # Serve the requested file if it exists
-        file_path = FRONTEND_DIST / full_path
+        file_path = STATIC_DIR / full_path
         if file_path.exists() and file_path.is_file():
             return FileResponse(file_path)
         
         # Fall back to index.html for SPA routing
-        return FileResponse(FRONTEND_DIST / "index.html")
+        return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.post("/seed")
