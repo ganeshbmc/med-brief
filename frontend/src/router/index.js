@@ -22,6 +22,14 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        // If user navigated back/forward, use saved position
+        if (savedPosition) {
+            return savedPosition
+        }
+        // Otherwise scroll to top
+        return { top: 0 }
+    }
 })
 
 // Navigation guard

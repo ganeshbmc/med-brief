@@ -23,6 +23,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
     const hasLoadedProfiles = ref(false)
     const hasLoadedArticles = ref(false)
 
+    // Scroll position preservation
+    const scrollPosition = ref(0)
+
     // Computed
     const currentProfile = computed(() => {
         return profiles.value.find(p => p.id === selectedProfileId.value)
@@ -137,6 +140,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
         profileJournals.value = []
         hasLoadedProfiles.value = false
         hasLoadedArticles.value = false
+        scrollPosition.value = 0
+    }
+
+    // Scroll position functions
+    function saveScrollPosition() {
+        scrollPosition.value = window.scrollY
+        console.log('Saved scroll position:', scrollPosition.value)
     }
 
     return {
@@ -163,5 +173,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         setDateRange,
         applyPreset,
         clearCache,
+        saveScrollPosition,
+        scrollPosition,
     }
 })

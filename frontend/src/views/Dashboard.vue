@@ -381,15 +381,27 @@ async function loadData() {
 
 onMounted(async () => {
   console.log('Dashboard mounted - hasCache:', store.hasCache, 'hasLoadedArticles:', store.hasLoadedArticles, 'articles:', store.articles.length)
+  console.log('Scroll position from store:', store.scrollPosition)
+  const savedScroll = store.scrollPosition  // Capture before async ops
+  
   await store.loadProfiles()
   if (store.selectedProfileId) {
     await loadData()
   }
   console.log('Dashboard load complete - articles:', store.articles.length)
+  
+  // Restore scroll position after DOM updates (use setTimeout for reliable timing)
+  if (savedScroll > 0) {
+    setTimeout(() => {
+      window.scrollTo(0, savedScroll)
+      console.log('Restored scroll to:', savedScroll)
+    }, 100)
+  }
 })
 
 // Open article detail view
 function openArticle(pmid) {
+  store.saveScrollPosition()  // Save scroll before leaving
   sessionStorage.setItem('dashboardArticles', JSON.stringify(filteredArticles.value))
   router.push(`/article/${pmid}`)
 }
