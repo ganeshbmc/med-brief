@@ -171,7 +171,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getProfiles, searchJournals, updateProfile, deleteProfile } from '../services/api'
+import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
 
 const profiles = ref([])
 const loading = ref(true)
@@ -284,17 +284,21 @@ async function doDelete() {
   }
 }
 
-// Pre-load journal names for existing profiles
+// Load journal names for all profiles
 async function loadJournalNames() {
   try {
-    // Search for common terms to populate cache
-    const terms = ['lancet', 'jama', 'nature', 'circulation', 'bmj']
-    for (const term of terms) {
-      const results = await searchJournals(term)
-      results.forEach(j => { allJournals.value[j.id] = j.name })
+    // Collect all unique journal IDs from all profiles
+    const allIds = new Set()
+    profiles.value.forEach(p => {
+      p.journal_ids.forEach(id => allIds.add(id))
+    })
+    
+    if (allIds.size > 0) {
+      const journals = await getJournalsByIds([...allIds])
+      journals.forEach(j => { allJournals.value[j.id] = j.name })
     }
   } catch (e) {
-    // Ignore
+    console.error('Failed to load journal names:', e)
   }
 }
 
