@@ -48,16 +48,27 @@ export async function getJournalsByIds(ids) {
 }
 
 /**
+ * Search PubMed/NLM Catalog for journals
+ */
+export async function searchPubmedJournals(query) {
+    return request(`/api/journals/pubmed-search?q=${encodeURIComponent(query)}`)
+}
+
+/**
  * Profile API
  */
 export async function getProfiles() {
     return request('/api/profiles/')
 }
 
-export async function createProfile(name, journalIds) {
+export async function createProfile(name, journalIds, newJournals = []) {
     return request('/api/profiles/', {
         method: 'POST',
-        body: JSON.stringify({ name, journal_ids: journalIds }),
+        body: JSON.stringify({
+            name,
+            journal_ids: journalIds,
+            new_journals: newJournals
+        }),
     })
 }
 

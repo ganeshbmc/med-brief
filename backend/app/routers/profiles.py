@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from app.database import get_db
 from app.models import Profile, Journal, User
@@ -12,9 +12,17 @@ from app.routers.auth import get_current_user
 router = APIRouter()
 
 
+class NewJournal(BaseModel):
+    """New journal from PubMed to be added to DB."""
+    name: str
+    issn: Optional[str] = None
+    iso_abbreviation: Optional[str] = None
+
+
 class ProfileCreate(BaseModel):
     name: str
-    journal_ids: List[int]
+    journal_ids: List[int] = []  # Existing journal IDs
+    new_journals: List[NewJournal] = []  # New journals from PubMed
 
 
 class ProfileOut(BaseModel):
@@ -49,9 +57,34 @@ async def create_profile(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    # Fetch journals
-    result = await db.execute(select(Journal).where(Journal.id.in_(data.journal_ids)))
-    journals = result.scalars().all()
+    journals = []
+    
+    # Fetch existing journals by ID
+    if data.journal_ids:
+        result = await db.execute(select(Journal).where(Journal.id.in_(data.journal_ids)))
+        journals.extend(result.scalars().all())
+    
+    # Create new journals from PubMed (if they don't exist)
+    for new_j in data.new_journals:
+        # Check if journal with same ISSN already exists
+        existing = None
+        if new_j.issn:
+            result = await db.execute(select(Journal).where(Journal.issn == new_j.issn))
+            existing = result.scalar_one_or_none()
+        
+        if existing:
+            journals.append(existing)
+        else:
+            # Create new journal
+            journal = Journal(
+                name=new_j.name,
+                issn=new_j.issn,
+                iso_abbreviation=new_j.iso_abbreviation,
+                category="Custom",  # Mark as custom/user-added
+            )
+            db.add(journal)
+            await db.flush()  # Get the ID
+            journals.append(journal)
 
     profile = Profile(name=data.name, user_id=current_user.id, journals=journals)
     db.add(profile)
