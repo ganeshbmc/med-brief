@@ -158,8 +158,8 @@
           <h5>Delete Profile?</h5>
           <p class="text-muted">Are you sure you want to delete "{{ deleteTarget.name }}"? This cannot be undone.</p>
           <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-secondary" @click="deleteTarget = null">Cancel</button>
-            <button class="btn btn-danger" @click="doDelete" :disabled="deleting">
+            <button type="button" class="btn btn-secondary" @click.stop.prevent="deleteTarget = null" style="pointer-events: auto;">Cancel</button>
+            <button type="button" class="btn btn-danger" @click.stop.prevent="doDelete" :disabled="deleting" style="pointer-events: auto;">
               {{ deleting ? 'Deleting...' : 'Delete' }}
             </button>
           </div>
@@ -352,5 +352,7 @@ onMounted(async () => {
   max-width: 400px;
   width: 100%;
   margin: 1rem;
+  position: relative;
+  z-index: 1051;
 }
 </style>
