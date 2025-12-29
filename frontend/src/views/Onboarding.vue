@@ -83,8 +83,21 @@
               </div>
             </div>
             
-            <div v-if="searchQuery && searchResults.length === 0 && !searching" class="mb-4 text-center text-muted">
+            <div v-if="searchQuery && searching" class="mb-4 text-center text-muted">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Searching...
+            </div>
+            
+            <div v-else-if="searchQuery && searchResults.length === 0" class="mb-4 text-center text-muted">
               No journals found matching "{{ searchQuery }}"
+              <br><small class="text-info">💡 Tip: Use ISSN for accurate results</small>
+            </div>
+            
+            <!-- ISSN hint after search results -->
+            <div v-if="searchQuery && searchResults.length > 0 && !searching" class="mb-3 text-center">
+              <small class="text-muted">
+                💡 Didn't find what you're looking for? Try searching with the journal's <strong>ISSN</strong> for more accurate results.
+              </small>
             </div>
             
             <!-- Preset Journals -->
