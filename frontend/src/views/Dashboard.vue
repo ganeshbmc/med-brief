@@ -126,29 +126,40 @@
               </ul>
             </div>
           </div>
-          <div class="col-auto">
-            <label class="form-label small text-muted mb-1">Quick Select</label>
-            <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
-              <option :value="7">Last 7 days</option>
-              <option :value="14">Last 14 days</option>
-              <option :value="30">Last 30 days</option>
-              <option :value="0">Custom</option>
-            </select>
+          <!-- Responsive Filter Controls: Quick Select + Sort | From + To -->
+          <div class="col-12 col-md-auto">
+            <div class="d-flex gap-2 flex-wrap">
+              <!-- Group 1: Quick Select + Sort (always together) -->
+              <div>
+                <label class="form-label small text-muted mb-1">Quick Select</label>
+                <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
+                  <option :value="7">Last 7 days</option>
+                  <option :value="14">Last 14 days</option>
+                  <option :value="30">Last 30 days</option>
+                  <option :value="0">Custom</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label small text-muted mb-1">Sort</label>
+                <select v-model="sortBy" class="form-select form-select-sm">
+                  <option value="date">By Date</option>
+                  <option value="journal">By Journal</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="col-auto">
-            <label class="form-label small text-muted mb-1">From</label>
-            <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
-          </div>
-          <div class="col-auto">
-            <label class="form-label small text-muted mb-1">To</label>
-            <input type="date" v-model="localToDate" class="form-control form-control-sm" :max="store.todayDate" @change="handleDateChange" />
-          </div>
-          <div class="col-auto">
-            <label class="form-label small text-muted mb-1">Sort</label>
-            <select v-model="sortBy" class="form-select form-select-sm">
-              <option value="date">By Date</option>
-              <option value="journal">By Journal</option>
-            </select>
+          <div class="col-12 col-md-auto">
+            <div class="d-flex gap-2 flex-wrap">
+              <!-- Group 2: From + To dates (always together) -->
+              <div>
+                <label class="form-label small text-muted mb-1">From</label>
+                <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
+              </div>
+              <div>
+                <label class="form-label small text-muted mb-1">To</label>
+                <input type="date" v-model="localToDate" class="form-control form-control-sm" :max="store.todayDate" @change="handleDateChange" />
+              </div>
+            </div>
           </div>
         </div>
         <!-- Article count, limit warning, and export buttons -->
