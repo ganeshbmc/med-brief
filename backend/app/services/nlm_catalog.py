@@ -28,16 +28,30 @@ async def search_nlm_journals(query: str, limit: int = 20) -> List[NLMJournal]:
         limit: Maximum number of results to return
         
     Returns:
-        List of NLMJournal objects
+        List of NLMJournal objects, sorted with exact matches first
     """
     async with httpx.AsyncClient(timeout=10.0) as client:
+        # Detect if query is an ISSN (8 digits, optionally with hyphen)
+        issn_pattern = query.replace("-", "").strip()
+        is_issn = len(issn_pattern) == 8 and issn_pattern.isdigit()
+        
+        if is_issn:
+            # Format as ISSN for search (####-####)
+            formatted_issn = f"{issn_pattern[:4]}-{issn_pattern[4:]}"
+            search_term = f'{formatted_issn}[ISSN]'
+            fetch_limit = limit  # ISSN searches are precise
+        else:
+            # Search NLM Catalog using correct field tags:
+            # [ti] = Title, [ta] = Title Abbreviation
+            search_term = f'("{query}"[ti] OR "{query}"[ta])'
+            fetch_limit = limit * 3  # Fetch more to filter/sort
+        
         # Step 1: Search for journal IDs
         search_url = f"{EUTILS_BASE}/esearch.fcgi"
         search_params = {
             "db": "nlmcatalog",
-            # Use Title field and currentlyindexed to find active PubMed journals
-            "term": f'"{query}"[Title] AND currentlyindexed[All Fields]',
-            "retmax": limit,
+            "term": search_term,
+            "retmax": fetch_limit,
             "retmode": "json",
         }
         
@@ -69,7 +83,27 @@ async def search_nlm_journals(query: str, limit: int = 20) -> List[NLMJournal]:
             return []
         
         # Parse XML response
-        return _parse_nlm_response(fetch_resp.text)
+        journals = _parse_nlm_response(fetch_resp.text)
+        
+        # Filter: Only include journals with ISSN (more likely to be valid PubMed journals)
+        journals = [j for j in journals if j.issn]
+        
+        # Sort: Prioritize exact title matches, then shorter titles (more likely to be the main journal)
+        query_lower = query.lower().strip()
+        def sort_key(j):
+            name_lower = j.name.lower()
+            # Exact match gets highest priority (0)
+            if name_lower == query_lower:
+                return (0, len(j.name))
+            # Starts with query gets second priority (1)
+            if name_lower.startswith(query_lower):
+                return (1, len(j.name))
+            # Contains query somewhere (2)
+            return (2, len(j.name))
+        
+        journals.sort(key=sort_key)
+        
+        return journals[:limit]
 
 
 def _parse_nlm_response(xml_text: str) -> List[NLMJournal]:
