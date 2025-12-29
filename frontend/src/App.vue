@@ -9,7 +9,7 @@
           <template v-if="authStore.isAuthenticated">
             <router-link class="nav-link" to="/dashboard">Dashboard</router-link>
             <router-link class="nav-link" to="/profiles">Profiles</router-link>
-            <a class="nav-link" href="#" @click.prevent="authStore.logout()">Logout</a>
+            <a class="nav-link" href="#" @click.prevent="handleLogout()">Logout</a>
           </template>
           <template v-else>
             <router-link class="nav-link" to="/login">Login</router-link>
@@ -26,7 +26,18 @@
 
 <script setup>
 import { useAuthStore } from './stores/auth'
+import { useDashboardStore } from './stores/dashboard'
+import { useRouter } from 'vue-router'
+
 const authStore = useAuthStore()
+const dashboardStore = useDashboardStore()
+const router = useRouter()
+
+function handleLogout() {
+    authStore.logout()
+    dashboardStore.clearCache()
+    router.push('/login')
+}
 </script>
 
 <style>

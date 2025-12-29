@@ -269,7 +269,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
 
@@ -397,6 +397,12 @@ onMounted(async () => {
       console.log('Restored scroll to:', savedScroll)
     }, 100)
   }
+})
+
+// Save scroll position before leaving Dashboard (for any navigation)
+onBeforeUnmount(() => {
+  store.saveScrollPosition()
+  console.log('Dashboard unmounting - saved scroll position')
 })
 
 // Open article detail view
