@@ -4,29 +4,29 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
         <h2 class="text-white fw-bold mb-1">Your Brief</h2>
-        <p class="text-white-50 mb-0">Research from {{ fromDate }} to {{ toDate }}</p>
+        <p class="text-white-50 mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
       </div>
       <div class="d-flex gap-2 align-items-center">
         <!-- Profile Selector -->
-        <div v-if="profiles.length > 0" class="dropdown">
+        <div v-if="store.profiles.length > 0" class="dropdown">
           <button 
             class="btn btn-light dropdown-toggle" 
             type="button" 
             data-bs-toggle="dropdown" 
             aria-expanded="false"
           >
-            📋 {{ currentProfile?.name || 'Select Profile' }}
+            📋 {{ store.currentProfile?.name || 'Select Profile' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li v-for="p in profiles" :key="p.id">
+            <li v-for="p in store.profiles" :key="p.id">
               <a 
                 class="dropdown-item" 
-                :class="{ active: selectedProfileId === p.id }"
+                :class="{ active: store.selectedProfileId === p.id }"
                 href="#" 
                 @click.prevent="selectProfile(p.id)"
               >
                 {{ p.name }}
-                <small v-if="selectedProfileId === p.id" class="text-success ms-2">✓</small>
+                <small v-if="store.selectedProfileId === p.id" class="text-success ms-2">✓</small>
               </a>
             </li>
             <li><hr class="dropdown-divider" /></li>
@@ -38,22 +38,22 @@
           </ul>
         </div>
         
-        <button class="btn btn-light" @click="refreshArticles" :disabled="loading">
-          <span v-if="loading" class="spinner-border spinner-border-sm me-1"></span>
-          {{ loading ? 'Loading...' : '🔄 Refresh' }}
+        <button class="btn btn-light" @click="refreshArticles" :disabled="store.loading">
+          <span v-if="store.loading" class="spinner-border spinner-border-sm me-1"></span>
+          {{ store.loading ? 'Loading...' : '🔄 Refresh' }}
         </button>
       </div>
     </div>
 
     <!-- No Profiles State -->
-    <div v-if="!loadingProfiles && profiles.length === 0" class="card p-5 text-center">
+    <div v-if="!store.loadingProfiles && store.profiles.length === 0" class="card p-5 text-center">
       <h4 class="mb-3">Welcome to MedBrief!</h4>
       <p class="text-muted mb-4">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
       <router-link to="/onboarding" class="btn btn-primary px-4">Create Your First Profile</router-link>
     </div>
 
     <!-- Loading Profiles State -->
-    <div v-else-if="loadingProfiles" class="text-center py-5">
+    <div v-else-if="store.loadingProfiles" class="text-center py-5">
       <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
@@ -66,12 +66,12 @@
       <div class="card mb-4 p-3 bg-light">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div>
-            <strong>{{ currentProfile?.name }}</strong>
-            <span class="text-muted ms-2">· {{ currentProfile?.journal_ids?.length || 0 }} journals</span>
+            <strong>{{ store.currentProfile?.name }}</strong>
+            <span class="text-muted ms-2">· {{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
           </div>
           <div>
             <span class="badge bg-primary me-2">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
-            <small class="text-muted">{{ profiles.length }} profile{{ profiles.length !== 1 ? 's' : '' }}</small>
+            <small class="text-muted">{{ store.profiles.length }} profile{{ store.profiles.length !== 1 ? 's' : '' }}</small>
           </div>
         </div>
       </div>
@@ -128,7 +128,7 @@
           </div>
           <div class="col-auto">
             <label class="form-label small text-muted mb-1">Quick Select</label>
-            <select v-model="daysPreset" class="form-select form-select-sm" @change="applyPreset">
+            <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
               <option :value="7">Last 7 days</option>
               <option :value="14">Last 14 days</option>
               <option :value="30">Last 30 days</option>
@@ -137,11 +137,11 @@
           </div>
           <div class="col-auto">
             <label class="form-label small text-muted mb-1">From</label>
-            <input type="date" v-model="fromDate" class="form-control form-control-sm" @change="daysPreset = 0" />
+            <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
           </div>
           <div class="col-auto">
             <label class="form-label small text-muted mb-1">To</label>
-            <input type="date" v-model="toDate" class="form-control form-control-sm" :max="todayDate" @change="daysPreset = 0" />
+            <input type="date" v-model="localToDate" class="form-control form-control-sm" :max="store.todayDate" @change="handleDateChange" />
           </div>
           <div class="col-auto">
             <label class="form-label small text-muted mb-1">Sort</label>
@@ -154,11 +154,11 @@
         <!-- Article count, limit warning, and export buttons -->
         <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top flex-wrap gap-2">
           <div class="d-flex align-items-center gap-3">
-            <small v-if="articles.length >= 500" class="text-warning">
+            <small v-if="store.articles.length >= 500" class="text-warning">
               ⚠️ Limited to newest 500 articles
             </small>
             <small class="text-muted">
-              Showing {{ filteredArticles.length }} of {{ articles.length }} articles
+              Showing {{ filteredArticles.length }} of {{ store.articles.length }} articles
             </small>
           </div>
           <!-- Selection toggle and bulk export -->
@@ -205,7 +205,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading && articles.length === 0" class="text-center py-5">
+      <div v-if="store.loading && store.articles.length === 0" class="text-center py-5">
         <div class="spinner-border text-light" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
@@ -216,7 +216,7 @@
       <div v-else-if="filteredArticles.length === 0" class="text-center py-5">
         <div class="card p-5">
           <h4>No articles found</h4>
-          <p class="text-muted">{{ articles.length === 0 ? 'No new articles from your selected journals in this time period.' : 'Try adjusting your search or journal filters.' }}</p>
+          <p class="text-muted">{{ store.articles.length === 0 ? 'No new articles from your selected journals in this time period.' : 'Try adjusting your search or journal filters.' }}</p>
           <button v-if="selectedJournals.length > 0" class="btn btn-outline-primary mt-2" @click="selectedJournals = []">
             Clear Journal Filters
           </button>
@@ -271,51 +271,35 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getProfiles, generateBrief, getJournalsByIds } from '../services/api'
+import { useDashboardStore } from '../stores/dashboard'
 
 const router = useRouter()
+const store = useDashboardStore()
 
-const profiles = ref([])
-const selectedProfileId = ref(null)
-const articles = ref([])
-const loading = ref(false)
-const loadingProfiles = ref(true)
+// Local state (not persisted across navigations)
 const searchQuery = ref('')
 const sortBy = ref('date')
 const selectedJournals = ref([])
-const profileJournals = ref([]) // All journals from profile
 const selectionMode = ref(false)
-const selectedArticles = ref([]) // Array of selected PMIDs
+const selectedArticles = ref([])
 
-// Date range - default to last 7 days
-const daysPreset = ref(7)
-const todayDate = new Date().toISOString().split('T')[0]
-const fromDate = ref(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-const toDate = ref(todayDate)
+// Local date refs for v-model binding (sync with store)
+const localFromDate = ref(store.fromDate)
+const localToDate = ref(store.toDate)
 
-function applyPreset() {
-  if (daysPreset.value > 0) {
-    toDate.value = todayDate
-    fromDate.value = new Date(Date.now() - daysPreset.value * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  }
-}
-
-const currentProfile = computed(() => {
-  return profiles.value.find(p => p.id === selectedProfileId.value)
-})
+// Sync local dates with store
+watch(() => store.fromDate, (val) => { localFromDate.value = val })
+watch(() => store.toDate, (val) => { localToDate.value = val })
 
 // Show all profile journals in dropdown (with article count)
 const availableJournals = computed(() => {
-  // Create a map of lowercase journal name -> article count
   const articleCounts = {}
-  articles.value.forEach(a => {
+  store.articles.forEach(a => {
     const key = a.journal.toLowerCase()
     articleCounts[key] = (articleCounts[key] || 0) + 1
   })
   
-  // Return all profile journals with their article counts
-  // Match by name OR iso_abbreviation (case-insensitive)
-  return profileJournals.value.map(j => {
+  return store.profileJournals.map(j => {
     const nameKey = j.name.toLowerCase()
     const abbrKey = j.iso_abbreviation?.toLowerCase() || ''
     const count = articleCounts[nameKey] || articleCounts[abbrKey] || 0
@@ -324,7 +308,7 @@ const availableJournals = computed(() => {
 })
 
 const filteredArticles = computed(() => {
-  let result = [...articles.value]
+  let result = [...store.articles]
   
   // Filter by selected journals
   if (selectedJournals.value.length > 0) {
@@ -357,8 +341,10 @@ function truncateAbstract(text, maxLength = 150) {
 }
 
 function selectProfile(profileId) {
-  selectedProfileId.value = profileId
-  selectedJournals.value = [] // Reset journal filter on profile change
+  store.setProfile(profileId)
+  selectedJournals.value = []
+  // Fetch articles since profile changed
+  loadData()
 }
 
 function toggleJournalFilter(journalName) {
@@ -370,67 +356,52 @@ function toggleJournalFilter(journalName) {
   }
 }
 
-async function loadProfiles() {
-  loadingProfiles.value = true
-  try {
-    profiles.value = await getProfiles()
-    if (profiles.value.length > 0) {
-      selectedProfileId.value = profiles.value[0].id
-    }
-  } catch (e) {
-    console.error('Failed to load profiles:', e)
-  } finally {
-    loadingProfiles.value = false
+function applyPreset() {
+  store.applyPreset(store.daysPreset)
+  if (store.daysPreset > 0) {
+    loadData()
   }
 }
 
-async function loadProfileJournals() {
-  if (!currentProfile.value?.journal_ids?.length) {
-    profileJournals.value = []
-    return
-  }
-  try {
-    profileJournals.value = await getJournalsByIds(currentProfile.value.journal_ids)
-  } catch (e) {
-    console.error('Failed to load journals:', e)
-    profileJournals.value = []
-  }
+function handleDateChange() {
+  store.setDateRange(localFromDate.value, localToDate.value)
+  store.daysPreset = 0
+  loadData()
 }
 
 async function refreshArticles() {
-  if (!selectedProfileId.value) return
-  
-  loading.value = true
-  selectedJournals.value = [] // Reset filter on refresh
-  try {
-    articles.value = await generateBrief(selectedProfileId.value, { fromDate: fromDate.value, toDate: toDate.value })
-  } catch (e) {
-    console.error('Failed to fetch articles:', e)
-    articles.value = []
-  } finally {
-    loading.value = false
-  }
+  selectedJournals.value = []
+  await store.fetchArticles(true) // Force refresh
 }
 
-// Refresh when profile or date range changes
-watch([selectedProfileId, fromDate, toDate], async () => {
-  if (selectedProfileId.value) {
-    await loadProfileJournals()
-    refreshArticles()
-  }
-})
+async function loadData() {
+  await store.loadProfileJournals()
+  await store.fetchArticles() // Will use cache if available
+}
 
 onMounted(async () => {
-  await loadProfiles()
-  if (selectedProfileId.value) {
-    await loadProfileJournals()
-    await refreshArticles()
+  console.log('Dashboard mounted - hasCache:', store.hasCache, 'hasLoadedArticles:', store.hasLoadedArticles, 'articles:', store.articles.length)
+  console.log('Scroll position from store:', store.scrollPosition)
+  const savedScroll = store.scrollPosition  // Capture before async ops
+  
+  await store.loadProfiles()
+  if (store.selectedProfileId) {
+    await loadData()
+  }
+  console.log('Dashboard load complete - articles:', store.articles.length)
+  
+  // Restore scroll position after DOM updates (use setTimeout for reliable timing)
+  if (savedScroll > 0) {
+    setTimeout(() => {
+      window.scrollTo(0, savedScroll)
+      console.log('Restored scroll to:', savedScroll)
+    }, 100)
   }
 })
 
 // Open article detail view
 function openArticle(pmid) {
-  // Store articles in sessionStorage for navigation in article view
+  store.saveScrollPosition()  // Save scroll before leaving
   sessionStorage.setItem('dashboardArticles', JSON.stringify(filteredArticles.value))
   router.push(`/article/${pmid}`)
 }
@@ -452,7 +423,6 @@ function handleCardClick(pmid) {
     } else {
       selectedArticles.value.splice(idx, 1)
     }
-    console.log('Selected articles:', selectedArticles.value)
   } else {
     openArticle(pmid)
   }
@@ -491,13 +461,12 @@ function exportSelectedArticles(format) {
   URL.revokeObjectURL(url)
 }
 
-// Bulk export all visible articles
 function exportAllArticles(format) {
   const articlesList = filteredArticles.value
   if (!articlesList.length) return
   
   let content = ''
-  let filename = `articles_${fromDate.value}_${toDate.value}`
+  let filename = `articles_${store.fromDate}_${store.toDate}`
   
   if (format === 'txt') {
     content = articlesList.map(a => 

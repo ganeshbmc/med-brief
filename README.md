@@ -23,3 +23,10 @@ MedBrief is a lightweight app that pulls the latest publications from PubMed for
   2. Generate brief
   3. Read / export / share
 
+---
+
+## Features to add (future versions)  
+- AI summaries, AI for sorting etc
+- Connect to zotero, notebooklm
+- User collections 
+- Browser extension plugin for adding to collections  

@@ -116,7 +116,7 @@ const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
 
 function goBack() {
-  router.push('/dashboard')
+  router.push('/dashboard')  // Direct navigation - scroll restored by Dashboard's manual scroll handler
 }
 
 function navigateTo(offset) {
@@ -178,6 +178,8 @@ watch(() => route.params.pmid, (newPmid) => {
 })
 
 onMounted(() => {
+  // Scroll to top when Article view loads
+  window.scrollTo(0, 0)
   loadArticle()
 })
 </script>

@@ -31,7 +31,10 @@
               >
                 <div 
                   class="specialty-card p-3 rounded-3 text-center"
-                  :class="{ selected: selectedSpecialty === spec.value }"
+                  :class="{ 
+                    selected: selectedSpecialty === spec.value,
+                    'custom-highlight': spec.isCustom && selectedSpecialty !== spec.value
+                  }"
                   @click="selectSpecialty(spec.value)"
                 >
                   {{ spec.label }}
@@ -63,10 +66,10 @@
             <div v-if="searchQuery && searchResults.length > 0" class="mb-4">
               <h6 class="text-muted mb-2">Search Results</h6>
               <div class="row g-2">
-                <div v-for="journal in searchResults" :key="'search-' + journal.id" class="col-md-6">
+                <div v-for="journal in searchResults" :key="'search-' + (journal.issn || journal.id || journal.name)" class="col-md-6">
                   <div 
                     class="journal-card p-2 rounded-3 d-flex align-items-center"
-                    :class="{ selected: selectedJournalIds.includes(journal.id) }"
+                    :class="{ selected: isJournalSelected(journal) }"
                     @click="toggleJournal(journal)"
                   >
                     <span class="me-2">📚</span>
@@ -74,6 +77,7 @@
                       <div class="fw-semibold text-truncate small">{{ journal.name }}</div>
                       <small class="text-muted">{{ journal.iso_abbreviation }} · {{ journal.issn }}</small>
                     </div>
+                    <span v-if="journal.is_local" class="badge bg-success ms-2" title="In our database">✓</span>
                   </div>
                 </div>
               </div>
@@ -113,8 +117,8 @@
             </div>
             
             <!-- Selected Count -->
-            <div v-if="selectedJournalIds.length > 0" class="mt-3 text-center">
-              <span class="badge bg-primary">{{ selectedJournalIds.length }} journal(s) selected</span>
+            <div v-if="totalSelectedCount > 0" class="mt-3 text-center">
+              <span class="badge bg-primary">{{ totalSelectedCount }} journal(s) selected</span>
             </div>
           </div>
 
@@ -161,7 +165,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPresetJournals, searchJournals, createProfile } from '../services/api'
+import { getPresetJournals, searchJournals, searchPubmedJournals, createProfile } from '../services/api'
 
 const router = useRouter()
 
@@ -169,6 +173,7 @@ const step = ref(1)
 const selectedSpecialty = ref('')
 const journals = ref([])
 const selectedJournalIds = ref([])
+const selectedNewJournals = ref([])  // PubMed journals not in DB
 const loadingJournals = ref(false)
 const profileName = ref('')
 const error = ref('')
@@ -181,6 +186,7 @@ const searching = ref(false)
 let searchTimeout = null
 
 const specialties = [
+  { value: 'Custom', label: '✨ Custom Profile', isCustom: true },
   { value: 'Cardiology', label: 'Cardiology' },
   { value: 'Oncology', label: 'Oncology' },
   { value: 'Neurology', label: 'Neurology' },
@@ -189,15 +195,18 @@ const specialties = [
   { value: 'Surgery', label: 'Surgery' },
   { value: 'Psychiatry', label: 'Psychiatry' },
   { value: 'Emergency', label: 'Emergency Medicine' },
-  { value: 'Custom', label: 'Custom (Search)' },
 ]
 
 const canProceed = computed(() => {
   if (step.value === 1) return selectedSpecialty.value
   // Allow skip if no journals found, require selection if journals exist
-  if (step.value === 2) return selectedJournalIds.value.length > 0
+  if (step.value === 2) return totalSelectedCount.value > 0
   if (step.value === 3) return profileName.value.trim()
   return true
+})
+
+const totalSelectedCount = computed(() => {
+  return selectedJournalIds.value.length + selectedNewJournals.value.length
 })
 
 function getSpecialtyLabel() {
@@ -216,14 +225,19 @@ async function selectSpecialty(specialty) {
   }
 }
 
-// Debounced search function
+// Debounced search function - uses PubMed search for Custom profiles
 function debouncedSearch() {
   if (searchTimeout) clearTimeout(searchTimeout)
   searchTimeout = setTimeout(async () => {
     if (searchQuery.value.length >= 2) {
       searching.value = true
       try {
-        searchResults.value = await searchJournals(searchQuery.value)
+        // Use PubMed search for Custom specialty, local DB for others
+        if (selectedSpecialty.value === 'Custom') {
+          searchResults.value = await searchPubmedJournals(searchQuery.value)
+        } else {
+          searchResults.value = await searchJournals(searchQuery.value)
+        }
       } catch (e) {
         console.error('Search failed:', e)
         searchResults.value = []
@@ -251,12 +265,36 @@ watch(step, async (newStep) => {
   }
 })
 
+function isJournalSelected(journal) {
+  // For local DB journals (have id)
+  if (journal.id) {
+    return selectedJournalIds.value.includes(journal.id)
+  }
+  // For PubMed journals (use issn as identifier)
+  return selectedNewJournals.value.some(j => j.issn === journal.issn)
+}
+
 function toggleJournal(journal) {
-  const idx = selectedJournalIds.value.indexOf(journal.id)
-  if (idx === -1) {
-    selectedJournalIds.value.push(journal.id)
+  // For local DB journals (have id)
+  if (journal.id) {
+    const idx = selectedJournalIds.value.indexOf(journal.id)
+    if (idx === -1) {
+      selectedJournalIds.value.push(journal.id)
+    } else {
+      selectedJournalIds.value.splice(idx, 1)
+    }
   } else {
-    selectedJournalIds.value.splice(idx, 1)
+    // For PubMed journals (no id, use issn)
+    const idx = selectedNewJournals.value.findIndex(j => j.issn === journal.issn)
+    if (idx === -1) {
+      selectedNewJournals.value.push({
+        name: journal.name,
+        issn: journal.issn,
+        iso_abbreviation: journal.iso_abbreviation,
+      })
+    } else {
+      selectedNewJournals.value.splice(idx, 1)
+    }
   }
 }
 
@@ -268,7 +306,11 @@ async function nextStep() {
     saving.value = true
     error.value = ''
     try {
-      await createProfile(profileName.value.trim(), selectedJournalIds.value)
+      await createProfile(
+        profileName.value.trim(), 
+        selectedJournalIds.value,
+        selectedNewJournals.value
+      )
       router.push('/dashboard')
     } catch (e) {
       error.value = e.message || 'Failed to create profile'
@@ -320,6 +362,18 @@ async function nextStep() {
 .journal-card.selected {
   border-color: #667eea;
   background: rgba(102, 126, 234, 0.1);
+}
+
+.specialty-card.custom-highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.specialty-card.custom-highlight:hover {
+  opacity: 0.9;
+  border-color: transparent;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .text-truncate {

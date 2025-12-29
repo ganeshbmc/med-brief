@@ -158,8 +158,8 @@
           <h5>Delete Profile?</h5>
           <p class="text-muted">Are you sure you want to delete "{{ deleteTarget.name }}"? This cannot be undone.</p>
           <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-secondary" @click="deleteTarget = null">Cancel</button>
-            <button class="btn btn-danger" @click="doDelete" :disabled="deleting">
+            <button type="button" class="btn btn-secondary" @click.stop.prevent="deleteTarget = null" style="pointer-events: auto;">Cancel</button>
+            <button type="button" class="btn btn-danger" @click.stop.prevent="doDelete" :disabled="deleting" style="pointer-events: auto;">
               {{ deleting ? 'Deleting...' : 'Delete' }}
             </button>
           </div>
@@ -171,7 +171,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getProfiles, searchJournals, updateProfile, deleteProfile } from '../services/api'
+import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
 
 const profiles = ref([])
 const loading = ref(true)
@@ -284,17 +284,21 @@ async function doDelete() {
   }
 }
 
-// Pre-load journal names for existing profiles
+// Load journal names for all profiles
 async function loadJournalNames() {
   try {
-    // Search for common terms to populate cache
-    const terms = ['lancet', 'jama', 'nature', 'circulation', 'bmj']
-    for (const term of terms) {
-      const results = await searchJournals(term)
-      results.forEach(j => { allJournals.value[j.id] = j.name })
+    // Collect all unique journal IDs from all profiles
+    const allIds = new Set()
+    profiles.value.forEach(p => {
+      p.journal_ids.forEach(id => allIds.add(id))
+    })
+    
+    if (allIds.size > 0) {
+      const journals = await getJournalsByIds([...allIds])
+      journals.forEach(j => { allJournals.value[j.id] = j.name })
     }
   } catch (e) {
-    // Ignore
+    console.error('Failed to load journal names:', e)
   }
 }
 
@@ -352,5 +356,7 @@ onMounted(async () => {
   max-width: 400px;
   width: 100%;
   margin: 1rem;
+  position: relative;
+  z-index: 1051;
 }
 </style>
