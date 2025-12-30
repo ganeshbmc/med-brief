@@ -108,7 +108,7 @@
                 <Newspaper :size="18" />
                 {{ selectedJournals.length ? `${selectedJournals.length} journal(s)` : 'All Journals' }}
               </button>
-              <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+              <ul class="dropdown-menu journal-filter-dropdown" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                 <li>
                   <a class="dropdown-item" href="#" @click.prevent="selectedJournals = []">
                     <em>Clear filters</em>
@@ -121,16 +121,17 @@
                     href="#" 
                     @click.prevent="toggleJournalFilter(journal.name)"
                   >
-                    <span class="d-flex align-items-center">
+                    <span class="d-flex align-items-center flex-grow-1">
                       <input 
                         type="checkbox" 
-                        class="form-check-input me-2" 
+                        class="form-check-input me-2 flex-shrink-0" 
                         :checked="selectedJournals.includes(journal.name)"
+                        @change="toggleJournalFilter(journal.name)"
                         @click.stop
                       />
-                      <span class="text-truncate" style="max-width: 200px;">{{ journal.name }}</span>
+                      <span class="journal-name">{{ journal.name }}</span>
                     </span>
-                    <span class="badge" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
+                    <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
                   </a>
                 </li>
               </ul>
@@ -325,26 +326,52 @@ watch(() => store.toDate, (val) => { localToDate.value = val })
 
 // Show all profile journals in dropdown (with article count)
 const availableJournals = computed(() => {
+  // Build a map of article counts by various possible journal name formats
   const articleCounts = {}
   store.articles.forEach(a => {
-    const key = a.journal.toLowerCase()
+    const key = a.journal.toLowerCase().trim()
     articleCounts[key] = (articleCounts[key] || 0) + 1
   })
   
   return store.profileJournals.map(j => {
-    const nameKey = j.name.toLowerCase()
-    const abbrKey = j.iso_abbreviation?.toLowerCase() || ''
-    const count = articleCounts[nameKey] || articleCounts[abbrKey] || 0
-    return { name: j.name, count }
-  }).sort((a, b) => a.name.localeCompare(b.name))
+    const nameKey = j.name.toLowerCase().trim()
+    const abbrKey = j.iso_abbreviation?.toLowerCase().trim() || ''
+    
+    // Try exact match first, then partial match
+    let count = articleCounts[nameKey] || articleCounts[abbrKey] || 0
+    
+    // If no exact match, try partial matching
+    if (count === 0) {
+      for (const [articleJournal, cnt] of Object.entries(articleCounts)) {
+        if (articleJournal.includes(nameKey) || nameKey.includes(articleJournal) ||
+            (abbrKey && (articleJournal.includes(abbrKey) || abbrKey.includes(articleJournal)))) {
+          count = cnt
+          break
+        }
+      }
+    }
+    
+    return { 
+      name: j.name, 
+      isoAbbr: j.iso_abbreviation || '',
+      count 
+    }
+  }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
 })
 
 const filteredArticles = computed(() => {
   let result = [...store.articles]
   
-  // Filter by selected journals
+  // Filter by selected journals (case-insensitive, partial matching)
   if (selectedJournals.value.length > 0) {
-    result = result.filter(a => selectedJournals.value.includes(a.journal))
+    const selectedLower = selectedJournals.value.map(j => j.toLowerCase().trim())
+    result = result.filter(a => {
+      const articleJournal = a.journal.toLowerCase().trim()
+      return selectedLower.some(sel => 
+        articleJournal.includes(sel) || sel.includes(articleJournal) ||
+        articleJournal === sel
+      )
+    })
   }
   
   // Filter by search query
@@ -593,5 +620,15 @@ function exportAllArticles(format) {
 /* Search input group */
 .input-group-text {
   border-color: var(--warm-200);
+}
+
+/* Journal filter dropdown */
+.journal-filter-dropdown .dropdown-item {
+  padding: 0.5rem 1rem;
+}
+
+.journal-filter-dropdown .journal-name {
+  word-break: break-word;
+  line-height: 1.3;
 }
 </style>
