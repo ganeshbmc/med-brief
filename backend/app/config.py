@@ -5,7 +5,9 @@ import os
 
 class Settings(BaseSettings):
     # Database - defaults to SQLite for local dev, use DATABASE_URL env var for PostgreSQL
-    DATABASE_URL: str = "sqlite+aiosqlite:///./medbrief.db"
+    # Use path relative to this file (backend/app/config.py -> backend/medbrief.db)
+    BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{os.path.join(BASE_DIR, 'medbrief.db')}"
 
     # JWT
     SECRET_KEY: str = "CHANGE_ME_IN_PRODUCTION"

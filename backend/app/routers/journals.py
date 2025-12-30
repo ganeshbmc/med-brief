@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -79,7 +80,7 @@ async def get_preset_journals(
 ):
     """Get preset journals by category (e.g., 'cardiology', 'medicine')."""
     result = await db.execute(
-        select(Journal).where(Journal.category.ilike(category)).limit(10)
+        select(Journal).where(func.lower(Journal.category) == category.lower()).limit(10)
     )
     return result.scalars().all()
 
