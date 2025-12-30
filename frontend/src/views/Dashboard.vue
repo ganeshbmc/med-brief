@@ -68,7 +68,7 @@
         <div class="d-flex align-items-center gap-3">
           <span class="text-muted small">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
           <div class="vr text-muted opacity-25"></div>
-          <span class="badge bg-terracotta-100 text-terracotta-700 rounded-pill px-3">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
+          <span class="badge bg-terracotta-100 text-dark rounded-pill px-3" style="color: var(--terracotta-700) !important;">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
           <div class="vr text-muted opacity-25"></div>
           
           <button 
