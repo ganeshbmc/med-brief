@@ -325,34 +325,34 @@ watch(() => store.fromDate, (val) => { localFromDate.value = val })
 watch(() => store.toDate, (val) => { localToDate.value = val })
 
 // Show all profile journals in dropdown (with article count)
+// Uses ISSN as the key for reliable matching
 const availableJournals = computed(() => {
-  // Build a map of article counts by various possible journal name formats
-  const articleCounts = {}
+  // Build lookup maps from journal name/abbreviation → ISSN
+  const nameToIssn = {}
+  store.profileJournals.forEach(j => {
+    if (j.issn) {
+      nameToIssn[j.name.toLowerCase().trim()] = j.issn
+      if (j.iso_abbreviation) {
+        nameToIssn[j.iso_abbreviation.toLowerCase().trim()] = j.issn
+      }
+    }
+  })
+  
+  // Count articles by ISSN (via journal name lookup)
+  const articleCountsByIssn = {}
   store.articles.forEach(a => {
-    const key = a.journal.toLowerCase().trim()
-    articleCounts[key] = (articleCounts[key] || 0) + 1
+    const journalKey = a.journal.toLowerCase().trim()
+    const issn = nameToIssn[journalKey]
+    if (issn) {
+      articleCountsByIssn[issn] = (articleCountsByIssn[issn] || 0) + 1
+    }
   })
   
   return store.profileJournals.map(j => {
-    const nameKey = j.name.toLowerCase().trim()
-    const abbrKey = j.iso_abbreviation?.toLowerCase().trim() || ''
-    
-    // Try exact match first, then partial match
-    let count = articleCounts[nameKey] || articleCounts[abbrKey] || 0
-    
-    // If no exact match, try partial matching
-    if (count === 0) {
-      for (const [articleJournal, cnt] of Object.entries(articleCounts)) {
-        if (articleJournal.includes(nameKey) || nameKey.includes(articleJournal) ||
-            (abbrKey && (articleJournal.includes(abbrKey) || abbrKey.includes(articleJournal)))) {
-          count = cnt
-          break
-        }
-      }
-    }
-    
+    const count = j.issn ? (articleCountsByIssn[j.issn] || 0) : 0
     return { 
       name: j.name, 
+      issn: j.issn || '',
       isoAbbr: j.iso_abbreviation || '',
       count 
     }
@@ -362,15 +362,33 @@ const availableJournals = computed(() => {
 const filteredArticles = computed(() => {
   let result = [...store.articles]
   
-  // Filter by selected journals (case-insensitive, partial matching)
+  // Filter by selected journals using ISSN for reliable matching
   if (selectedJournals.value.length > 0) {
-    const selectedLower = selectedJournals.value.map(j => j.toLowerCase().trim())
+    // Build lookup map from journal name → ISSN for filtering
+    const nameToIssn = {}
+    store.profileJournals.forEach(j => {
+      if (j.issn) {
+        nameToIssn[j.name.toLowerCase().trim()] = j.issn
+        if (j.iso_abbreviation) {
+          nameToIssn[j.iso_abbreviation.toLowerCase().trim()] = j.issn
+        }
+      }
+    })
+    
+    // Get ISSNs for selected journals
+    const selectedIssns = new Set()
+    selectedJournals.value.forEach(name => {
+      const journal = store.profileJournals.find(j => j.name === name)
+      if (journal?.issn) {
+        selectedIssns.add(journal.issn)
+      }
+    })
+    
+    // Filter articles by ISSN match
     result = result.filter(a => {
-      const articleJournal = a.journal.toLowerCase().trim()
-      return selectedLower.some(sel => 
-        articleJournal.includes(sel) || sel.includes(articleJournal) ||
-        articleJournal === sel
-      )
+      const journalKey = a.journal.toLowerCase().trim()
+      const articleIssn = nameToIssn[journalKey]
+      return articleIssn && selectedIssns.has(articleIssn)
     })
   }
   
