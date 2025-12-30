@@ -50,21 +50,21 @@
               <button 
                 v-if="editingId !== profile.id"
                 class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" 
-                @click="startEdit(profile)"
+                @click.stop="startEdit(profile)"
               >
                 <Edit2 :size="14" /> Edit
               </button>
               <template v-else>
-                <button class="btn btn-sm btn-success d-flex align-items-center gap-1" @click="saveEdit(profile.id)" :disabled="saving">
+                <button class="btn btn-sm btn-success d-flex align-items-center gap-1" @click.stop="saveEdit(profile.id)" :disabled="saving">
                   <Check :size="14" /> {{ saving ? '...' : 'Save' }}
                 </button>
-                <button class="btn btn-sm btn-secondary d-flex align-items-center gap-1" @click="cancelEdit">
+                <button class="btn btn-sm btn-secondary d-flex align-items-center gap-1" @click.stop="cancelEdit">
                   <X :size="14" /> Cancel
                 </button>
               </template>
               <button 
                 class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" 
-                @click="confirmDelete(profile)"
+                @click.stop="confirmDelete(profile)"
                 :disabled="profiles.length === 1"
                 :title="profiles.length === 1 ? 'Cannot delete your only profile' : 'Delete profile'"
               >
