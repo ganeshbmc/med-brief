@@ -4,7 +4,7 @@
       <div class="col-md-5">
         <div class="card p-4">
           <div class="text-center mb-4">
-            <BookOpen :size="48" class="text-terracotta mb-3" />
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3" style="height: 48px;" />
             <h2 class="fw-bold text-warm-dark">Create Account</h2>
             <p class="text-muted">Join MedBrief for personalized research briefs</p>
           </div>
@@ -79,7 +79,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { BookOpen, Mail, Lock, AlertCircle, UserPlus } from 'lucide-vue-next'
+import { Mail, Lock, AlertCircle, UserPlus } from 'lucide-vue-next'
 
 const email = ref('')
 const password = ref('')
