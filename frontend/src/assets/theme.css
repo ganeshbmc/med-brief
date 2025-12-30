@@ -1,0 +1,236 @@
+/* MedBrief Theme - Warm Reader */
+/* Based on Terracotta palette for comfortable reading */
+
+:root {
+  /* Primary Colors */
+  --terracotta-500: #E07A5F;
+  --terracotta-600: #C65D45;
+  --terracotta-100: rgba(224, 122, 95, 0.1);
+
+  /* Accent */
+  --amber-500: #F59E0B;
+  --amber-100: rgba(245, 158, 11, 0.1);
+
+  /* Neutrals - Warm */
+  --warm-900: #292524;
+  --warm-700: #44403C;
+  --warm-500: #78716C;
+  --warm-200: #E7E5E4;
+  --cream-50: #FFFBF5;
+
+  /* Semantic */
+  --sage-500: #65A30D;
+  --rose-500: #E55353;
+
+  /* Bootstrap overrides */
+  --bs-primary: var(--terracotta-500);
+  --bs-primary-rgb: 224, 122, 95;
+  --bs-body-bg: var(--cream-50);
+  --bs-body-color: var(--warm-700);
+}
+
+/* Typography */
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--cream-50);
+  color: var(--warm-700);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--warm-900);
+  font-weight: 600;
+}
+
+.text-muted {
+  color: var(--warm-500) !important;
+}
+
+/* Card Styling */
+.card {
+  border: 1px solid var(--warm-200);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+  color: white !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--terracotta-600) !important;
+  border-color: var(--terracotta-600) !important;
+  color: white !important;
+}
+
+.btn-primary:active {
+  background-color: var(--terracotta-600) !important;
+  border-color: var(--terracotta-600) !important;
+}
+
+/* Outline Primary Button */
+.btn-outline-primary {
+  color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background-color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+  color: white !important;
+}
+
+/* Secondary/Light Button */
+.btn-light {
+  background-color: white;
+  border-color: var(--warm-200);
+  color: var(--warm-700);
+}
+
+.btn-light:hover {
+  background-color: var(--cream-50);
+  border-color: var(--warm-200);
+  color: var(--warm-900);
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: var(--rose-500);
+  border-color: var(--rose-500);
+}
+
+/* Success */
+.btn-success {
+  background-color: var(--sage-500);
+  border-color: var(--sage-500);
+}
+
+/* Form Controls */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--terracotta-500);
+  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
+}
+
+/* Navbar */
+.navbar-warm {
+  background-color: white !important;
+  border-bottom: 1px solid var(--warm-200);
+}
+
+.navbar-warm .navbar-brand {
+  color: var(--warm-900);
+  font-weight: 600;
+}
+
+.navbar-warm .nav-link {
+  color: var(--warm-700);
+  transition: color 0.15s ease-in-out;
+}
+
+.navbar-warm .nav-link:hover,
+.navbar-warm .nav-link.active {
+  color: var(--terracotta-500);
+}
+
+/* Badges */
+.badge-accent {
+  background-color: var(--amber-500);
+  color: white;
+}
+
+.badge-primary {
+  background-color: var(--terracotta-500) !important;
+}
+
+/* Links */
+a {
+  color: var(--terracotta-500);
+}
+
+a:hover {
+  color: var(--terracotta-600);
+}
+
+/* Dropdown */
+.dropdown-item:active,
+.dropdown-item.active {
+  background-color: var(--terracotta-500);
+}
+
+/* Background utilities */
+.bg-cream {
+  background-color: var(--cream-50) !important;
+}
+
+.bg-warm-light {
+  background-color: var(--warm-200) !important;
+}
+
+/* Text utilities */
+.text-warm-dark {
+  color: var(--warm-900) !important;
+}
+
+.text-warm {
+  color: var(--warm-700) !important;
+}
+
+.text-warm-muted {
+  color: var(--warm-500) !important;
+}
+
+.text-terracotta {
+  color: var(--terracotta-500) !important;
+}
+
+/* Icon styling */
+.icon-terracotta {
+  color: var(--terracotta-500);
+}
+
+.icon-muted {
+  color: var(--warm-500);
+}
+
+/* Empty state */
+.empty-state {
+  background-color: var(--cream-50);
+  border: 2px dashed var(--warm-200);
+  border-radius: 0.75rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+/* Spinner override */
+.spinner-border {
+  color: var(--terracotta-500);
+}
+
+/* Alert overrides */
+.alert-info {
+  background-color: var(--terracotta-100);
+  border-color: var(--terracotta-500);
+  color: var(--warm-900);
+}
