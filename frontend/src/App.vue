@@ -2,7 +2,7 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg navbar-warm">
       <div class="container">
-        <router-link class="navbar-brand d-flex align-items-center" to="/">
+        <router-link class="navbar-brand d-flex align-items-center" :to="authStore.isAuthenticated ? '/dashboard' : '/'">
           <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="me-2" style="height: 28px;" />
           <span>MedBrief</span>
         </router-link>

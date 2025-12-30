@@ -63,6 +63,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useDashboardStore } from '../stores/dashboard'
 import { Mail, Lock, AlertCircle, LogIn } from 'lucide-vue-next'
 
 const email = ref('')
@@ -72,10 +73,15 @@ const loading = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
+const dashboardStore = useDashboardStore()
 
 async function handleLogin() {
   error.value = ''
   loading.value = true
+  
+  // Clear any previous session data
+  dashboardStore.clearCache()
+  
   try {
     await authStore.login(email.value, password.value)
     router.push('/dashboard')

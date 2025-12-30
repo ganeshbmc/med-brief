@@ -33,13 +33,24 @@ const router = createRouter({
 })
 
 // Navigation guard
+// Navigation guard
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
+
+    // Auth Guard: Redirect unauthenticated users to login
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         next('/login')
-    } else {
-        next()
+        return
     }
+
+    // Guest Guard: Redirect authenticated users to dashboard if they try to access guest pages
+    const guestRoutes = ['Home', 'Login', 'Register']
+    if (guestRoutes.includes(to.name) && authStore.isAuthenticated) {
+        next('/dashboard')
+        return
+    }
+
+    next()
 })
 
 export default router
