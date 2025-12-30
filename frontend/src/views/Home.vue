@@ -9,7 +9,7 @@
           MedBrief
         </h1>
         <p class="lead mb-5 text-muted">
-          Weekly signals from medical research.<br />
+          Your personalized medical research feed.<br />
           Stay current without visiting multiple journal sites.
         </p>
         <div class="d-flex gap-3 justify-content-center">
@@ -65,9 +65,9 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
 <style scoped>
 .hero-icon {
   display: inline-block;
-  padding: 1.5rem;
+  padding: 1rem;
   background: var(--terracotta-100);
-  border-radius: 50%;
+  border-radius: 1rem;
 }
 
 .feature-card {
