@@ -252,6 +252,10 @@ async function saveEdit(profileId) {
     if (idx !== -1) {
       profiles.value[idx] = updated
     }
+    // Force dashboard store to reload profiles so changes appear on dashboard
+    store.loadProfiles(true)
+    successMessage.value = 'Profile updated successfully!'
+    setTimeout(() => { successMessage.value = '' }, 5000)
     cancelEdit()
   } catch (e) {
     console.error('Failed to update profile:', e)
