@@ -324,24 +324,29 @@ const localToDate = ref(store.toDate)
 watch(() => store.fromDate, (val) => { localFromDate.value = val })
 watch(() => store.toDate, (val) => { localToDate.value = val })
 
+// Normalize journal name for matching: lowercase, trim, remove trailing punctuation
+function normalizeJournalName(name) {
+  return name.toLowerCase().trim().replace(/[.,;:]+$/, '')
+}
+
 // Show all profile journals in dropdown (with article count)
 // Uses ISSN as the key for reliable matching
 const availableJournals = computed(() => {
-  // Build lookup maps from journal name/abbreviation → ISSN
+  // Build lookup maps from normalized journal name/abbreviation → ISSN
   const nameToIssn = {}
   store.profileJournals.forEach(j => {
     if (j.issn) {
-      nameToIssn[j.name.toLowerCase().trim()] = j.issn
+      nameToIssn[normalizeJournalName(j.name)] = j.issn
       if (j.iso_abbreviation) {
-        nameToIssn[j.iso_abbreviation.toLowerCase().trim()] = j.issn
+        nameToIssn[normalizeJournalName(j.iso_abbreviation)] = j.issn
       }
     }
   })
   
-  // Count articles by ISSN (via journal name lookup)
+  // Count articles by ISSN (via normalized journal name lookup)
   const articleCountsByIssn = {}
   store.articles.forEach(a => {
-    const journalKey = a.journal.toLowerCase().trim()
+    const journalKey = normalizeJournalName(a.journal)
     const issn = nameToIssn[journalKey]
     if (issn) {
       articleCountsByIssn[issn] = (articleCountsByIssn[issn] || 0) + 1
@@ -364,13 +369,13 @@ const filteredArticles = computed(() => {
   
   // Filter by selected journals using ISSN for reliable matching
   if (selectedJournals.value.length > 0) {
-    // Build lookup map from journal name → ISSN for filtering
+    // Build lookup map from normalized journal name → ISSN for filtering
     const nameToIssn = {}
     store.profileJournals.forEach(j => {
       if (j.issn) {
-        nameToIssn[j.name.toLowerCase().trim()] = j.issn
+        nameToIssn[normalizeJournalName(j.name)] = j.issn
         if (j.iso_abbreviation) {
-          nameToIssn[j.iso_abbreviation.toLowerCase().trim()] = j.issn
+          nameToIssn[normalizeJournalName(j.iso_abbreviation)] = j.issn
         }
       }
     })
@@ -386,7 +391,7 @@ const filteredArticles = computed(() => {
     
     // Filter articles by ISSN match
     result = result.filter(a => {
-      const journalKey = a.journal.toLowerCase().trim()
+      const journalKey = normalizeJournalName(a.journal)
       const articleIssn = nameToIssn[journalKey]
       return articleIssn && selectedIssns.has(articleIssn)
     })
