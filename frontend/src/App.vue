@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg navbar-warm">
       <div class="container">
         <router-link class="navbar-brand d-flex align-items-center" to="/">
-          <BookOpen class="me-2 icon-terracotta" :size="24" />
+          <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="me-2" style="height: 28px;" />
           <span>MedBrief</span>
         </router-link>
         <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
@@ -38,7 +38,7 @@
 import { useAuthStore } from './stores/auth'
 import { useDashboardStore } from './stores/dashboard'
 import { useRouter } from 'vue-router'
-import { BookOpen, LayoutDashboard, Users, LogOut } from 'lucide-vue-next'
+import { LayoutDashboard, Users, LogOut } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()

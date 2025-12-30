@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-8 text-center">
         <div class="hero-icon mb-4">
-          <BookOpen :size="64" class="text-terracotta" />
+          <img src="@/assets/medbrief_icon.png" alt="MedBrief" style="height: 80px;" />
         </div>
         <h1 class="display-3 fw-bold mb-4 text-warm-dark">
           MedBrief
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { BookOpen, UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
+import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
 </script>
 
 <style scoped>
