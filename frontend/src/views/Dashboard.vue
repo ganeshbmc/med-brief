@@ -1,50 +1,11 @@
 <template>
   <div class="container py-4">
     <!-- Header Section -->
+    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
         <h2 class="text-warm-dark fw-bold mb-1">Your Brief</h2>
         <p class="text-warm-muted mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
-      </div>
-      <div class="d-flex gap-2 align-items-center">
-        <!-- Profile Selector -->
-        <div v-if="store.profiles.length > 0" class="dropdown">
-          <button 
-            class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" 
-            type="button" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
-          >
-            <FileText :size="18" class="icon-muted" />
-            {{ store.currentProfile?.name || 'Select Profile' }}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li v-for="p in store.profiles" :key="p.id">
-              <a 
-                class="dropdown-item d-flex align-items-center justify-content-between" 
-                :class="{ active: store.selectedProfileId === p.id }"
-                href="#" 
-                @click.prevent="selectProfile(p.id)"
-              >
-                {{ p.name }}
-                <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-              </a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
-                <Plus :size="16" />
-                Create New Profile
-              </router-link>
-            </li>
-          </ul>
-        </div>
-        
-        <button class="btn btn-primary d-flex align-items-center gap-2" @click="refreshArticles" :disabled="store.loading">
-          <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
-          <RefreshCw v-else :size="18" />
-          {{ store.loading ? 'Loading...' : 'Refresh' }}
-        </button>
       </div>
     </div>
 
@@ -66,17 +27,59 @@
 
     <!-- Main Content -->
     <template v-else>
-      <!-- Current Profile Info with Article Count -->
-      <div class="card mb-4 p-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div>
-            <strong class="text-warm-dark">{{ store.currentProfile?.name }}</strong>
-            <span class="text-muted ms-2">· {{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
+      <!-- Control Bar: Profile Selector & Stats -->
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <!-- Left: Profile Selector -->
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small text-uppercase fw-semibold ls-1">Current Profile:</span>
+          <div class="dropdown">
+            <button 
+              class="btn btn-link text-decoration-none p-0 fw-bold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
+              type="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              {{ store.currentProfile?.name }}
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="p in store.profiles" :key="p.id">
+                <a 
+                  class="dropdown-item d-flex align-items-center justify-content-between" 
+                  :class="{ active: store.selectedProfileId === p.id }"
+                  href="#" 
+                  @click.prevent="selectProfile(p.id)"
+                >
+                  {{ p.name }}
+                  <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
+                  <Plus :size="16" />
+                  Create New Profile
+                </router-link>
+              </li>
+            </ul>
           </div>
-          <div>
-            <span class="badge bg-primary me-2">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
-            <small class="text-muted">{{ store.profiles.length }} profile{{ store.profiles.length !== 1 ? 's' : '' }}</small>
-          </div>
+        </div>
+
+        <!-- Right: Stats & Actions -->
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
+          <div class="vr text-muted opacity-25"></div>
+          <span class="badge bg-terracotta-100 text-terracotta-700 rounded-pill px-3">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
+          <div class="vr text-muted opacity-25"></div>
+          
+          <button 
+            class="btn btn-light btn-sm btn-icon text-muted" 
+            @click="refreshArticles" 
+            :disabled="store.loading"
+            title="Refresh Articles"
+          >
+            <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
+            <RefreshCw v-else :size="18" />
+          </button>
         </div>
       </div>
       
@@ -654,4 +657,26 @@ function exportAllArticles(format) {
   word-break: break-word;
   line-height: 1.3;
 }
+
+/* Utilities */
+.ls-1 {
+  letter-spacing: 1px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--warm-200);
+  color: var(--warm-dark) !important;
+}
+
 </style>
