@@ -76,3 +76,35 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+
+# User Profile Endpoints
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: str | None = None
+
+    class Config:
+        orm_mode = True
+
+
+class UserUpdate(BaseModel):
+    full_name: str
+
+
+@router.get("/me", response_model=UserOut)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.put("/me", response_model=UserOut)
+async def update_user_me(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    current_user.full_name = user_update.full_name
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user

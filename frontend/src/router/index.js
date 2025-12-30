@@ -8,6 +8,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Onboarding from '../views/Onboarding.vue'
 import Profiles from '../views/Profiles.vue'
 import Article from '../views/Article.vue'
+import Account from '../views/Account.vue'
 
 const routes = [
     { path: '/', name: 'Home', component: Home },
@@ -17,6 +18,7 @@ const routes = [
     { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
     { path: '/profiles', name: 'Profiles', component: Profiles, meta: { requiresAuth: true } },
     { path: '/article/:pmid', name: 'Article', component: Article, meta: { requiresAuth: true } },
+    { path: '/account', name: 'Account', component: Account, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
