@@ -46,6 +46,14 @@ export const useDashboardStore = defineStore('dashboard', () => {
             if (profiles.value.length > 0 && !selectedProfileId.value) {
                 selectedProfileId.value = profiles.value[0].id
             }
+            // When force-refreshing, also invalidate journal and article caches
+            // so they get re-fetched with updated profile data
+            if (force) {
+                loadedJournalsForProfileId.value = null
+                profileJournals.value = []
+                hasLoadedArticles.value = false
+                articles.value = []
+            }
         } catch (e) {
             console.error('Failed to load profiles:', e)
         } finally {
