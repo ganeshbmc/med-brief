@@ -31,7 +31,7 @@
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <!-- Left: Profile Selector -->
         <div class="d-flex align-items-center gap-2">
-          <span class="text-muted small text-uppercase fw-semibold ls-1">Current Profile:</span>
+          <span class="text-muted small fw-semibold ls-1">Current Profile:</span>
           <div class="dropdown">
             <button 
               class="btn btn-link text-decoration-none p-0 fw-bold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
