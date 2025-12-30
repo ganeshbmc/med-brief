@@ -8,6 +8,7 @@ DATABASE_URL = settings.get_database_url()
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
+
 async_session = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
