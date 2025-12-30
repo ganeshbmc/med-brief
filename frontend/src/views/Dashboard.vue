@@ -136,10 +136,10 @@
               </ul>
             </div>
           </div>
-          <!-- Responsive Filter Controls: Quick Select + Sort | From + To -->
-          <div class="col-12 col-md-auto">
+          <!-- Responsive Filter Controls: All in one row on lg, two rows on sm/md -->
+          <div class="col-12 col-lg-auto">
             <div class="d-flex gap-2 flex-wrap">
-              <!-- Group 1: Quick Select + Sort (always together) -->
+              <!-- Quick Select -->
               <div>
                 <label class="form-label small text-muted mb-1">Quick Select</label>
                 <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
@@ -149,6 +149,7 @@
                   <option :value="0">Custom</option>
                 </select>
               </div>
+              <!-- Sort -->
               <div>
                 <label class="form-label small text-muted mb-1">Sort</label>
                 <select v-model="sortBy" class="form-select form-select-sm">
@@ -156,15 +157,12 @@
                   <option value="journal">By Journal</option>
                 </select>
               </div>
-            </div>
-          </div>
-          <div class="col-12 col-md-auto">
-            <div class="d-flex gap-2 flex-wrap">
-              <!-- Group 2: From + To dates (always together) -->
+              <!-- From -->
               <div>
                 <label class="form-label small text-muted mb-1">From</label>
                 <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
               </div>
+              <!-- To -->
               <div>
                 <label class="form-label small text-muted mb-1">To</label>
                 <input type="date" v-model="localToDate" class="form-control form-control-sm" :max="store.todayDate" @change="handleDateChange" />
