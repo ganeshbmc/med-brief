@@ -349,7 +349,7 @@ async function nextStep() {
         selectedJournalIds.value,
         selectedNewJournals.value
       )
-      router.push('/dashboard')
+      router.push('/profiles?created=1')
     } catch (e) {
       error.value = e.message || 'Failed to create profile'
     } finally {

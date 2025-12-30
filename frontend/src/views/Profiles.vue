@@ -11,6 +11,12 @@
       </router-link>
     </div>
 
+    <!-- Success Message -->
+    <div v-if="successMessage" class="alert alert-success d-flex align-items-center gap-2 mb-4" role="alert">
+      <CheckCircle :size="18" />
+      {{ successMessage }}
+    </div>
+
     <!-- Loading -->
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border"></div>
@@ -28,7 +34,7 @@
     <!-- Profiles List -->
     <div v-else class="row g-4">
       <div v-for="profile in profiles" :key="profile.id" class="col-md-6">
-        <div class="card h-100">
+        <div class="card h-100 profile-card" :class="{ 'editing': editingId === profile.id }" @click="handleCardClick(profile)">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div v-if="editingId !== profile.id">
               <h5 class="mb-0 text-warm-dark">{{ profile.name }}</h5>
@@ -183,10 +189,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
+import { useDashboardStore } from '../stores/dashboard'
 import { 
-  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle 
+  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle 
 } from 'lucide-vue-next'
+
+const route = useRoute()
+const router = useRouter()
+const store = useDashboardStore()
 
 const profiles = ref([])
 const loading = ref(true)
@@ -198,6 +210,7 @@ const searchResults = ref([])
 const saving = ref(false)
 const deleteTarget = ref(null)
 const deleting = ref(false)
+const successMessage = ref('')
 const allJournals = ref({}) // Cache journal names
 
 let searchTimeout = null
@@ -287,10 +300,16 @@ async function doDelete() {
   if (!deleteTarget.value) return
   
   deleting.value = true
+  const deletedName = deleteTarget.value.name
   try {
     await deleteProfile(deleteTarget.value.id)
     profiles.value = profiles.value.filter(p => p.id !== deleteTarget.value.id)
     deleteTarget.value = null
+    successMessage.value = `Profile "${deletedName}" was deleted successfully.`
+    // Force dashboard store to reload profiles
+    store.loadProfiles(true)
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => { successMessage.value = '' }, 5000)
   } catch (e) {
     console.error('Failed to delete:', e)
     alert('Failed to delete profile: ' + e.message)
@@ -320,7 +339,28 @@ async function loadJournalNames() {
 onMounted(async () => {
   await loadProfiles()
   loadJournalNames()
+  
+  // Check for success message from profile creation
+  if (route.query.created === '1') {
+    successMessage.value = 'Profile created successfully!'
+    // Force dashboard store to reload profiles so new profile shows up
+    store.loadProfiles(true)
+    // Remove query param from URL
+    router.replace({ path: '/profiles' })
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => { successMessage.value = '' }, 5000)
+  }
 })
+
+// Handle profile card click - navigate to dashboard with that profile active
+function handleCardClick(profile) {
+  // Don't navigate if we're in edit mode
+  if (editingId.value === profile.id) return
+  
+  // Set the profile in the dashboard store and navigate
+  store.setProfile(profile.id)
+  router.push('/dashboard')
+}
 </script>
 
 <style scoped>
@@ -387,5 +427,20 @@ onMounted(async () => {
 
 .input-group-text {
   border-color: var(--warm-200);
+}
+
+.profile-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-card:hover:not(.editing) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: var(--terracotta-500);
+}
+
+.profile-card.editing {
+  cursor: default;
 }
 </style>
