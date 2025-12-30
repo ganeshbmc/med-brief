@@ -4,7 +4,8 @@
       <div class="col-lg-8">
         <div class="card p-4 p-md-5">
           <div class="text-center mb-4">
-            <h2 class="fw-bold">Welcome to MedBrief!</h2>
+            <BookOpen :size="48" class="text-terracotta mb-3" />
+            <h2 class="fw-bold text-warm-dark">Welcome to MedBrief!</h2>
             <p class="text-muted">Let's personalize your experience</p>
           </div>
 
@@ -16,13 +17,14 @@
               class="step-indicator mx-2"
               :class="{ active: step >= n, completed: step > n }"
             >
-              {{ n }}
+              <Check v-if="step > n" :size="18" />
+              <span v-else>{{ n }}</span>
             </div>
           </div>
 
           <!-- Step 1: Specialty Selection -->
           <div v-if="step === 1" class="step-content">
-            <h5 class="mb-4 fw-semibold">What's your medical specialty?</h5>
+            <h5 class="mb-4 fw-semibold text-warm-dark">What's your medical specialty?</h5>
             <div class="row g-3">
               <div 
                 v-for="spec in specialties" 
@@ -30,13 +32,14 @@
                 class="col-md-4"
               >
                 <div 
-                  class="specialty-card p-3 rounded-3 text-center"
+                  class="specialty-card p-3 rounded-3 text-center d-flex align-items-center justify-content-center gap-2"
                   :class="{ 
                     selected: selectedSpecialty === spec.value,
                     'custom-highlight': spec.isCustom && selectedSpecialty !== spec.value
                   }"
                   @click="selectSpecialty(spec.value)"
                 >
+                  <Sparkles v-if="spec.isCustom" :size="16" />
                   {{ spec.label }}
                 </div>
               </div>
@@ -45,12 +48,14 @@
 
           <!-- Step 2: Journal Selection -->
           <div v-if="step === 2" class="step-content">
-            <h5 class="mb-3 fw-semibold">Select journals to follow</h5>
+            <h5 class="mb-3 fw-semibold text-warm-dark">Select journals to follow</h5>
             
             <!-- Search Box -->
             <div class="mb-4">
               <div class="input-group">
-                <span class="input-group-text">🔍</span>
+                <span class="input-group-text bg-white">
+                  <Search :size="18" class="icon-muted" />
+                </span>
                 <input 
                   v-model="searchQuery" 
                   type="text" 
@@ -72,12 +77,12 @@
                     :class="{ selected: isJournalSelected(journal) }"
                     @click="toggleJournal(journal)"
                   >
-                    <span class="me-2">📚</span>
+                    <Newspaper :size="18" class="me-2 icon-muted" />
                     <div class="flex-grow-1 overflow-hidden">
-                      <div class="fw-semibold text-truncate small">{{ journal.name }}</div>
+                      <div class="fw-semibold text-truncate small text-warm-dark">{{ journal.name }}</div>
                       <small class="text-muted">{{ journal.iso_abbreviation }} · {{ journal.issn }}</small>
                     </div>
-                    <span v-if="journal.is_local" class="badge bg-success ms-2" title="In our database">✓</span>
+                    <Check v-if="journal.is_local" :size="16" class="text-success ms-2" title="In our database" />
                   </div>
                 </div>
               </div>
@@ -89,24 +94,29 @@
             </div>
             
             <div v-else-if="searchQuery && searchResults.length === 0" class="mb-4 text-center text-muted">
-              No journals found matching "{{ searchQuery }}"
-              <br><small class="text-info">💡 Tip: Use ISSN for accurate results</small>
+              <FileText :size="24" class="mb-2 icon-muted" />
+              <p class="mb-1">No journals found matching "{{ searchQuery }}"</p>
+              <small class="text-info d-flex align-items-center justify-content-center gap-1">
+                <Lightbulb :size="14" /> Tip: Use ISSN for accurate results
+              </small>
             </div>
             
             <!-- ISSN hint after search results -->
             <div v-if="searchQuery && searchResults.length > 0 && !searching" class="mb-3 text-center">
-              <small class="text-muted">
-                💡 Didn't find what you're looking for? Try searching with the journal's <strong>ISSN</strong> for more accurate results.
+              <small class="text-muted d-flex align-items-center justify-content-center gap-1">
+                <Lightbulb :size="14" />
+                Didn't find what you're looking for? Try searching with the journal's <strong>ISSN</strong> for more accurate results.
               </small>
             </div>
             
             <!-- Preset Journals -->
             <div v-if="!searchQuery">
               <div v-if="loadingJournals" class="text-center py-4">
-                <div class="spinner-border text-primary" role="status"></div>
+                <div class="spinner-border" role="status"></div>
                 <p class="mt-2 text-muted">Loading journals...</p>
               </div>
               <div v-else-if="journals.length === 0" class="text-center py-4">
+                <FileText :size="32" class="icon-muted mb-2" />
                 <p class="text-muted">No preset journals for this specialty. Use search above to find journals.</p>
               </div>
               <div v-else>
@@ -118,9 +128,9 @@
                       :class="{ selected: selectedJournalIds.includes(journal.id) }"
                       @click="toggleJournal(journal)"
                     >
-                      <span class="me-2">📚</span>
+                      <Newspaper :size="18" class="me-2 icon-muted" />
                       <div class="flex-grow-1 overflow-hidden">
-                        <div class="fw-semibold text-truncate small">{{ journal.name }}</div>
+                        <div class="fw-semibold text-truncate small text-warm-dark">{{ journal.name }}</div>
                         <small class="text-muted">{{ journal.iso_abbreviation }}</small>
                       </div>
                     </div>
@@ -137,36 +147,47 @@
 
           <!-- Step 3: Profile Name -->
           <div v-if="step === 3" class="step-content">
-            <h5 class="mb-4 fw-semibold">Name your profile</h5>
+            <h5 class="mb-4 fw-semibold text-warm-dark">Name your profile</h5>
             <div class="mb-4">
-              <input 
-                v-model="profileName" 
-                type="text" 
-                class="form-control form-control-lg" 
-                placeholder="e.g., My Cardiology Feed"
-              />
+              <div class="input-group">
+                <span class="input-group-text bg-white">
+                  <FileText :size="18" class="icon-muted" />
+                </span>
+                <input 
+                  v-model="profileName" 
+                  type="text" 
+                  class="form-control form-control-lg" 
+                  placeholder="e.g., My Cardiology Feed"
+                />
+              </div>
               <small class="text-muted">You can create multiple profiles later for different interests</small>
             </div>
-            <div v-if="error" class="alert alert-danger">{{ error }}</div>
+            <div v-if="error" class="alert alert-danger d-flex align-items-center gap-2">
+              <AlertCircle :size="18" />
+              {{ error }}
+            </div>
           </div>
 
           <!-- Navigation Buttons -->
           <div class="d-flex justify-content-between mt-5">
             <button 
               v-if="step > 1" 
-              class="btn btn-outline-secondary px-4"
+              class="btn btn-outline-secondary px-4 d-flex align-items-center gap-2"
               @click="step--"
             >
+              <ArrowLeft :size="18" />
               Back
             </button>
             <div v-else></div>
             <button 
-              class="btn btn-primary px-4"
+              class="btn btn-primary px-4 d-flex align-items-center gap-2"
               :disabled="!canProceed || saving"
               @click="nextStep"
             >
-              <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
+              <span v-if="saving" class="spinner-border spinner-border-sm"></span>
               {{ step === 3 ? 'Create Profile' : 'Continue' }}
+              <ArrowRight v-if="step < 3" :size="18" />
+              <Check v-else :size="18" />
             </button>
           </div>
         </div>
@@ -179,6 +200,10 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPresetJournals, searchJournals, searchPubmedJournals, createProfile } from '../services/api'
+import { 
+  BookOpen, Check, Sparkles, Search, Newspaper, FileText, 
+  Lightbulb, AlertCircle, ArrowLeft, ArrowRight 
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -199,7 +224,7 @@ const searching = ref(false)
 let searchTimeout = null
 
 const specialties = [
-  { value: 'Custom', label: '✨ Custom Profile', isCustom: true },
+  { value: 'Custom', label: 'Custom Profile', isCustom: true },
   { value: 'Cardiology', label: 'Cardiology' },
   { value: 'Oncology', label: 'Oncology' },
   { value: 'Neurology', label: 'Neurology' },
@@ -342,43 +367,43 @@ async function nextStep() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e9ecef;
-  color: #6c757d;
+  background: var(--warm-200);
+  color: var(--warm-500);
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .step-indicator.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--terracotta-500);
   color: white;
 }
 
 .step-indicator.completed {
-  background: #28a745;
+  background: var(--sage-500);
   color: white;
 }
 
 .specialty-card,
 .journal-card {
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--warm-200);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .specialty-card:hover,
 .journal-card:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  border-color: var(--terracotta-500);
+  background: var(--terracotta-100);
 }
 
 .specialty-card.selected,
 .journal-card.selected {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  border-color: var(--terracotta-500);
+  background: var(--terracotta-100);
 }
 
 .specialty-card.custom-highlight {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--terracotta-500);
   color: white;
   border-color: transparent;
 }
@@ -386,12 +411,21 @@ async function nextStep() {
 .specialty-card.custom-highlight:hover {
   opacity: 0.9;
   border-color: transparent;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--terracotta-600);
 }
 
 .text-truncate {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.input-group-text {
+  border-color: var(--warm-200);
+  border-right: none;
+}
+
+.input-group .form-control {
+  border-left: none;
 }
 </style>

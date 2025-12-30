@@ -2,35 +2,40 @@
   <div class="container py-4">
     <!-- Back Navigation -->
     <div class="mb-4">
-      <button @click="goBack" class="btn btn-outline-light">
-        ← Back to Dashboard
+      <button @click="goBack" class="btn btn-light d-flex align-items-center gap-2">
+        <ArrowLeft :size="18" />
+        Back to Dashboard
       </button>
     </div>
 
     <!-- Loading -->
     <div v-if="!article" class="text-center py-5">
-      <div class="spinner-border text-light"></div>
-      <p class="text-white mt-3">Loading article...</p>
+      <div class="spinner-border"></div>
+      <p class="text-muted mt-3">Loading article...</p>
     </div>
 
     <!-- Article Content -->
     <div v-else class="card">
       <!-- Header -->
-      <div class="card-header bg-light">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-          <span class="badge bg-primary">{{ article.journal }}</span>
-          <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-secondary" @click="exportAs('txt')">📄 TXT</button>
-            <button class="btn btn-outline-secondary" @click="exportAs('ris')">📋 RIS</button>
-            <button class="btn btn-outline-secondary" @click="exportAs('nbib')">📑 NBIB</button>
-          </div>
+      <div class="card-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <span class="badge-journal">{{ article.journal }}</span>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('txt')">
+            <FileText :size="14" /> TXT
+          </button>
+          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('ris')">
+            <FileText :size="14" /> RIS
+          </button>
+          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('nbib')">
+            <FileText :size="14" /> NBIB
+          </button>
         </div>
       </div>
 
       <!-- Body -->
       <div class="card-body">
         <!-- Title -->
-        <h3 class="card-title fw-bold mb-3">{{ article.title }}</h3>
+        <h3 class="card-title fw-bold mb-3 text-warm-dark">{{ article.title }}</h3>
 
         <!-- Authors -->
         <p class="text-muted mb-2">
@@ -38,7 +43,8 @@
         </p>
 
         <!-- Journal & Date -->
-        <p class="text-muted mb-2">
+        <p class="text-muted mb-2 d-flex align-items-center gap-1">
+          <Calendar :size="16" />
           <strong>Published:</strong> {{ article.pub_date }} in <em>{{ article.journal }}</em>
         </p>
 
@@ -47,12 +53,13 @@
           <strong>DOI:</strong>&nbsp;
           <a :href="`https://doi.org/${article.doi}`" target="_blank" class="doi-link">
             {{ article.doi }}
+            <ExternalLink :size="14" class="ms-1" />
           </a>
         </p>
 
         <!-- Abstract (Centered, Prominent) -->
-        <div class="abstract-section my-4 p-4 bg-light rounded">
-          <h5 class="fw-semibold mb-3">Abstract</h5>
+        <div class="abstract-section my-4 p-4 rounded">
+          <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
           <p class="mb-0 abstract-text">
             {{ article.abstract || 'Abstract not available for this article.' }}
           </p>
@@ -60,14 +67,17 @@
 
         <!-- Links -->
         <div class="d-flex gap-3 flex-wrap mt-4 pt-3 border-top">
-          <a :href="article.pubmed_url" target="_blank" class="btn btn-primary">
-            🔗 View on PubMed
+          <a :href="article.pubmed_url" target="_blank" class="btn btn-primary d-flex align-items-center gap-2">
+            <ExternalLink :size="16" />
+            View on PubMed
           </a>
-          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="btn btn-success">
-            📖 Full Text (DOI)
+          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="btn btn-success d-flex align-items-center gap-2">
+            <BookOpen :size="16" />
+            Full Text (DOI)
           </a>
-          <a :href="`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/?format=pubmed`" target="_blank" class="btn btn-outline-secondary">
-            📋 PubMed Format
+          <a :href="`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/?format=pubmed`" target="_blank" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <FileText :size="16" />
+            PubMed Format
           </a>
         </div>
 
@@ -80,21 +90,23 @@
       </div>
 
       <!-- Footer Navigation -->
-      <div class="card-footer bg-light d-flex justify-content-between">
+      <div class="card-footer d-flex justify-content-between">
         <button 
           v-if="hasPrev" 
           @click="navigateTo(-1)" 
-          class="btn btn-outline-primary"
+          class="btn btn-outline-primary d-flex align-items-center gap-2"
         >
-          ← Previous Article
+          <ArrowLeft :size="16" />
+          Previous Article
         </button>
         <div v-else></div>
         <button 
           v-if="hasNext" 
           @click="navigateTo(1)" 
-          class="btn btn-outline-primary"
+          class="btn btn-outline-primary d-flex align-items-center gap-2"
         >
-          Next Article →
+          Next Article
+          <ArrowRight :size="16" />
         </button>
       </div>
     </div>
@@ -104,6 +116,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ArrowLeft, ArrowRight, FileText, Calendar, ExternalLink, BookOpen } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -186,21 +199,43 @@ onMounted(() => {
 
 <style scoped>
 .abstract-section {
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--terracotta-500);
+  background-color: var(--cream-50);
 }
 
 .abstract-text {
   line-height: 1.8;
   text-align: justify;
   white-space: pre-wrap;
+  color: var(--warm-700);
 }
 
 .doi-link {
-  color: #0d6efd;
+  color: var(--terracotta-500);
   text-decoration: none;
 }
 
 .doi-link:hover {
   text-decoration: underline;
+  color: var(--terracotta-600);
+}
+
+.badge-journal {
+  background-color: var(--terracotta-100);
+  color: var(--terracotta-600);
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--warm-200);
+}
+
+.card-footer {
+  background-color: white;
+  border-top: 1px solid var(--warm-200);
 }
 </style>

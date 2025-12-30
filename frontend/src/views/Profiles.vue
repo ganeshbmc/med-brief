@@ -2,22 +2,24 @@
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h2 class="text-white fw-bold mb-1">Manage Profiles</h2>
-        <p class="text-white-50 mb-0">Edit, add, or remove journals from your profiles</p>
+        <h2 class="text-warm-dark fw-bold mb-1">Manage Profiles</h2>
+        <p class="text-muted mb-0">Edit, add, or remove journals from your profiles</p>
       </div>
-      <router-link to="/dashboard" class="btn btn-light">
-        ← Back to Dashboard
+      <router-link to="/dashboard" class="btn btn-light d-flex align-items-center gap-2">
+        <ArrowLeft :size="18" />
+        Back to Dashboard
       </router-link>
     </div>
 
     <!-- Loading -->
     <div v-if="loading" class="text-center py-5">
-      <div class="spinner-border text-light"></div>
-      <p class="text-white mt-3">Loading profiles...</p>
+      <div class="spinner-border"></div>
+      <p class="text-muted mt-3">Loading profiles...</p>
     </div>
 
     <!-- No Profiles -->
-    <div v-else-if="profiles.length === 0" class="card p-5 text-center">
+    <div v-else-if="profiles.length === 0" class="empty-state">
+      <Users :size="48" class="icon-muted mb-3" />
       <h4>No profiles yet</h4>
       <p class="text-muted">Create your first profile to get started.</p>
       <router-link to="/onboarding" class="btn btn-primary">Create Profile</router-link>
@@ -29,7 +31,7 @@
         <div class="card h-100">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div v-if="editingId !== profile.id">
-              <h5 class="mb-0">{{ profile.name }}</h5>
+              <h5 class="mb-0 text-warm-dark">{{ profile.name }}</h5>
             </div>
             <div v-else class="flex-grow-1 me-2">
               <input 
@@ -38,29 +40,29 @@
                 placeholder="Profile name"
               />
             </div>
-            <div class="btn-group btn-group-sm">
+            <div class="d-flex gap-1">
               <button 
                 v-if="editingId !== profile.id"
-                class="btn btn-outline-primary" 
+                class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" 
                 @click="startEdit(profile)"
               >
-                ✏️ Edit
+                <Edit2 :size="14" /> Edit
               </button>
               <template v-else>
-                <button class="btn btn-success" @click="saveEdit(profile.id)" :disabled="saving">
-                  {{ saving ? '...' : '✓ Save' }}
+                <button class="btn btn-sm btn-success d-flex align-items-center gap-1" @click="saveEdit(profile.id)" :disabled="saving">
+                  <Check :size="14" /> {{ saving ? '...' : 'Save' }}
                 </button>
-                <button class="btn btn-secondary" @click="cancelEdit">
-                  ✕ Cancel
+                <button class="btn btn-sm btn-secondary d-flex align-items-center gap-1" @click="cancelEdit">
+                  <X :size="14" /> Cancel
                 </button>
               </template>
               <button 
-                class="btn btn-outline-danger" 
+                class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" 
                 @click="confirmDelete(profile)"
                 :disabled="profiles.length === 1"
                 :title="profiles.length === 1 ? 'Cannot delete your only profile' : 'Delete profile'"
               >
-                🗑️
+                <Trash2 :size="14" />
               </button>
             </div>
           </div>
@@ -72,12 +74,17 @@
             <!-- Edit Mode: Journal Selection -->
             <div v-if="editingId === profile.id">
               <div class="mb-3">
-                <input 
-                  v-model="journalSearch" 
-                  class="form-control form-control-sm" 
-                  placeholder="🔍 Search journals..."
-                  @input="debouncedSearch"
-                />
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0">
+                    <Search :size="16" class="icon-muted" />
+                  </span>
+                  <input 
+                    v-model="journalSearch" 
+                    class="form-control form-control-sm border-start-0" 
+                    placeholder="Search journals..."
+                    @input="debouncedSearch"
+                  />
+                </div>
               </div>
               
               <!-- Search Results -->
@@ -93,7 +100,7 @@
                   >
                     <input type="checkbox" class="form-check-input me-2" :checked="editJournalIds.includes(j.id)" />
                     <div>
-                      <div class="small fw-semibold">{{ j.name }}</div>
+                      <div class="small fw-semibold text-warm-dark">{{ j.name }}</div>
                       <small class="text-muted">{{ j.category }}</small>
                     </div>
                   </div>
@@ -107,11 +114,12 @@
                   <span 
                     v-for="jId in editJournalIds" 
                     :key="jId" 
-                    class="badge bg-primary me-1 mb-1"
+                    class="badge badge-journal me-1 mb-1 d-inline-flex align-items-center gap-1"
                     style="cursor: pointer;"
                     @click="toggleJournal(jId)"
                   >
-                    {{ getJournalName(jId) }} ✕
+                    {{ getJournalName(jId) }}
+                    <X :size="12" />
                   </span>
                   <span v-if="editJournalIds.length === 0" class="text-muted small">
                     No journals selected
@@ -143,8 +151,8 @@
       <div class="col-md-6">
         <router-link to="/onboarding" class="card h-100 text-decoration-none add-profile-card">
           <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-5">
-            <div class="display-4 text-primary mb-3">➕</div>
-            <h5 class="text-primary">Create New Profile</h5>
+            <Plus :size="48" class="text-terracotta mb-3" />
+            <h5 class="text-terracotta">Create New Profile</h5>
             <p class="text-muted small">Add another profile for different research interests</p>
           </div>
         </router-link>
@@ -155,11 +163,15 @@
     <div v-if="deleteTarget" class="modal-backdrop" @click="deleteTarget = null">
       <div class="modal-dialog" @click.stop>
         <div class="card p-4">
-          <h5>Delete Profile?</h5>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <AlertTriangle :size="24" class="text-danger" />
+            <h5 class="mb-0">Delete Profile?</h5>
+          </div>
           <p class="text-muted">Are you sure you want to delete "{{ deleteTarget.name }}"? This cannot be undone.</p>
           <div class="d-flex gap-2 justify-content-end">
             <button type="button" class="btn btn-secondary" @click.stop.prevent="deleteTarget = null" style="pointer-events: auto;">Cancel</button>
-            <button type="button" class="btn btn-danger" @click.stop.prevent="doDelete" :disabled="deleting" style="pointer-events: auto;">
+            <button type="button" class="btn btn-danger d-flex align-items-center gap-1" @click.stop.prevent="doDelete" :disabled="deleting" style="pointer-events: auto;">
+              <Trash2 :size="16" />
               {{ deleting ? 'Deleting...' : 'Delete' }}
             </button>
           </div>
@@ -172,6 +184,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
+import { 
+  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle 
+} from 'lucide-vue-next'
 
 const profiles = ref([])
 const loading = ref(true)
@@ -316,27 +331,27 @@ onMounted(async () => {
 
 .journal-item {
   cursor: pointer;
-  border: 1px solid #eee;
+  border: 1px solid var(--warm-200);
   margin-bottom: 4px;
 }
 
 .journal-item:hover {
-  background: #f8f9fa;
+  background: var(--cream-50);
 }
 
 .journal-item.selected {
-  background: rgba(102, 126, 234, 0.1);
-  border-color: #667eea;
+  background: var(--terracotta-100);
+  border-color: var(--terracotta-500);
 }
 
 .add-profile-card {
-  border: 2px dashed #dee2e6;
+  border: 2px dashed var(--warm-200);
   transition: all 0.2s;
 }
 
 .add-profile-card:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  border-color: var(--terracotta-500);
+  background: var(--terracotta-100);
 }
 
 .modal-backdrop {
@@ -358,5 +373,19 @@ onMounted(async () => {
   margin: 1rem;
   position: relative;
   z-index: 1051;
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--warm-200);
+}
+
+.badge-journal {
+  background-color: var(--terracotta-100);
+  color: var(--terracotta-600);
+}
+
+.input-group-text {
+  border-color: var(--warm-200);
 }
 </style>

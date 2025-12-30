@@ -3,50 +3,54 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
-        <h2 class="text-white fw-bold mb-1">Your Brief</h2>
-        <p class="text-white-50 mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
+        <h2 class="text-warm-dark fw-bold mb-1">Your Brief</h2>
+        <p class="text-warm-muted mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
       </div>
       <div class="d-flex gap-2 align-items-center">
         <!-- Profile Selector -->
         <div v-if="store.profiles.length > 0" class="dropdown">
           <button 
-            class="btn btn-light dropdown-toggle" 
+            class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" 
             type="button" 
             data-bs-toggle="dropdown" 
             aria-expanded="false"
           >
-            📋 {{ store.currentProfile?.name || 'Select Profile' }}
+            <FileText :size="18" class="icon-muted" />
+            {{ store.currentProfile?.name || 'Select Profile' }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li v-for="p in store.profiles" :key="p.id">
               <a 
-                class="dropdown-item" 
+                class="dropdown-item d-flex align-items-center justify-content-between" 
                 :class="{ active: store.selectedProfileId === p.id }"
                 href="#" 
                 @click.prevent="selectProfile(p.id)"
               >
                 {{ p.name }}
-                <small v-if="store.selectedProfileId === p.id" class="text-success ms-2">✓</small>
+                <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
               </a>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
-              <router-link class="dropdown-item text-primary fw-semibold" to="/onboarding">
-                ➕ Create New Profile
+              <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
+                <Plus :size="16" />
+                Create New Profile
               </router-link>
             </li>
           </ul>
         </div>
         
-        <button class="btn btn-light" @click="refreshArticles" :disabled="store.loading">
-          <span v-if="store.loading" class="spinner-border spinner-border-sm me-1"></span>
-          {{ store.loading ? 'Loading...' : '🔄 Refresh' }}
+        <button class="btn btn-primary d-flex align-items-center gap-2" @click="refreshArticles" :disabled="store.loading">
+          <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
+          <RefreshCw v-else :size="18" />
+          {{ store.loading ? 'Loading...' : 'Refresh' }}
         </button>
       </div>
     </div>
 
     <!-- No Profiles State -->
-    <div v-if="!store.loadingProfiles && store.profiles.length === 0" class="card p-5 text-center">
+    <div v-if="!store.loadingProfiles && store.profiles.length === 0" class="empty-state">
+      <FileText :size="48" class="icon-muted mb-3" />
       <h4 class="mb-3">Welcome to MedBrief!</h4>
       <p class="text-muted mb-4">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
       <router-link to="/onboarding" class="btn btn-primary px-4">Create Your First Profile</router-link>
@@ -54,19 +58,19 @@
 
     <!-- Loading Profiles State -->
     <div v-else-if="store.loadingProfiles" class="text-center py-5">
-      <div class="spinner-border text-light" role="status">
+      <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-      <p class="text-white mt-3">Loading your profiles...</p>
+      <p class="text-muted mt-3">Loading your profiles...</p>
     </div>
 
     <!-- Main Content -->
     <template v-else>
       <!-- Current Profile Info with Article Count -->
-      <div class="card mb-4 p-3 bg-light">
+      <div class="card mb-4 p-3">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div>
-            <strong>{{ store.currentProfile?.name }}</strong>
+            <strong class="text-warm-dark">{{ store.currentProfile?.name }}</strong>
             <span class="text-muted ms-2">· {{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
           </div>
           <div>
@@ -80,22 +84,28 @@
       <div class="card mb-4 p-3">
         <div class="row g-3 align-items-center">
           <div class="col-md-3">
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              class="form-control" 
-              placeholder="🔍 Search articles..."
-            />
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <Search :size="18" class="icon-muted" />
+              </span>
+              <input 
+                v-model="searchQuery" 
+                type="text" 
+                class="form-control border-start-0" 
+                placeholder="Search articles..."
+              />
+            </div>
           </div>
           <div class="col-md-3">
             <!-- Journal Filter Dropdown -->
             <div class="dropdown">
               <button 
-                class="btn btn-outline-secondary w-100 dropdown-toggle text-start" 
+                class="btn btn-outline-secondary w-100 dropdown-toggle text-start d-flex align-items-center gap-2" 
                 type="button" 
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
               >
+                <Newspaper :size="18" />
                 {{ selectedJournals.length ? `${selectedJournals.length} journal(s)` : 'All Journals' }}
               </button>
               <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
@@ -165,8 +175,9 @@
         <!-- Article count, limit warning, and export buttons -->
         <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top flex-wrap gap-2">
           <div class="d-flex align-items-center gap-3">
-            <small v-if="store.articles.length >= 500" class="text-warning">
-              ⚠️ Limited to newest 500 articles
+            <small v-if="store.articles.length >= 500" class="text-warning d-flex align-items-center gap-1">
+              <AlertTriangle :size="16" />
+              Limited to newest 500 articles
             </small>
             <small class="text-muted">
               Showing {{ filteredArticles.length }} of {{ store.articles.length }} articles
@@ -175,40 +186,45 @@
           <!-- Selection toggle and bulk export -->
           <div class="d-flex align-items-center gap-2">
             <button 
-              class="btn btn-sm" 
+              class="btn btn-sm d-flex align-items-center gap-1" 
               :class="selectionMode ? 'btn-primary' : 'btn-outline-secondary'"
               @click="toggleSelectionMode"
               v-if="filteredArticles.length > 0"
             >
-              {{ selectionMode ? '✓ Selection Mode (' + selectedArticles.length + ')' : '☐ Select' }}
+              <CheckSquare v-if="selectionMode" :size="16" />
+              <Square v-else :size="16" />
+              {{ selectionMode ? 'Selection (' + selectedArticles.length + ')' : 'Select' }}
             </button>
             <button 
               v-if="selectionMode && selectedArticles.length > 0"
-              class="btn btn-sm btn-outline-danger"
+              class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
               @click="selectedArticles = []"
             >
+              <X :size="16" />
               Clear
             </button>
             <!-- Export dropdown for selected articles -->
             <div class="dropdown" v-if="selectionMode && selectedArticles.length > 0">
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+                <Download :size="16" />
                 Export Selected
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">📄 TXT</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">📋 RIS</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">📑 NBIB</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
               </ul>
             </div>
             <!-- Export dropdown for all articles -->
             <div class="dropdown" v-else-if="filteredArticles.length > 0 && !selectionMode">
-              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+                <Download :size="16" />
                 Export
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">📄 TXT</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">📋 RIS</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">📑 NBIB</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">TXT</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
               </ul>
             </div>
           </div>
@@ -217,28 +233,27 @@
 
       <!-- Loading State -->
       <div v-if="store.loading && store.articles.length === 0" class="text-center py-5">
-        <div class="spinner-border text-light" role="status">
+        <div class="spinner-border" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="text-white mt-3">Fetching latest articles...</p>
+        <p class="text-muted mt-3">Fetching latest articles...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredArticles.length === 0" class="text-center py-5">
-        <div class="card p-5">
-          <h4>No articles found</h4>
-          <p class="text-muted">{{ store.articles.length === 0 ? 'No new articles from your selected journals in this time period.' : 'Try adjusting your search or journal filters.' }}</p>
-          <button v-if="selectedJournals.length > 0" class="btn btn-outline-primary mt-2" @click="selectedJournals = []">
-            Clear Journal Filters
-          </button>
-        </div>
+      <div v-else-if="filteredArticles.length === 0" class="empty-state">
+        <FileText :size="48" class="icon-muted mb-3" />
+        <h4>No articles found</h4>
+        <p class="text-muted">{{ store.articles.length === 0 ? 'No new articles from your selected journals in this time period.' : 'Try adjusting your search or journal filters.' }}</p>
+        <button v-if="selectedJournals.length > 0" class="btn btn-outline-primary mt-2" @click="selectedJournals = []">
+          Clear Journal Filters
+        </button>
       </div>
 
       <!-- Articles Grid -->
       <div v-else class="row g-4">
         <div v-for="article in filteredArticles" :key="article.pmid" class="col-md-6 col-lg-4">
           <div 
-            class="card article-card h-100" 
+            class="card article-card h-100 card-hover-lift" 
             :class="{ 
               'clickable-card': !selectionMode,
               'selected-card': selectedArticles.includes(String(article.pmid))
@@ -258,7 +273,7 @@
               <span class="badge-journal mb-3 align-self-start">
                 {{ article.journal }}
               </span>
-              <h6 class="card-title fw-bold">{{ article.title }}</h6>
+              <h6 class="card-title fw-semibold text-warm-dark">{{ article.title }}</h6>
               <p class="card-text text-muted small mb-2">
                 {{ article.authors?.slice(0, 3).join(', ') }}{{ article.authors?.length > 3 ? ' et al.' : '' }}
               </p>
@@ -266,9 +281,12 @@
                 {{ truncateAbstract(article.abstract) }}
               </p>
               <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                <small class="text-muted">{{ article.pub_date }}</small>
-                <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary">
-                  View Details →
+                <small class="text-muted d-flex align-items-center gap-1">
+                  <Calendar :size="14" />
+                  {{ article.pub_date }}
+                </small>
+                <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                  View <ArrowRight :size="14" />
                 </span>
               </div>
             </div>
@@ -283,6 +301,11 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
+import { 
+  FileText, Check, Plus, RefreshCw, Search, Newspaper, 
+  AlertTriangle, CheckSquare, Square, X, Download, 
+  Calendar, ArrowRight 
+} from 'lucide-vue-next'
 
 const router = useRouter()
 const store = useDashboardStore()
@@ -534,12 +557,6 @@ function exportAllArticles(format) {
 /* Clickable article cards */
 .clickable-card {
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.clickable-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 /* Selection mode */
@@ -561,7 +578,22 @@ function exportAllArticles(format) {
 }
 
 .selected-card {
-  border: 2px solid #0d6efd;
-  background: rgba(13, 110, 253, 0.05);
+  border: 2px solid var(--terracotta-500) !important;
+  background: var(--terracotta-100) !important;
+}
+
+/* Journal badge */
+.badge-journal {
+  background-color: var(--terracotta-100);
+  color: var(--terracotta-600);
+  padding: 0.35rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Search input group */
+.input-group-text {
+  border-color: var(--warm-200);
 }
 </style>
