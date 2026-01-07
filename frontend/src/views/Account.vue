@@ -25,6 +25,8 @@
                 type="text" 
                 class="form-control" 
                 placeholder="Enter your name"
+                :disabled="saved"
+                :readonly="saved"
               />
             </div>
 
@@ -38,7 +40,7 @@
             <div v-if="saved" class="d-flex gap-2 flex-wrap">
               <button type="button" @click="resetEdit" class="btn btn-primary d-flex align-items-center gap-2">
                 <Edit :size="18" />
-                Edit Again
+                Edit
               </button>
               <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
                 <LayoutDashboard :size="18" />
