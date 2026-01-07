@@ -35,8 +35,37 @@
 /* Typography */
 body {
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: var(--cream-50);
-  color: var(--warm-700);
+  background-color: #FFFBF5 !important;
+  color: #44403C !important;
+}
+
+/* Force light mode even when browser prefers dark */
+@media (prefers-color-scheme: dark) {
+
+  html,
+  body {
+    background-color: #FFFBF5 !important;
+    color: #44403C !important;
+    color-scheme: light only !important;
+  }
+
+  .card,
+  .navbar,
+  .dropdown-menu,
+  .modal-content,
+  .alert,
+  .form-control,
+  .form-select {
+    background-color: #FFFFFF !important;
+    color: #44403C !important;
+  }
+
+  input,
+  textarea,
+  select {
+    background-color: #FFFFFF !important;
+    color: #44403C !important;
+  }
 }
 
 h1,
