@@ -2,6 +2,9 @@
 /* Based on Terracotta palette for comfortable reading */
 
 :root {
+  /* Force light mode - prevent browser dark mode override */
+  color-scheme: light only;
+
   /* Primary Colors */
   --terracotta-500: #E07A5F;
   --terracotta-600: #C65D45;
