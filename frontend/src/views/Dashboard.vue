@@ -333,13 +333,16 @@ function normalizeJournalName(name) {
 }
 
 // Show all profile journals in dropdown (with article count)
-// Uses ISSN as the key for reliable matching
+// Uses ISSN as primary key, with fallback to name matching
 const availableJournals = computed(() => {
   // Build lookup maps from normalized journal name/abbreviation → ISSN
   const nameToIssn = {}
+  const normalizedNames = new Set() // Track all normalized profile journal names
   store.profileJournals.forEach(j => {
+    const normName = normalizeJournalName(j.name)
+    normalizedNames.add(normName)
     if (j.issn) {
-      nameToIssn[normalizeJournalName(j.name)] = j.issn
+      nameToIssn[normName] = j.issn
       if (j.iso_abbreviation) {
         nameToIssn[normalizeJournalName(j.iso_abbreviation)] = j.issn
       }
@@ -347,17 +350,30 @@ const availableJournals = computed(() => {
   })
   
   // Count articles by ISSN (via normalized journal name lookup)
+  // With fallback to direct name matching for journals without ISSN
   const articleCountsByIssn = {}
+  const articleCountsByName = {} // Fallback for journals without ISSN
+  
   store.articles.forEach(a => {
     const journalKey = normalizeJournalName(a.journal)
     const issn = nameToIssn[journalKey]
     if (issn) {
       articleCountsByIssn[issn] = (articleCountsByIssn[issn] || 0) + 1
+    } else {
+      // Fallback: try direct name match against profile journals
+      if (normalizedNames.has(journalKey)) {
+        articleCountsByName[journalKey] = (articleCountsByName[journalKey] || 0) + 1
+      } else if (import.meta.env.DEV) {
+        console.warn(`[Badge Count] Unmatched article journal: "${a.journal}"`)
+      }
     }
   })
   
   return store.profileJournals.map(j => {
-    const count = j.issn ? (articleCountsByIssn[j.issn] || 0) : 0
+    // Use ISSN count if available, otherwise fall back to name count
+    const count = j.issn 
+      ? (articleCountsByIssn[j.issn] || 0) 
+      : (articleCountsByName[normalizeJournalName(j.name)] || 0)
     return { 
       name: j.name, 
       issn: j.issn || '',

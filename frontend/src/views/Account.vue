@@ -34,7 +34,23 @@
               {{ message }}
             </div>
 
-            <div class="d-flex gap-2">
+            <!-- Show navigation options after successful save -->
+            <div v-if="saved" class="d-flex gap-2 flex-wrap">
+              <button type="button" @click="resetEdit" class="btn btn-primary d-flex align-items-center gap-2">
+                <Edit :size="18" />
+                Edit Again
+              </button>
+              <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <LayoutDashboard :size="18" />
+                Go to Dashboard
+              </router-link>
+              <router-link to="/profiles" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <Users :size="18" />
+                Manage Profiles
+              </router-link>
+            </div>
+            <!-- Show form buttons before save -->
+            <div v-else class="d-flex gap-2">
               <button type="submit" class="btn btn-primary" :disabled="loading">
                 <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Save Changes
@@ -51,13 +67,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import { AlertCircle, CheckCircle } from 'lucide-vue-next'
+import { AlertCircle, CheckCircle, LayoutDashboard, Users, Edit } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const fullName = ref('')
 const loading = ref(false)
 const message = ref('')
 const isError = ref(false)
+const saved = ref(false)
 
 onMounted(async () => {
     if (!authStore.user) {
@@ -74,11 +91,17 @@ async function handleSave() {
     try {
         await authStore.updateProfile(fullName.value)
         message.value = 'Profile updated successfully'
+        saved.value = true
     } catch (e) {
         isError.value = true
         message.value = e.message
     } finally {
         loading.value = false
     }
+}
+
+function resetEdit() {
+    saved.value = false
+    message.value = ''
 }
 </script>
