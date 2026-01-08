@@ -118,25 +118,29 @@
                   </a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
-                <li v-for="journal in availableJournals" :key="journal.name">
-                  <a 
-                    class="dropdown-item d-flex align-items-center justify-content-between" 
-                    href="#" 
-                    @click.prevent="toggleJournalFilter(journal.name)"
-                  >
-                    <span class="d-flex align-items-center flex-grow-1">
-                      <input 
-                        type="checkbox" 
-                        class="form-check-input me-2 flex-shrink-0" 
-                        :checked="selectedJournals.includes(journal.name)"
-                        @change="toggleJournalFilter(journal.name)"
-                        @click.stop
-                      />
-                      <span class="journal-name">{{ journal.name }}</span>
-                    </span>
-                    <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
-                  </a>
-                </li>
+                 <li v-for="journal in availableJournals" :key="journal.name">
+                   <a 
+                     class="dropdown-item d-flex align-items-center justify-content-between" 
+                     :class="{ 'text-muted': !journal.hasData }"
+                     href="#" 
+                     @click.prevent="toggleJournalFilter(journal.name)"
+                     :title="!journal.hasData ? 'No articles found for this journal in the selected time period' : journal.name"
+                   >
+                     <span class="d-flex align-items-center flex-grow-1">
+                       <input 
+                         type="checkbox" 
+                         class="form-check-input me-2 flex-shrink-0" 
+                         :checked="selectedJournals.includes(journal.name)"
+                         @change="toggleJournalFilter(journal.name)"
+                         @click.stop
+                         :disabled="!journal.hasData"
+                       />
+                       <span class="journal-name">{{ journal.name }}</span>
+                       <AlertTriangle v-if="!journal.hasData" :size="14" class="ms-2 text-warning flex-shrink-0" />
+                     </span>
+                     <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
+                   </a>
+                 </li>
               </ul>
             </div>
           </div>
@@ -327,93 +331,211 @@ const localToDate = ref(store.toDate)
 watch(() => store.fromDate, (val) => { localFromDate.value = val })
 watch(() => store.toDate, (val) => { localToDate.value = val })
 
-// Normalize journal name for matching: lowercase, trim, remove trailing punctuation
+// Enhanced journal name normalization for robust matching
 function normalizeJournalName(name) {
-  return name.toLowerCase().trim().replace(/[.,;:]+$/, '')
+  if (!name) return ''
+  return name.toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')              // Normalize whitespace
+    .replace(/[.,;:]/g, '')            // Remove all punctuation
+    .replace(/&/g, 'and')              // Normalize ampersands
+    .replace(/^the\s+/, '')            // Remove leading "the"
+    .replace(/\b(journal of|journal)\b/g, '') // Remove common words
+    .replace(/\s+/g, ' ')              // Clean up spaces again
+    .trim()
 }
 
 // Show all profile journals in dropdown (with article count)
-// Uses ISSN as primary key, with fallback to name matching
+// Uses enhanced ISSN and name matching for robust badge counting
 const availableJournals = computed(() => {
-  // Build lookup maps from normalized journal name/abbreviation → ISSN
+  // Build comprehensive lookup maps from normalized names/abbreviations → ISSN and journal data
   const nameToIssn = {}
-  const normalizedNames = new Set() // Track all normalized profile journal names
+  const nameToJournal = {} // Map normalized names to full journal data
+  const normalizedNames = new Set()
+  
   store.profileJournals.forEach(j => {
+    // Map normalized full name
     const normName = normalizeJournalName(j.name)
     normalizedNames.add(normName)
-    if (j.issn) {
-      nameToIssn[normName] = j.issn
-      if (j.iso_abbreviation) {
-        nameToIssn[normalizeJournalName(j.iso_abbreviation)] = j.issn
-      }
+    nameToIssn[normName] = j.issn
+    nameToJournal[normName] = j
+    
+    // Map normalized abbreviation if available
+    if (j.iso_abbreviation) {
+      const normAbbr = normalizeJournalName(j.iso_abbreviation)
+      nameToIssn[normAbbr] = j.issn
+      nameToJournal[normAbbr] = j
     }
+    
+    // Add additional common variations for better matching
+    const variations = generateJournalVariations(j.name)
+    variations.forEach(variation => {
+      const normVar = normalizeJournalName(variation)
+      if (!nameToIssn[normVar]) {
+        nameToIssn[normVar] = j.issn
+        nameToJournal[normVar] = j
+      }
+    })
   })
   
-  // Count articles by ISSN (via normalized journal name lookup)
-  // With fallback to direct name matching for journals without ISSN
+  // Count articles with enhanced matching
   const articleCountsByIssn = {}
-  const articleCountsByName = {} // Fallback for journals without ISSN
+  const articleCountsByName = {} // Fallback count by normalized name
+  const unmatchedJournals = [] // Track unmatched for debugging
   
   store.articles.forEach(a => {
-    const journalKey = normalizeJournalName(a.journal)
+    const originalJournal = a.journal
+    const journalKey = normalizeJournalName(originalJournal)
     const issn = nameToIssn[journalKey]
+    
     if (issn) {
+      // Primary match via ISSN
       articleCountsByIssn[issn] = (articleCountsByIssn[issn] || 0) + 1
+    } else if (nameToJournal[journalKey]) {
+      // Secondary match via normalized name (journal without ISSN)
+      articleCountsByName[journalKey] = (articleCountsByName[journalKey] || 0) + 1
     } else {
-      // Fallback: try direct name match against profile journals
-      if (normalizedNames.has(journalKey)) {
-        articleCountsByName[journalKey] = (articleCountsByName[journalKey] || 0) + 1
-      } else if (import.meta.env.DEV) {
-        console.warn(`[Badge Count] Unmatched article journal: "${a.journal}"`)
-      }
+      // Unmatched journal
+      unmatchedJournals.push({
+        original: originalJournal,
+        normalized: journalKey
+      })
     }
   })
   
+  // Enhanced debug logging in development
+  if (import.meta.env.DEV && unmatchedJournals.length > 0) {
+    console.group(`[Journal Matching] ${unmatchedJournals.length} unmatched articles`)
+    unmatchedJournals.forEach(({original, normalized}) => {
+      console.log(`Original: "${original}" → Normalized: "${normalized}"`)
+      console.log(`Available normalized names:`, Array.from(normalizedNames))
+    })
+    console.groupEnd()
+  }
+  
   return store.profileJournals.map(j => {
+    const normName = normalizeJournalName(j.name)
     // Use ISSN count if available, otherwise fall back to name count
     const count = j.issn 
       ? (articleCountsByIssn[j.issn] || 0) 
-      : (articleCountsByName[normalizeJournalName(j.name)] || 0)
+      : (articleCountsByName[normName] || 0)
+    
     return { 
       name: j.name, 
       issn: j.issn || '',
       isoAbbr: j.iso_abbreviation || '',
-      count 
+      count,
+      hasData: count > 0
     }
   }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
 })
 
+// Generate common journal name variations for better matching
+function generateJournalVariations(name) {
+  const variations = []
+  const lowerName = name.toLowerCase()
+  
+  // Add version without "The" prefix
+  if (lowerName.startsWith('the ')) {
+    variations.push(name.substring(4))
+  }
+  
+  // Add version with "The" prefix if not already present
+  if (!lowerName.startsWith('the ') && !lowerName.includes(' the ')) {
+    variations.push(`The ${name}`)
+  }
+  
+  // Add version without "Journal of" prefix
+  if (lowerName.includes('journal of')) {
+    const withoutJournalOf = name.replace(/^(the\s+)?journal\s+of\s+/i, '$1')
+    variations.push(withoutJournalOf)
+  }
+  
+  return variations
+}
+
 const filteredArticles = computed(() => {
   let result = [...store.articles]
   
-  // Filter by selected journals using ISSN for reliable matching
+  // Filter by selected journals using the same enhanced matching logic as badge counting
   if (selectedJournals.value.length > 0) {
-    // Build lookup map from normalized journal name → ISSN for filtering
+    // Build comprehensive lookup maps (same logic as availableJournals)
     const nameToIssn = {}
+    const nameToJournal = {}
+    
     store.profileJournals.forEach(j => {
-      if (j.issn) {
-        nameToIssn[normalizeJournalName(j.name)] = j.issn
-        if (j.iso_abbreviation) {
-          nameToIssn[normalizeJournalName(j.iso_abbreviation)] = j.issn
-        }
+      // Map normalized full name
+      const normName = normalizeJournalName(j.name)
+      nameToIssn[normName] = j.issn
+      nameToJournal[normName] = j
+      
+      // Map normalized abbreviation if available
+      if (j.iso_abbreviation) {
+        const normAbbr = normalizeJournalName(j.iso_abbreviation)
+        nameToIssn[normAbbr] = j.issn
+        nameToJournal[normAbbr] = j
       }
+      
+      // Add variations for better matching
+      const variations = generateJournalVariations(j.name)
+      variations.forEach(variation => {
+        const normVar = normalizeJournalName(variation)
+        if (!nameToIssn[normVar]) {
+          nameToIssn[normVar] = j.issn
+          nameToJournal[normVar] = j
+        }
+      })
     })
     
-    // Get ISSNs for selected journals
+    // Get selected journal identifiers (both ISSN and normalized names)
     const selectedIssns = new Set()
-    selectedJournals.value.forEach(name => {
-      const journal = store.profileJournals.find(j => j.name === name)
+    const selectedNames = new Set()
+    
+    selectedJournals.value.forEach(selectedName => {
+      const journal = store.profileJournals.find(j => j.name === selectedName)
       if (journal?.issn) {
         selectedIssns.add(journal.issn)
       }
+      // Add normalized name for fallback matching
+      selectedNames.add(normalizeJournalName(selectedName))
     })
     
-    // Filter articles by ISSN match
+    // Enhanced filtering: ISSN-first with name fallback (consistent with badge counting)
     result = result.filter(a => {
       const journalKey = normalizeJournalName(a.journal)
       const articleIssn = nameToIssn[journalKey]
-      return articleIssn && selectedIssns.has(articleIssn)
+      const matchedJournal = nameToJournal[journalKey]
+      
+      // Primary match: ISSN-based
+      if (articleIssn && selectedIssns.has(articleIssn)) {
+        return true
+      }
+      
+      // Secondary match: Name-based for journals without ISSN
+      if (matchedJournal && !matchedJournal.issn && selectedNames.has(journalKey)) {
+        return true
+      }
+      
+      // Fallback: Check if article journal matches any selected journal by name
+      return selectedJournals.value.some(selectedName => {
+        const selectedNorm = normalizeJournalName(selectedName)
+        const selectedJournal = store.profileJournals.find(j => j.name === selectedName)
+        
+        // Direct name match
+        if (journalKey === selectedNorm) return true
+        
+        // Match via variations
+        const variations = generateJournalVariations(selectedJournal?.name || selectedName)
+        return variations.some(variation => normalizeJournalName(variation) === journalKey)
+      })
     })
+    
+    // Debug logging for filtering in development
+    if (import.meta.env.DEV) {
+      const originalCount = store.articles.length
+      const filteredCount = result.length
+      console.log(`[Article Filtering] ${originalCount} → ${filteredCount} articles (${selectedJournals.value.length} journals selected)`)
+    }
   }
   
   // Filter by search query
@@ -669,9 +791,18 @@ function exportAllArticles(format) {
   padding: 0.5rem 1rem;
 }
 
+.journal-filter-dropdown .dropdown-item.text-muted {
+  opacity: 0.7;
+}
+
 .journal-filter-dropdown .journal-name {
   word-break: break-word;
   line-height: 1.3;
+}
+
+.journal-filter-dropdown .form-check-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Utilities */
