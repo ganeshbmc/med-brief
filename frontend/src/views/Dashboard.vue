@@ -337,6 +337,7 @@ function normalizeJournalName(name) {
   return name.toLowerCase()
     .trim()
     .replace(/\s+/g, ' ')              // Normalize whitespace
+    .replace(/\([^)]*\)/g, '')         // Remove content in parentheses (e.g., "heart (british cardiac society)" → "heart")
     .replace(/[.,;:]/g, '')            // Remove all punctuation
     .replace(/&/g, 'and')              // Normalize ampersands
     .replace(/^the\s+/, '')            // Remove leading "the"
