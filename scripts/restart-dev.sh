@@ -1,8 +1,13 @@
 #!/bin/bash
 # restart-dev.sh - Restart MedBrief development servers using tmux
-# Usage: wsl bash /mnt/d/Github/med-brief/scripts/restart-dev.sh
+
+# Resolve project root dynamically
+# Assuming script is in <root>/scripts/
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo "🔄 Restarting MedBrief dev servers..."
+echo "   Project Root: $PROJECT_ROOT"
 
 # Kill existing tmux sessions for medbrief
 tmux kill-session -t medbrief-backend 2>/dev/null
@@ -13,15 +18,31 @@ pkill -f "uvicorn main:app" 2>/dev/null
 pkill -f "vite" 2>/dev/null
 sleep 1
 
+# Detect Python interpreter
+# Prefer python3.10 if available (matches system python with dependencies), else python3
+if command -v python3.10 &> /dev/null; then
+    PYTHON_EXEC="python3.10"
+else
+    PYTHON_EXEC="python3"
+fi
+echo "   Using Python: $PYTHON_EXEC"
+
 # Start backend in tmux
 echo "   Starting backend (uvicorn)..."
-tmux new-session -d -s medbrief-backend -c /mnt/d/Github/med-brief/backend \
-    "python3 -m uvicorn main:app --reload --port 8000"
+tmux new-session -d -s medbrief-backend -c "$PROJECT_ROOT/backend" \
+    "$PYTHON_EXEC -m uvicorn main:app --reload --port 8000"
 
 # Start frontend in tmux  
 echo "   Starting frontend (vite)..."
-tmux new-session -d -s medbrief-frontend -c /mnt/d/Github/med-brief/frontend \
-    "source ~/.nvm/nvm.sh && npm run dev"
+# Check if nvm script exists, source it if so, otherwise just run npm
+if [ -f "$HOME/.nvm/nvm.sh" ]; then
+    FRONTEND_CMD="source $HOME/.nvm/nvm.sh && npm run dev"
+else
+    FRONTEND_CMD="npm run dev"
+fi
+
+tmux new-session -d -s medbrief-frontend -c "$PROJECT_ROOT/frontend" \
+    "$FRONTEND_CMD"
 
 sleep 2
 echo ""

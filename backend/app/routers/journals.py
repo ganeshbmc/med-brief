@@ -80,7 +80,7 @@ async def get_preset_journals(
 ):
     """Get preset journals by category (e.g., 'cardiology', 'medicine')."""
     result = await db.execute(
-        select(Journal).where(func.lower(Journal.category) == category.lower()).limit(10)
+        select(Journal).where(func.lower(Journal.category) == category.lower()).limit(50)
     )
     return result.scalars().all()
 

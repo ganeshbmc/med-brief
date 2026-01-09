@@ -225,14 +225,22 @@ let searchTimeout = null
 
 const specialties = [
   { value: 'Custom', label: 'Custom Profile', isCustom: true },
+  { value: 'Medicine', label: 'Internal Medicine' },
   { value: 'Cardiology', label: 'Cardiology' },
   { value: 'Oncology', label: 'Oncology' },
   { value: 'Neurology', label: 'Neurology' },
   { value: 'Pediatrics', label: 'Pediatrics' },
-  { value: 'Medicine', label: 'Internal Medicine' },
   { value: 'Surgery', label: 'Surgery' },
   { value: 'Psychiatry', label: 'Psychiatry' },
   { value: 'Emergency', label: 'Emergency Medicine' },
+  { value: 'Nephrology', label: 'Nephrology' },
+  { value: 'Endocrinology', label: 'Endocrinology' },
+  { value: 'Gastroenterology', label: 'Gastroenterology' },
+  { value: 'Dermatology', label: 'Dermatology' },
+  { value: 'Critical Care', label: 'Critical Care' },
+  { value: 'Surgical Oncology', label: 'Surgical Oncology' },
+  { value: 'Plastic Surgery', label: 'Plastic Surgery' },
+  { value: 'OB/GYN', label: 'OB/GYN' },
 ]
 
 const canProceed = computed(() => {
