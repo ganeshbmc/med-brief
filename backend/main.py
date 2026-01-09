@@ -79,10 +79,15 @@ if STATIC_DIR.exists():
 
 @app.post("/seed")
 async def seed_database(reset: bool = False):
-    """Seed the database with preset journals. Use reset=true to clear and reseed."""
-    from sqlalchemy import select, delete
+    """Seed the database with preset journals.
+    
+    The 'reset' parameter is deprecated and ignored.
+    This function now performs a safe upsert (Update/Insert) based on ISSN,
+    preserving existing journal IDs and user profile associations.
+    """
+    from sqlalchemy import select
     from app.database import async_session
-    from app.models import Journal, profile_journals
+    from app.models import Journal
     
     JOURNALS = [
         # --- Medicine (General Internal Medicine) ---
@@ -439,28 +444,37 @@ async def seed_database(reset: bool = False):
     ]
     
     async with async_session() as session:
-        if reset:
-            # Clear existing journals and associations
-            # Must clear association table first to avoid FK violations
-            await session.execute(delete(profile_journals))
-            await session.execute(delete(Journal))
-            await session.commit()
-        else:
-            # Check if already seeded
-            result = await session.execute(select(Journal).limit(1))
-            if result.scalar_one_or_none():
-                return {"message": "Database already seeded. Use reset=true to reseed.", "count": 0}
+        # Fetch existing journals to create an ISSN map
+        stmt = select(Journal)
+        existing_result = await session.execute(stmt)
+        existing_journals = existing_result.scalars().all()
+        # Map ISSN -> Journal object
+        existing_map = {j.issn: j for j in existing_journals if j.issn}
         
         seen_issns = set()
-        unique_journals = []
-        for j_data in JOURNALS:
-            if j_data["issn"] not in seen_issns:
-                seen_issns.add(j_data["issn"])
-                unique_journals.append(j_data)
+        processed_count = 0
         
-        for j_data in unique_journals:
-            journal = Journal(**j_data)
-            session.add(journal)
+        for j_data in JOURNALS:
+            issn = j_data["issn"]
+            # Deduplicate within the seed list
+            if issn in seen_issns:
+                continue
+            seen_issns.add(issn)
+            
+            if issn in existing_map:
+                # Update existing journal (metadata only)
+                journal = existing_map[issn]
+                journal.name = j_data["name"]
+                journal.iso_abbreviation = j_data["iso_abbreviation"]
+                journal.category = j_data["category"]
+                # We do NOT change the ID, preserving foreign keys
+            else:
+                # Insert new journal
+                new_journal = Journal(**j_data)
+                session.add(new_journal)
+            
+            processed_count += 1
+        
         await session.commit()
     
-    return {"message": "Seeded successfully", "count": len(unique_journals)}
+    return {"message": "Seeded successfully (Safe Upsert)", "count": processed_count}
