@@ -82,7 +82,7 @@ async def seed_database(reset: bool = False):
     """Seed the database with preset journals. Use reset=true to clear and reseed."""
     from sqlalchemy import select, delete
     from app.database import async_session
-    from app.models import Journal
+    from app.models import Journal, profile_journals
     
     JOURNALS = [
         # --- Medicine (General Internal Medicine) ---
@@ -440,7 +440,9 @@ async def seed_database(reset: bool = False):
     
     async with async_session() as session:
         if reset:
-            # Clear existing journals
+            # Clear existing journals and associations
+            # Must clear association table first to avoid FK violations
+            await session.execute(delete(profile_journals))
             await session.execute(delete(Journal))
             await session.commit()
         else:
