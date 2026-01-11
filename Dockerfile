@@ -20,11 +20,5 @@ COPY backend/ ./
 # Copy frontend build
 COPY --from=frontend-build /app/frontend/dist ./static
 
-# Expose port
-EXPOSE 8000
-
-# Railway uses PORT env var, default to 8000
-ENV PORT=8000
-
 # Run migrations then start gunicorn
 CMD python -m alembic upgrade head && gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
