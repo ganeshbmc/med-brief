@@ -20,5 +20,8 @@ COPY backend/ ./
 # Copy frontend build
 COPY --from=frontend-build /app/frontend/dist ./static
 
-# Run migrations then start gunicorn
-CMD python -m alembic upgrade head && gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+# Default port for Railway
+ENV PORT=8080
+
+# Run migrations then start uvicorn
+CMD ["sh", "-c", "python -m alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
