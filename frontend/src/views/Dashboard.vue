@@ -314,16 +314,16 @@
     <!-- Sticky Selection Bar -->
     <div 
       v-if="selectionMode && selectedArticles.length > 0" 
-      class="sticky-selection-bar bg-white border-top shadow-lg p-3 d-flex justify-content-between align-items-center"
+      class="sticky-selection-bar bg-white border-top shadow-lg p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
     >
-      <div class="d-flex align-items-center gap-3">
-        <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} selected</span>
+      <div class="d-flex align-items-center gap-2 gap-sm-3">
+        <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} <span class="d-none d-sm-inline">selected</span></span>
         <button class="btn btn-sm btn-outline-danger" @click="clearSelection">Cancel</button>
       </div>
       <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
-          <Download :size="18" />
-          Export Selected ({{ selectedArticles.length }})
+        <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+          <Download :size="16" />
+          Export <span class="d-none d-sm-inline">Selected</span> ({{ selectedArticles.length }})
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>

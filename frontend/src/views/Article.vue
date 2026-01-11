@@ -173,6 +173,7 @@ function loadArticle() {
 watch(() => route.params.pmid, (newPmid) => {
   if (newPmid) {
     loadArticle()
+    window.scrollTo(0, 0)
   }
 })
 
