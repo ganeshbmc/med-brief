@@ -60,12 +60,23 @@ body {
     color: #44403C !important;
   }
 
-  input,
+  input:not([type="checkbox"]):not([type="radio"]),
   textarea,
   select {
     background-color: #FFFFFF !important;
     color: #44403C !important;
   }
+}
+
+/* Form Checkbox/Radio Theme Styling */
+.form-check-input:checked {
+  background-color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+}
+
+.form-check-input:focus {
+  border-color: var(--terracotta-500);
+  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
 }
 
 h1,

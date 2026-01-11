@@ -151,6 +151,8 @@
               <div>
                 <label class="form-label small text-muted mb-1">Quick Select</label>
                 <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
+                  <option :value="1">Last 24 hours</option>
+                  <option :value="3">Last 3 days</option>
                   <option :value="7">Last 7 days</option>
                   <option :value="14">Last 14 days</option>
                   <option :value="30">Last 30 days</option>
@@ -202,9 +204,17 @@
               {{ selectionMode ? 'Selection (' + selectedArticles.length + ')' : 'Select' }}
             </button>
             <button 
+              v-if="selectionMode"
+              class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+              @click="selectAllArticles"
+            >
+              <CheckSquare :size="16" />
+              Select All
+            </button>
+            <button 
               v-if="selectionMode && selectedArticles.length > 0"
               class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
-              @click="selectedArticles = []"
+              @click="clearSelection"
             >
               <X :size="16" />
               Clear
@@ -300,6 +310,28 @@
         </div>
       </div>
     </template>
+
+    <!-- Sticky Selection Bar -->
+    <div 
+      v-if="selectionMode && selectedArticles.length > 0" 
+      class="sticky-selection-bar bg-white border-top shadow-lg p-3 d-flex justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center gap-3">
+        <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} selected</span>
+        <button class="btn btn-sm btn-outline-danger" @click="clearSelection">Cancel</button>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+          <Download :size="18" />
+          Export Selected ({{ selectedArticles.length }})
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -652,10 +684,23 @@ function handleCardClick(pmid) {
       selectedArticles.value.push(pmidStr)
     } else {
       selectedArticles.value.splice(idx, 1)
+      // Issue #32: Exit selection mode if no articles are selected
+      if (selectedArticles.value.length === 0) {
+        selectionMode.value = false
+      }
     }
   } else {
     openArticle(pmid)
   }
+}
+
+function selectAllArticles() {
+  selectedArticles.value = filteredArticles.value.map(a => String(a.pmid))
+}
+
+function clearSelection() {
+  selectedArticles.value = []
+  selectionMode.value = false
 }
 
 function exportSelectedArticles(format) {
@@ -825,6 +870,21 @@ function exportAllArticles(format) {
 .btn-icon:hover {
   background-color: var(--warm-200);
   color: var(--warm-dark) !important;
+}
+
+/* Sticky Selection Bar */
+.sticky-selection-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1060;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 </style>

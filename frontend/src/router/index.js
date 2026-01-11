@@ -29,6 +29,10 @@ const router = createRouter({
         if (savedPosition) {
             return savedPosition
         }
+        // Issue #29: Disable scroll-to-top when navigating between articles
+        if (to.name === 'Article' && from.name === 'Article') {
+            return false
+        }
         // Otherwise scroll to top
         return { top: 0 }
     }

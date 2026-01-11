@@ -60,7 +60,7 @@
       </div>
 
       <!-- Abstract -->
-      <div class="abstract-section my-4 p-4 rounded">
+      <div class="abstract-section my-4 pt-4">
         <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
         <p class="mb-0 abstract-text">
           {{ article.abstract || 'Abstract not available for this article.' }}
@@ -189,8 +189,7 @@ onMounted(() => {
 }
 
 .abstract-section {
-  border-left: 4px solid var(--terracotta-500);
-  background-color: var(--cream-50);
+  border-top: 1px solid var(--warm-200);
 }
 
 .abstract-text {
