@@ -34,3 +34,4 @@ Planning and execution of UX improvements and feature additions based on priorit
 - [x] Task 4 implementation (Issue #32).
 - [x] Fix mobile navigation scroll regression (Issue #29 follow-up).
 - [x] Improve sticky selection bar responsiveness for mobile (Issue #32 follow-up) - Refined layout and moved outside container.
+- [x] Audit and fix deployment configurations (Docker, Vite proxy, and Backend static paths).

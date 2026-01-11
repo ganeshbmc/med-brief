@@ -53,7 +53,7 @@ async def health_check():
 # Check Docker path first (/app/static), then local dev path
 STATIC_DIR = Path(__file__).parent / "static"  # Docker: /app/static
 if not STATIC_DIR.exists():
-    STATIC_DIR = Path(__file__).parent.parent.parent / "frontend" / "dist"  # Dev: ../frontend/dist
+    STATIC_DIR = Path(__file__).parent.parent / "frontend" / "dist"  # Dev: ../frontend/dist
 
 if STATIC_DIR.exists():
     # Mount assets directory
