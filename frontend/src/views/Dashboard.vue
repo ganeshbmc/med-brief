@@ -266,7 +266,7 @@
       </div>
 
       <!-- Articles Grid -->
-      <div v-else class="row g-4">
+      <div v-else class="row g-4 mb-5">
         <div v-for="article in filteredArticles" :key="article.pmid" class="col-md-6 col-lg-4">
           <div 
             class="card article-card h-100 card-hover-lift" 
@@ -310,27 +310,27 @@
         </div>
       </div>
     </template>
+  </div>
 
-    <!-- Sticky Selection Bar -->
-    <div 
-      v-if="selectionMode && selectedArticles.length > 0" 
-      class="sticky-selection-bar bg-white border-top shadow-lg p-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
-    >
-      <div class="d-flex align-items-center gap-2 gap-sm-3">
-        <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} <span class="d-none d-sm-inline">selected</span></span>
-        <button class="btn btn-sm btn-outline-danger" @click="clearSelection">Cancel</button>
-      </div>
-      <div class="dropdown">
-        <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
-          <Download :size="16" />
-          Export <span class="d-none d-sm-inline">Selected</span> ({{ selectedArticles.length }})
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
-          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
-          <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
-        </ul>
-      </div>
+  <!-- Sticky Selection Bar (Moved outside container for better full-width handling) -->
+  <div 
+    v-if="selectionMode && selectedArticles.length > 0" 
+    class="sticky-selection-bar bg-white border-top shadow-lg px-3 py-2 d-flex justify-content-center justify-content-sm-between align-items-center flex-wrap gap-2"
+  >
+    <div class="d-flex align-items-center gap-2 gap-sm-3">
+      <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} <span class="d-none d-md-inline">selected</span></span>
+      <button class="btn btn-sm btn-outline-danger" @click="clearSelection">Cancel</button>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+        <Download :size="16" />
+        Export <span class="d-none d-md-inline">Selected</span> ({{ selectedArticles.length }})
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+      </ul>
     </div>
   </div>
 </template>
