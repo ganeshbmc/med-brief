@@ -44,7 +44,7 @@
 
       <!-- Publication Date (simplified) -->
       <p class="text-muted small mb-3">
-        {{ article.pub_date }}
+        {{ formatDateDisplay(article.pub_date) }}
       </p>
 
       <!-- Metadata Links (PMID, DOI) -->
@@ -90,6 +90,13 @@
         </a>
       </div>
     </article>
+
+    <!-- Sticky Navigation -->
+    <StickyArticleNavigation
+      :hasPrev="hasPrev"
+      :hasNext="hasNext"
+      @navigate="navigateTo"
+    />
   </div>
 </template>
 
@@ -97,6 +104,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, ArrowRight, Download, ExternalLink } from 'lucide-vue-next'
+import { formatDateDisplay } from '@/utils/dateFormatter'
+import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -133,7 +142,7 @@ function exportAs(format) {
   let mimeType = 'text/plain'
   
   if (format === 'txt') {
-    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${a.pub_date}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
+    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
     filename += '.txt'
   } else if (format === 'ris') {
     content = `TY  - JOUR\nTI  - ${a.title}\n${a.authors?.map(auth => `AU  - ${auth}`).join('\n') || ''}\nJO  - ${a.journal}\nPY  - ${a.pub_date?.split('-')[0] || ''}\nAB  - ${a.abstract || ''}\nAN  - ${a.pmid}\nUR  - ${a.pubmed_url}\nER  - `

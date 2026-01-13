@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
         <h2 class="text-warm-dark fw-bold mb-1">Your Brief</h2>
-        <p class="text-warm-muted mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
+        <p class="text-warm-muted mb-0">Research from {{ formatDateRange(store.fromDate, store.toDate) }}</p>
       </div>
     </div>
 
@@ -299,7 +299,7 @@
               <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                 <small class="text-muted d-flex align-items-center gap-1">
                   <Calendar :size="14" />
-                  {{ article.pub_date }}
+                  {{ formatDateDisplay(article.pub_date) }}
                 </small>
                 <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                   View <ArrowRight :size="14" />
@@ -339,6 +339,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
+import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
 import { 
   FileText, Check, Plus, RefreshCw, Search, Newspaper, 
   AlertTriangle, CheckSquare, Square, X, Download, 
@@ -712,7 +713,7 @@ function exportSelectedArticles(format) {
   
   if (format === 'txt') {
     content = selectedList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${a.pub_date}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
     ).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
@@ -745,7 +746,7 @@ function exportAllArticles(format) {
   
   if (format === 'txt') {
     content = articlesList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${a.pub_date}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
     ).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
