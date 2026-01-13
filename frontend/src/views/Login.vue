@@ -4,7 +4,7 @@
       <div class="col-md-5">
         <div class="card p-4">
           <div class="text-center mb-4">
-            <BookOpen :size="48" class="text-terracotta mb-3" />
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3" style="height: 48px;" />
             <h2 class="fw-bold text-warm-dark">Sign In</h2>
             <p class="text-muted">Welcome back to MedBrief</p>
           </div>
@@ -63,7 +63,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { BookOpen, Mail, Lock, AlertCircle, LogIn } from 'lucide-vue-next'
+import { useDashboardStore } from '../stores/dashboard'
+import { Mail, Lock, AlertCircle, LogIn } from 'lucide-vue-next'
 
 const email = ref('')
 const password = ref('')
@@ -72,10 +73,15 @@ const loading = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
+const dashboardStore = useDashboardStore()
 
 async function handleLogin() {
   error.value = ''
   loading.value = true
+  
+  // Clear any previous session data
+  dashboardStore.clearCache()
+  
   try {
     await authStore.login(email.value, password.value)
     router.push('/dashboard')

@@ -31,6 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
         const data = await response.json()
         token.value = data.access_token
         localStorage.setItem('token', data.access_token)
+        await fetchUser()
         return data
     }
 
@@ -67,5 +68,39 @@ export const useAuthStore = defineStore('auth', () => {
         return token.value ? { Authorization: `Bearer ${token.value}` } : {}
     }
 
-    return { token, user, isAuthenticated, login, register, logout, getAuthHeaders }
+    async function fetchUser() {
+        if (!token.value) return
+        try {
+            const response = await fetch('/auth/me', {
+                headers: getAuthHeaders(),
+            })
+            if (response.ok) {
+                user.value = await response.json()
+            }
+        } catch (e) {
+            console.error('Failed to fetch user', e)
+        }
+    }
+
+    async function updateProfile(fullName) {
+        try {
+            const response = await fetch('/auth/me', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders(),
+                },
+                body: JSON.stringify({ full_name: fullName }),
+            })
+
+            if (!response.ok) throw new Error('Failed to update profile')
+
+            user.value = await response.json()
+            return user.value
+        } catch (e) {
+            throw e
+        }
+    }
+
+    return { token, user, isAuthenticated, login, register, logout, getAuthHeaders, fetchUser, updateProfile }
 })

@@ -4,7 +4,7 @@
       <div class="col-lg-8">
         <div class="card p-4 p-md-5">
           <div class="text-center mb-4">
-            <BookOpen :size="48" class="text-terracotta mb-3" />
+            <img src="/medbrief_icon.png" alt="MedBrief" class="mb-3" style="width: 64px; height: 64px;" />
             <h2 class="fw-bold text-warm-dark">Welcome to MedBrief!</h2>
             <p class="text-muted">Let's personalize your experience</p>
           </div>
@@ -225,14 +225,22 @@ let searchTimeout = null
 
 const specialties = [
   { value: 'Custom', label: 'Custom Profile', isCustom: true },
+  { value: 'Medicine', label: 'Internal Medicine' },
   { value: 'Cardiology', label: 'Cardiology' },
   { value: 'Oncology', label: 'Oncology' },
   { value: 'Neurology', label: 'Neurology' },
   { value: 'Pediatrics', label: 'Pediatrics' },
-  { value: 'Medicine', label: 'Internal Medicine' },
   { value: 'Surgery', label: 'Surgery' },
   { value: 'Psychiatry', label: 'Psychiatry' },
   { value: 'Emergency', label: 'Emergency Medicine' },
+  { value: 'Nephrology', label: 'Nephrology' },
+  { value: 'Endocrinology', label: 'Endocrinology' },
+  { value: 'Gastroenterology', label: 'Gastroenterology' },
+  { value: 'Dermatology', label: 'Dermatology' },
+  { value: 'Critical Care', label: 'Critical Care' },
+  { value: 'Surgical Oncology', label: 'Surgical Oncology' },
+  { value: 'Plastic Surgery', label: 'Plastic Surgery' },
+  { value: 'OB/GYN', label: 'OB/GYN' },
 ]
 
 const canProceed = computed(() => {
@@ -349,7 +357,7 @@ async function nextStep() {
         selectedJournalIds.value,
         selectedNewJournals.value
       )
-      router.push('/dashboard')
+      router.push('/profiles?created=1')
     } catch (e) {
       error.value = e.message || 'Failed to create profile'
     } finally {

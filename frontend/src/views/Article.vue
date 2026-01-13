@@ -2,10 +2,10 @@
   <div class="container py-4">
     <!-- Back Navigation -->
     <div class="mb-4">
-      <button @click="goBack" class="btn btn-light d-flex align-items-center gap-2">
-        <ArrowLeft :size="18" />
+      <a @click.prevent="goBack" href="#" class="text-link d-inline-flex align-items-center gap-1">
+        <ArrowLeft :size="16" />
         Back to Dashboard
-      </button>
+      </a>
     </div>
 
     <!-- Loading -->
@@ -14,109 +14,98 @@
       <p class="text-muted mt-3">Loading article...</p>
     </div>
 
-    <!-- Article Content -->
-    <div v-else class="card">
-      <!-- Header -->
-      <div class="card-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <!-- Article Content (Borderless Layout) -->
+    <article v-else class="article-content">
+      <!-- Journal Badge & Export -->
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <span class="badge-journal">{{ article.journal }}</span>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('txt')">
-            <FileText :size="14" /> TXT
+        
+        <!-- Export Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+            <Download :size="14" />
+            Export
           </button>
-          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('ris')">
-            <FileText :size="14" /> RIS
-          </button>
-          <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" @click="exportAs('nbib')">
-            <FileText :size="14" /> NBIB
-          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
+          </ul>
         </div>
       </div>
 
-      <!-- Body -->
-      <div class="card-body">
-        <!-- Title -->
-        <h3 class="card-title fw-bold mb-3 text-warm-dark">{{ article.title }}</h3>
+      <!-- Title -->
+      <h2 class="fw-bold mb-3 text-warm-dark">{{ article.title }}</h2>
 
-        <!-- Authors -->
-        <p class="text-muted mb-2">
-          <strong>Authors:</strong> {{ article.authors?.join(', ') || 'Not available' }}
+      <!-- Authors (no prefix, with et al.) -->
+      <p class="text-muted mb-2">
+        {{ formatAuthors(article.authors) }}
+      </p>
+
+      <!-- Publication Date (simplified) -->
+      <p class="text-muted small mb-3">
+        {{ formatDateDisplay(article.pub_date) }}
+      </p>
+
+      <!-- Metadata Links (PMID, DOI) -->
+      <div class="d-flex gap-3 flex-wrap mb-4 small">
+        <a :href="article.pubmed_url" target="_blank" class="text-link">
+          PMID: {{ article.pmid }}
+          <ExternalLink :size="12" class="ms-1" />
+        </a>
+        <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="text-link">
+          DOI: {{ article.doi }}
+          <ExternalLink :size="12" class="ms-1" />
+        </a>
+      </div>
+
+      <!-- Abstract -->
+      <div class="abstract-section my-4 pt-4">
+        <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
+        <p class="mb-0 abstract-text">
+          {{ article.abstract || 'Abstract not available for this article.' }}
         </p>
-
-        <!-- Journal & Date -->
-        <p class="text-muted mb-2 d-flex align-items-center gap-1">
-          <Calendar :size="16" />
-          <strong>Published:</strong> {{ article.pub_date }} in <em>{{ article.journal }}</em>
-        </p>
-
-        <!-- DOI -->
-        <p v-if="article.doi" class="mb-4">
-          <strong>DOI:</strong>&nbsp;
-          <a :href="`https://doi.org/${article.doi}`" target="_blank" class="doi-link">
-            {{ article.doi }}
-            <ExternalLink :size="14" class="ms-1" />
-          </a>
-        </p>
-
-        <!-- Abstract (Centered, Prominent) -->
-        <div class="abstract-section my-4 p-4 rounded">
-          <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
-          <p class="mb-0 abstract-text">
-            {{ article.abstract || 'Abstract not available for this article.' }}
-          </p>
-        </div>
-
-        <!-- Links -->
-        <div class="d-flex gap-3 flex-wrap mt-4 pt-3 border-top">
-          <a :href="article.pubmed_url" target="_blank" class="btn btn-primary d-flex align-items-center gap-2">
-            <ExternalLink :size="16" />
-            View on PubMed
-          </a>
-          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="btn btn-success d-flex align-items-center gap-2">
-            <BookOpen :size="16" />
-            Full Text (DOI)
-          </a>
-          <a :href="`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/?format=pubmed`" target="_blank" class="btn btn-outline-secondary d-flex align-items-center gap-2">
-            <FileText :size="16" />
-            PubMed Format
-          </a>
-        </div>
-
-        <!-- Citation Info -->
-        <div class="mt-4 pt-3 border-top">
-          <small class="text-muted">
-            <strong>PMID:</strong> {{ article.pmid }}
-          </small>
-        </div>
       </div>
 
       <!-- Footer Navigation -->
-      <div class="card-footer d-flex justify-content-between">
-        <button 
+      <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+        <a 
           v-if="hasPrev" 
-          @click="navigateTo(-1)" 
-          class="btn btn-outline-primary d-flex align-items-center gap-2"
+          @click.prevent="navigateTo(-1)" 
+          href="#"
+          class="text-link d-flex align-items-center gap-1"
         >
-          <ArrowLeft :size="16" />
-          Previous Article
-        </button>
+          <ArrowLeft :size="14" />
+          Previous
+        </a>
         <div v-else></div>
-        <button 
+        <a 
           v-if="hasNext" 
-          @click="navigateTo(1)" 
-          class="btn btn-outline-primary d-flex align-items-center gap-2"
+          @click.prevent="navigateTo(1)" 
+          href="#"
+          class="text-link d-flex align-items-center gap-1"
         >
-          Next Article
-          <ArrowRight :size="16" />
-        </button>
+          Next
+          <ArrowRight :size="14" />
+        </a>
       </div>
-    </div>
+    </article>
+
+    <!-- Sticky Navigation -->
+    <StickyArticleNavigation
+      :hasPrev="hasPrev"
+      :hasNext="hasNext"
+      @navigate="navigateTo"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, FileText, Calendar, ExternalLink, BookOpen } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Download, ExternalLink } from 'lucide-vue-next'
+import { formatDateDisplay } from '@/utils/dateFormatter'
+import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -128,8 +117,14 @@ const currentIndex = ref(-1)
 const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
 
+function formatAuthors(authors) {
+  if (!authors || authors.length === 0) return 'Authors not available'
+  if (authors.length <= 3) return authors.join(', ')
+  return authors.slice(0, 3).join(', ') + ' et al.'
+}
+
 function goBack() {
-  router.push('/dashboard')  // Direct navigation - scroll restored by Dashboard's manual scroll handler
+  router.push('/dashboard')
 }
 
 function navigateTo(offset) {
@@ -147,7 +142,7 @@ function exportAs(format) {
   let mimeType = 'text/plain'
   
   if (format === 'txt') {
-    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${a.pub_date}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
+    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
     filename += '.txt'
   } else if (format === 'ris') {
     content = `TY  - JOUR\nTI  - ${a.title}\n${a.authors?.map(auth => `AU  - ${auth}`).join('\n') || ''}\nJO  - ${a.journal}\nPY  - ${a.pub_date?.split('-')[0] || ''}\nAB  - ${a.abstract || ''}\nAN  - ${a.pmid}\nUR  - ${a.pubmed_url}\nER  - `
@@ -187,20 +182,24 @@ function loadArticle() {
 watch(() => route.params.pmid, (newPmid) => {
   if (newPmid) {
     loadArticle()
+    window.scrollTo(0, 0)
   }
 })
 
 onMounted(() => {
-  // Scroll to top when Article view loads
   window.scrollTo(0, 0)
   loadArticle()
 })
 </script>
 
 <style scoped>
+.article-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .abstract-section {
-  border-left: 4px solid var(--terracotta-500);
-  background-color: var(--cream-50);
+  border-top: 1px solid var(--warm-200);
 }
 
 .abstract-text {
@@ -210,12 +209,13 @@ onMounted(() => {
   color: var(--warm-700);
 }
 
-.doi-link {
+.text-link {
   color: var(--terracotta-500);
   text-decoration: none;
+  cursor: pointer;
 }
 
-.doi-link:hover {
+.text-link:hover {
   text-decoration: underline;
   color: var(--terracotta-600);
 }
@@ -227,15 +227,5 @@ onMounted(() => {
   border-radius: 1rem;
   font-size: 0.8rem;
   font-weight: 500;
-}
-
-.card-header {
-  background-color: white;
-  border-bottom: 1px solid var(--warm-200);
-}
-
-.card-footer {
-  background-color: white;
-  border-top: 1px solid var(--warm-200);
 }
 </style>

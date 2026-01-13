@@ -2,7 +2,7 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg navbar-warm">
       <div class="container">
-        <router-link class="navbar-brand d-flex align-items-center" to="/">
+        <router-link class="navbar-brand d-flex align-items-center" :to="authStore.isAuthenticated ? '/dashboard' : '/'">
           <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="me-2" style="height: 28px;" />
           <span>MedBrief</span>
         </router-link>
@@ -32,10 +32,36 @@
                 <Users :size="18" />
                 <span>Profiles</span>
               </router-link>
-              <a class="nav-link d-flex align-items-center gap-1" href="#" @click.prevent="handleLogout()">
-                <LogOut :size="18" />
-                <span>Logout</span>
-              </a>
+
+              
+              <!-- User Dropdown -->
+              <div class="dropdown">
+                <a 
+                  class="nav-link dropdown-toggle d-flex align-items-center gap-1" 
+                  href="#" 
+                  role="button" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false"
+                >
+                  <User :size="18" />
+                  <span>{{ authStore.user?.full_name || authStore.user?.email?.split('@')[0] || 'Account' }}</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <router-link class="dropdown-item d-flex align-items-center gap-2" to="/account">
+                      <Settings :size="16" />
+                      Account Settings
+                    </router-link>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" @click.prevent="handleLogout()">
+                      <LogOut :size="16" />
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </template>
             <template v-else>
               <router-link class="nav-link" to="/login">Login</router-link>
@@ -55,7 +81,7 @@
 import { useAuthStore } from './stores/auth'
 import { useDashboardStore } from './stores/dashboard'
 import { useRouter } from 'vue-router'
-import { LayoutDashboard, Users, LogOut, Menu } from 'lucide-vue-next'
+import { LayoutDashboard, Users, LogOut, Menu, User, Settings } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()

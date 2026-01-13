@@ -42,6 +42,14 @@ Before writing any code, initializing files, or installing dependencies, you mus
 *   **Validation:** Verify functionality in browser before claiming success.
 *   **No Sprawl:** Modular code only.
 
+## 🔄 Dev Server Restart Protocol
+After making code changes, restart the dev servers using:
+```bash
+wsl bash /mnt/d/Github/med-brief/scripts/restart-dev.sh
+```
+This script kills existing uvicorn/vite processes and starts fresh backend + frontend servers.
+
+
 ## 🛑 Boundaries
 * **Do Not** touch the `main` branch.
 * **Do Not** push to a remote repository without confirmation if credentials are not pre-configured.

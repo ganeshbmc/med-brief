@@ -2,6 +2,9 @@
 /* Based on Terracotta palette for comfortable reading */
 
 :root {
+  /* Force light mode - prevent browser dark mode override */
+  color-scheme: light only;
+
   /* Primary Colors */
   --terracotta-500: #E07A5F;
   --terracotta-600: #C65D45;
@@ -32,8 +35,48 @@
 /* Typography */
 body {
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: var(--cream-50);
-  color: var(--warm-700);
+  background-color: #FFFBF5 !important;
+  color: #44403C !important;
+}
+
+/* Force light mode even when browser prefers dark */
+@media (prefers-color-scheme: dark) {
+
+  html,
+  body {
+    background-color: #FFFBF5 !important;
+    color: #44403C !important;
+    color-scheme: light only !important;
+  }
+
+  .card,
+  .navbar,
+  .dropdown-menu,
+  .modal-content,
+  .alert,
+  .form-control,
+  .form-select {
+    background-color: #FFFFFF !important;
+    color: #44403C !important;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: #FFFFFF !important;
+    color: #44403C !important;
+  }
+}
+
+/* Form Checkbox/Radio Theme Styling */
+.form-check-input:checked {
+  background-color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+}
+
+.form-check-input:focus {
+  border-color: var(--terracotta-500);
+  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
 }
 
 h1,

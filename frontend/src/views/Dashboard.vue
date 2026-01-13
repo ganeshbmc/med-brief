@@ -1,50 +1,11 @@
 <template>
   <div class="container py-4">
     <!-- Header Section -->
+    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
         <h2 class="text-warm-dark fw-bold mb-1">Your Brief</h2>
-        <p class="text-warm-muted mb-0">Research from {{ store.fromDate }} to {{ store.toDate }}</p>
-      </div>
-      <div class="d-flex gap-2 align-items-center">
-        <!-- Profile Selector -->
-        <div v-if="store.profiles.length > 0" class="dropdown">
-          <button 
-            class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" 
-            type="button" 
-            data-bs-toggle="dropdown" 
-            aria-expanded="false"
-          >
-            <FileText :size="18" class="icon-muted" />
-            {{ store.currentProfile?.name || 'Select Profile' }}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li v-for="p in store.profiles" :key="p.id">
-              <a 
-                class="dropdown-item d-flex align-items-center justify-content-between" 
-                :class="{ active: store.selectedProfileId === p.id }"
-                href="#" 
-                @click.prevent="selectProfile(p.id)"
-              >
-                {{ p.name }}
-                <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-              </a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
-                <Plus :size="16" />
-                Create New Profile
-              </router-link>
-            </li>
-          </ul>
-        </div>
-        
-        <button class="btn btn-primary d-flex align-items-center gap-2" @click="refreshArticles" :disabled="store.loading">
-          <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
-          <RefreshCw v-else :size="18" />
-          {{ store.loading ? 'Loading...' : 'Refresh' }}
-        </button>
+        <p class="text-warm-muted mb-0">Research from {{ formatDateRange(store.fromDate, store.toDate) }}</p>
       </div>
     </div>
 
@@ -66,17 +27,62 @@
 
     <!-- Main Content -->
     <template v-else>
-      <!-- Current Profile Info with Article Count -->
-      <div class="card mb-4 p-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div>
-            <strong class="text-warm-dark">{{ store.currentProfile?.name }}</strong>
-            <span class="text-muted ms-2">· {{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
+      <!-- Control Bar: Profile Selector & Stats -->
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <!-- Left: Profile Selector -->
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small fw-semibold ls-1">Current Profile:</span>
+          <div class="dropdown">
+            <button 
+              class="btn btn-link text-decoration-none p-0 fw-bold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
+              type="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              {{ store.currentProfile?.name }}
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="p in store.profiles" :key="p.id">
+                <a 
+                  class="dropdown-item d-flex align-items-center justify-content-between" 
+                  :class="{ active: store.selectedProfileId === p.id }"
+                  href="#" 
+                  @click.prevent="selectProfile(p.id)"
+                >
+                  {{ p.name }}
+                  <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
+                  <Plus :size="16" />
+                  Create New Profile
+                </router-link>
+              </li>
+            </ul>
           </div>
-          <div>
-            <span class="badge bg-primary me-2">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
-            <small class="text-muted">{{ store.profiles.length }} profile{{ store.profiles.length !== 1 ? 's' : '' }}</small>
-          </div>
+        </div>
+
+        <!-- Right: Stats & Actions -->
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-muted small">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
+          <div class="vr text-muted opacity-25"></div>
+          <span class="badge bg-terracotta-100 text-dark rounded-pill px-3" style="color: var(--terracotta-700) !important;">
+            {{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}
+            <span v-if="showAbstractOnly" class="text-terracotta-600">(with abstracts)</span>
+          </span>
+          <div class="vr text-muted opacity-25"></div>
+          
+          <button 
+            class="btn btn-light btn-sm btn-icon text-muted" 
+            @click="refreshArticles" 
+            :disabled="store.loading"
+            title="Refresh Articles"
+          >
+            <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
+            <RefreshCw v-else :size="18" />
+          </button>
         </div>
       </div>
       
@@ -108,31 +114,36 @@
                 <Newspaper :size="18" />
                 {{ selectedJournals.length ? `${selectedJournals.length} journal(s)` : 'All Journals' }}
               </button>
-              <ul class="dropdown-menu w-100" style="max-height: 300px; overflow-y: auto;">
+              <ul class="dropdown-menu journal-filter-dropdown" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                 <li>
                   <a class="dropdown-item" href="#" @click.prevent="selectedJournals = []">
                     <em>Clear filters</em>
                   </a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
-                <li v-for="journal in availableJournals" :key="journal.name">
-                  <a 
-                    class="dropdown-item d-flex align-items-center justify-content-between" 
-                    href="#" 
-                    @click.prevent="toggleJournalFilter(journal.name)"
-                  >
-                    <span class="d-flex align-items-center">
-                      <input 
-                        type="checkbox" 
-                        class="form-check-input me-2" 
-                        :checked="selectedJournals.includes(journal.name)"
-                        @click.stop
-                      />
-                      <span class="text-truncate" style="max-width: 200px;">{{ journal.name }}</span>
-                    </span>
-                    <span class="badge" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
-                  </a>
-                </li>
+                 <li v-for="journal in availableJournals" :key="journal.name">
+                   <a 
+                     class="dropdown-item d-flex align-items-center justify-content-between" 
+                     :class="{ 'text-muted': !journal.hasData }"
+                     href="#" 
+                     @click.prevent="toggleJournalFilter(journal.name)"
+                     :title="!journal.hasData ? 'No articles found for this journal in the selected time period' : journal.name"
+                   >
+                     <span class="d-flex align-items-center flex-grow-1">
+                       <input 
+                         type="checkbox" 
+                         class="form-check-input me-2 flex-shrink-0" 
+                         :checked="selectedJournals.includes(journal.name)"
+                         @change="toggleJournalFilter(journal.name)"
+                         @click.stop
+                         :disabled="!journal.hasData"
+                       />
+                       <span class="journal-name">{{ journal.name }}</span>
+                       <AlertTriangle v-if="!journal.hasData" :size="14" class="ms-2 text-warning flex-shrink-0" />
+                     </span>
+                     <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
+                   </a>
+                 </li>
               </ul>
             </div>
           </div>
@@ -143,21 +154,40 @@
               <div>
                 <label class="form-label small text-muted mb-1">Quick Select</label>
                 <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
+                  <option :value="1">Last 24 hours</option>
+                  <option :value="3">Last 3 days</option>
                   <option :value="7">Last 7 days</option>
                   <option :value="14">Last 14 days</option>
                   <option :value="30">Last 30 days</option>
                   <option :value="0">Custom</option>
                 </select>
               </div>
-              <!-- Sort -->
-              <div>
-                <label class="form-label small text-muted mb-1">Sort</label>
-                <select v-model="sortBy" class="form-select form-select-sm">
-                  <option value="date">By Date</option>
-                  <option value="journal">By Journal</option>
-                </select>
-              </div>
-              <!-- From -->
+               <!-- Sort -->
+               <div>
+                 <label class="form-label small text-muted mb-1">Sort</label>
+                 <select v-model="sortBy" class="form-select form-select-sm">
+                   <option value="date">By Date</option>
+                   <option value="journal">By Journal</option>
+                 </select>
+               </div>
+               <!-- Abstract Only Filter -->
+               <div class="d-flex align-items-center mt-2">
+                 <div class="form-check">
+                   <input
+                     type="checkbox"
+                     class="form-check-input"
+                     id="abstractOnly"
+                     v-model="showAbstractOnly"
+                   />
+                   <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
+                     With abstract only
+                   </label>
+                 </div>
+                 <span class="badge bg-terracotta-100 text-terracotta-700 ms-2 rounded-pill" style="font-size: 0.7rem;">
+                   {{ articlesWithAbstract.length }} available
+                 </span>
+               </div>
+               <!-- From -->
               <div>
                 <label class="form-label small text-muted mb-1">From</label>
                 <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
@@ -179,6 +209,9 @@
             </small>
             <small class="text-muted">
               Showing {{ filteredArticles.length }} of {{ store.articles.length }} articles
+              <span v-if="showAbstractOnly" class="text-terracotta-600">
+                (with abstracts)
+              </span>
             </small>
           </div>
           <!-- Selection toggle and bulk export -->
@@ -194,9 +227,17 @@
               {{ selectionMode ? 'Selection (' + selectedArticles.length + ')' : 'Select' }}
             </button>
             <button 
+              v-if="selectionMode"
+              class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+              @click="selectAllArticles"
+            >
+              <CheckSquare :size="16" />
+              Select All
+            </button>
+            <button 
               v-if="selectionMode && selectedArticles.length > 0"
               class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
-              @click="selectedArticles = []"
+              @click="clearSelection"
             >
               <X :size="16" />
               Clear
@@ -248,7 +289,7 @@
       </div>
 
       <!-- Articles Grid -->
-      <div v-else class="row g-4">
+      <div v-else class="row g-4 mb-5">
         <div v-for="article in filteredArticles" :key="article.pmid" class="col-md-6 col-lg-4">
           <div 
             class="card article-card h-100 card-hover-lift" 
@@ -281,7 +322,7 @@
               <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                 <small class="text-muted d-flex align-items-center gap-1">
                   <Calendar :size="14" />
-                  {{ article.pub_date }}
+                  {{ formatDateDisplay(article.pub_date) }}
                 </small>
                 <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                   View <ArrowRight :size="14" />
@@ -293,12 +334,35 @@
       </div>
     </template>
   </div>
+
+  <!-- Sticky Selection Bar (Moved outside container for better full-width handling) -->
+  <div 
+    v-if="selectionMode && selectedArticles.length > 0" 
+    class="sticky-selection-bar bg-white border-top shadow-lg px-3 py-2 d-flex justify-content-center justify-content-sm-between align-items-center flex-wrap gap-2"
+  >
+    <div class="d-flex align-items-center gap-2 gap-sm-3">
+      <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} <span class="d-none d-md-inline">selected</span></span>
+      <button class="btn btn-sm btn-outline-danger" @click="clearSelection">Cancel</button>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
+        <Download :size="16" />
+        Export <span class="d-none d-md-inline">Selected</span> ({{ selectedArticles.length }})
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
+import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
 import { 
   FileText, Check, Plus, RefreshCw, Search, Newspaper, 
   AlertTriangle, CheckSquare, Square, X, Download, 
@@ -315,6 +379,9 @@ const selectedJournals = ref([])
 const selectionMode = ref(false)
 const selectedArticles = ref([])
 
+// Abstract filter state
+const showAbstractOnly = ref(false)
+
 // Local date refs for v-model binding (sync with store)
 const localFromDate = ref(store.fromDate)
 const localToDate = ref(store.toDate)
@@ -323,48 +390,242 @@ const localToDate = ref(store.toDate)
 watch(() => store.fromDate, (val) => { localFromDate.value = val })
 watch(() => store.toDate, (val) => { localToDate.value = val })
 
+// Enhanced journal name normalization for robust matching
+function normalizeJournalName(name) {
+  if (!name) return ''
+  return name.toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')              // Normalize whitespace
+    .replace(/\([^)]*\)/g, '')         // Remove content in parentheses (e.g., "heart (british cardiac society)" → "heart")
+    .replace(/[.,;:]/g, '')            // Remove all punctuation
+    .replace(/&/g, 'and')              // Normalize ampersands
+    .replace(/^the\s+/, '')            // Remove leading "the"
+    .replace(/\b(journal of|journal)\b/g, '') // Remove common words
+    .replace(/\s+/g, ' ')              // Clean up spaces again
+    .trim()
+}
+
 // Show all profile journals in dropdown (with article count)
+// Uses enhanced ISSN and name matching for robust badge counting
 const availableJournals = computed(() => {
-  const articleCounts = {}
-  store.articles.forEach(a => {
-    const key = a.journal.toLowerCase()
-    articleCounts[key] = (articleCounts[key] || 0) + 1
+  // Build comprehensive lookup maps from normalized names/abbreviations → ISSN and journal data
+  const nameToIssn = {}
+  const nameToJournal = {} // Map normalized names to full journal data
+  const normalizedNames = new Set()
+  
+  store.profileJournals.forEach(j => {
+    // Map normalized full name
+    const normName = normalizeJournalName(j.name)
+    normalizedNames.add(normName)
+    nameToIssn[normName] = j.issn
+    nameToJournal[normName] = j
+    
+    // Map normalized abbreviation if available
+    if (j.iso_abbreviation) {
+      const normAbbr = normalizeJournalName(j.iso_abbreviation)
+      nameToIssn[normAbbr] = j.issn
+      nameToJournal[normAbbr] = j
+    }
+    
+    // Add additional common variations for better matching
+    const variations = generateJournalVariations(j.name)
+    variations.forEach(variation => {
+      const normVar = normalizeJournalName(variation)
+      if (!nameToIssn[normVar]) {
+        nameToIssn[normVar] = j.issn
+        nameToJournal[normVar] = j
+      }
+    })
   })
   
+  // Count articles with enhanced matching
+  const articleCountsByIssn = {}
+  const articleCountsByName = {} // Fallback count by normalized name
+  const unmatchedJournals = [] // Track unmatched for debugging
+  
+  store.articles.forEach(a => {
+    const originalJournal = a.journal
+    const journalKey = normalizeJournalName(originalJournal)
+    const issn = nameToIssn[journalKey]
+    
+    if (issn) {
+      // Primary match via ISSN
+      articleCountsByIssn[issn] = (articleCountsByIssn[issn] || 0) + 1
+    } else if (nameToJournal[journalKey]) {
+      // Secondary match via normalized name (journal without ISSN)
+      articleCountsByName[journalKey] = (articleCountsByName[journalKey] || 0) + 1
+    } else {
+      // Unmatched journal
+      unmatchedJournals.push({
+        original: originalJournal,
+        normalized: journalKey
+      })
+    }
+  })
+  
+  // Enhanced debug logging in development
+  if (import.meta.env.DEV && unmatchedJournals.length > 0) {
+    console.group(`[Journal Matching] ${unmatchedJournals.length} unmatched articles`)
+    unmatchedJournals.forEach(({original, normalized}) => {
+      console.log(`Original: "${original}" → Normalized: "${normalized}"`)
+      console.log(`Available normalized names:`, Array.from(normalizedNames))
+    })
+    console.groupEnd()
+  }
+  
   return store.profileJournals.map(j => {
-    const nameKey = j.name.toLowerCase()
-    const abbrKey = j.iso_abbreviation?.toLowerCase() || ''
-    const count = articleCounts[nameKey] || articleCounts[abbrKey] || 0
-    return { name: j.name, count }
-  }).sort((a, b) => a.name.localeCompare(b.name))
+    const normName = normalizeJournalName(j.name)
+    // Use ISSN count if available, otherwise fall back to name count
+    const count = j.issn 
+      ? (articleCountsByIssn[j.issn] || 0) 
+      : (articleCountsByName[normName] || 0)
+    
+    return { 
+      name: j.name, 
+      issn: j.issn || '',
+      isoAbbr: j.iso_abbreviation || '',
+      count,
+      hasData: count > 0
+    }
+  }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
 })
+
+// Generate common journal name variations for better matching
+function generateJournalVariations(name) {
+  const variations = []
+  const lowerName = name.toLowerCase()
+  
+  // Add version without "The" prefix
+  if (lowerName.startsWith('the ')) {
+    variations.push(name.substring(4))
+  }
+  
+  // Add version with "The" prefix if not already present
+  if (!lowerName.startsWith('the ') && !lowerName.includes(' the ')) {
+    variations.push(`The ${name}`)
+  }
+  
+  // Add version without "Journal of" prefix
+  if (lowerName.includes('journal of')) {
+    const withoutJournalOf = name.replace(/^(the\s+)?journal\s+of\s+/i, '$1')
+    variations.push(withoutJournalOf)
+  }
+  
+  return variations
+}
 
 const filteredArticles = computed(() => {
   let result = [...store.articles]
   
-  // Filter by selected journals
+  // Filter by selected journals using the same enhanced matching logic as badge counting
   if (selectedJournals.value.length > 0) {
-    result = result.filter(a => selectedJournals.value.includes(a.journal))
+    // Build comprehensive lookup maps (same logic as availableJournals)
+    const nameToIssn = {}
+    const nameToJournal = {}
+    
+    store.profileJournals.forEach(j => {
+      // Map normalized full name
+      const normName = normalizeJournalName(j.name)
+      nameToIssn[normName] = j.issn
+      nameToJournal[normName] = j
+      
+      // Map normalized abbreviation if available
+      if (j.iso_abbreviation) {
+        const normAbbr = normalizeJournalName(j.iso_abbreviation)
+        nameToIssn[normAbbr] = j.issn
+        nameToJournal[normAbbr] = j
+      }
+      
+      // Add variations for better matching
+      const variations = generateJournalVariations(j.name)
+      variations.forEach(variation => {
+        const normVar = normalizeJournalName(variation)
+        if (!nameToIssn[normVar]) {
+          nameToIssn[normVar] = j.issn
+          nameToJournal[normVar] = j
+        }
+      })
+    })
+    
+    // Get selected journal identifiers (both ISSN and normalized names)
+    const selectedIssns = new Set()
+    const selectedNames = new Set()
+    
+    selectedJournals.value.forEach(selectedName => {
+      const journal = store.profileJournals.find(j => j.name === selectedName)
+      if (journal?.issn) {
+        selectedIssns.add(journal.issn)
+      }
+      // Add normalized name for fallback matching
+      selectedNames.add(normalizeJournalName(selectedName))
+    })
+    
+    // Enhanced filtering: ISSN-first with name fallback (consistent with badge counting)
+    result = result.filter(a => {
+      const journalKey = normalizeJournalName(a.journal)
+      const articleIssn = nameToIssn[journalKey]
+      const matchedJournal = nameToJournal[journalKey]
+      
+      // Primary match: ISSN-based
+      if (articleIssn && selectedIssns.has(articleIssn)) {
+        return true
+      }
+      
+      // Secondary match: Name-based for journals without ISSN
+      if (matchedJournal && !matchedJournal.issn && selectedNames.has(journalKey)) {
+        return true
+      }
+      
+      // Fallback: Check if article journal matches any selected journal by name
+      return selectedJournals.value.some(selectedName => {
+        const selectedNorm = normalizeJournalName(selectedName)
+        const selectedJournal = store.profileJournals.find(j => j.name === selectedName)
+        
+        // Direct name match
+        if (journalKey === selectedNorm) return true
+        
+        // Match via variations
+        const variations = generateJournalVariations(selectedJournal?.name || selectedName)
+        return variations.some(variation => normalizeJournalName(variation) === journalKey)
+      })
+    })
+    
+    // Debug logging for filtering in development
+    if (import.meta.env.DEV) {
+      const originalCount = store.articles.length
+      const filteredCount = result.length
+      console.log(`[Article Filtering] ${originalCount} → ${filteredCount} articles (${selectedJournals.value.length} journals selected)`)
+    }
   }
   
-  // Filter by search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(a => 
-      a.title.toLowerCase().includes(query) || 
-      a.abstract?.toLowerCase().includes(query) ||
-      a.journal.toLowerCase().includes(query)
-    )
-  }
-  
-  // Sort
+   // Filter by search query
+   if (searchQuery.value) {
+     const query = searchQuery.value.toLowerCase()
+     result = result.filter(a =>
+       a.title.toLowerCase().includes(query) ||
+       a.abstract?.toLowerCase().includes(query) ||
+       a.journal.toLowerCase().includes(query)
+     )
+   }
+
+   // Filter by abstract availability
+   if (showAbstractOnly.value) {
+     result = result.filter(a => a.abstract && a.abstract.trim().length > 0)
+   }
+
+   // Sort
   if (sortBy.value === 'date') {
     result.sort((a, b) => b.pub_date.localeCompare(a.pub_date))
   } else if (sortBy.value === 'journal') {
     result.sort((a, b) => a.journal.localeCompare(b.journal))
   }
   
-  return result
+   return result
+})
+
+// Count of articles with abstracts available
+const articlesWithAbstract = computed(() => {
+  return store.articles.filter(a => a.abstract && a.abstract.trim().length > 0)
 })
 
 function truncateAbstract(text, maxLength = 150) {
@@ -460,10 +721,23 @@ function handleCardClick(pmid) {
       selectedArticles.value.push(pmidStr)
     } else {
       selectedArticles.value.splice(idx, 1)
+      // Issue #32: Exit selection mode if no articles are selected
+      if (selectedArticles.value.length === 0) {
+        selectionMode.value = false
+      }
     }
   } else {
     openArticle(pmid)
   }
+}
+
+function selectAllArticles() {
+  selectedArticles.value = filteredArticles.value.map(a => String(a.pmid))
+}
+
+function clearSelection() {
+  selectedArticles.value = []
+  selectionMode.value = false
 }
 
 function exportSelectedArticles(format) {
@@ -475,7 +749,7 @@ function exportSelectedArticles(format) {
   
   if (format === 'txt') {
     content = selectedList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${a.pub_date}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
     ).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
@@ -508,7 +782,7 @@ function exportAllArticles(format) {
   
   if (format === 'txt') {
     content = articlesList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${a.pub_date}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
     ).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
@@ -594,4 +868,74 @@ function exportAllArticles(format) {
 .input-group-text {
   border-color: var(--warm-200);
 }
+
+/* Journal filter dropdown */
+.journal-filter-dropdown .dropdown-item {
+  padding: 0.5rem 1rem;
+}
+
+.journal-filter-dropdown .dropdown-item.text-muted {
+  opacity: 0.7;
+}
+
+.journal-filter-dropdown .journal-name {
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.journal-filter-dropdown .form-check-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Utilities */
+.ls-1 {
+  letter-spacing: 1px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--warm-200);
+  color: var(--warm-dark) !important;
+}
+
+/* Sticky Selection Bar */
+.sticky-selection-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1060;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Abstract filter checkbox styling */
+#abstractOnly:checked + label {
+  color: var(--terracotta-600);
+}
+
+#abstractOnly:focus {
+  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
+}
+
+.form-check-input:checked {
+  background-color: var(--terracotta-500);
+  border-color: var(--terracotta-500);
+}
+
 </style>
