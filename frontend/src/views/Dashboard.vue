@@ -68,7 +68,10 @@
         <div class="d-flex align-items-center gap-3">
           <span class="text-muted small">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
           <div class="vr text-muted opacity-25"></div>
-          <span class="badge bg-terracotta-100 text-dark rounded-pill px-3" style="color: var(--terracotta-700) !important;">{{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}</span>
+          <span class="badge bg-terracotta-100 text-dark rounded-pill px-3" style="color: var(--terracotta-700) !important;">
+            {{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}
+            <span v-if="showAbstractOnly" class="text-terracotta-600">(with abstracts)</span>
+          </span>
           <div class="vr text-muted opacity-25"></div>
           
           <button 
@@ -159,15 +162,32 @@
                   <option :value="0">Custom</option>
                 </select>
               </div>
-              <!-- Sort -->
-              <div>
-                <label class="form-label small text-muted mb-1">Sort</label>
-                <select v-model="sortBy" class="form-select form-select-sm">
-                  <option value="date">By Date</option>
-                  <option value="journal">By Journal</option>
-                </select>
-              </div>
-              <!-- From -->
+               <!-- Sort -->
+               <div>
+                 <label class="form-label small text-muted mb-1">Sort</label>
+                 <select v-model="sortBy" class="form-select form-select-sm">
+                   <option value="date">By Date</option>
+                   <option value="journal">By Journal</option>
+                 </select>
+               </div>
+               <!-- Abstract Only Filter -->
+               <div class="d-flex align-items-center mt-2">
+                 <div class="form-check">
+                   <input
+                     type="checkbox"
+                     class="form-check-input"
+                     id="abstractOnly"
+                     v-model="showAbstractOnly"
+                   />
+                   <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
+                     With abstract only
+                   </label>
+                 </div>
+                 <span class="badge bg-terracotta-100 text-terracotta-700 ms-2 rounded-pill" style="font-size: 0.7rem;">
+                   {{ articlesWithAbstract.length }} available
+                 </span>
+               </div>
+               <!-- From -->
               <div>
                 <label class="form-label small text-muted mb-1">From</label>
                 <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
@@ -189,6 +209,9 @@
             </small>
             <small class="text-muted">
               Showing {{ filteredArticles.length }} of {{ store.articles.length }} articles
+              <span v-if="showAbstractOnly" class="text-terracotta-600">
+                (with abstracts)
+              </span>
             </small>
           </div>
           <!-- Selection toggle and bulk export -->
@@ -355,6 +378,9 @@ const sortBy = ref('date')
 const selectedJournals = ref([])
 const selectionMode = ref(false)
 const selectedArticles = ref([])
+
+// Abstract filter state
+const showAbstractOnly = ref(false)
 
 // Local date refs for v-model binding (sync with store)
 const localFromDate = ref(store.fromDate)
@@ -572,24 +598,34 @@ const filteredArticles = computed(() => {
     }
   }
   
-  // Filter by search query
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(a => 
-      a.title.toLowerCase().includes(query) || 
-      a.abstract?.toLowerCase().includes(query) ||
-      a.journal.toLowerCase().includes(query)
-    )
-  }
-  
-  // Sort
+   // Filter by search query
+   if (searchQuery.value) {
+     const query = searchQuery.value.toLowerCase()
+     result = result.filter(a =>
+       a.title.toLowerCase().includes(query) ||
+       a.abstract?.toLowerCase().includes(query) ||
+       a.journal.toLowerCase().includes(query)
+     )
+   }
+
+   // Filter by abstract availability
+   if (showAbstractOnly.value) {
+     result = result.filter(a => a.abstract && a.abstract.trim().length > 0)
+   }
+
+   // Sort
   if (sortBy.value === 'date') {
     result.sort((a, b) => b.pub_date.localeCompare(a.pub_date))
   } else if (sortBy.value === 'journal') {
     result.sort((a, b) => a.journal.localeCompare(b.journal))
   }
   
-  return result
+   return result
+})
+
+// Count of articles with abstracts available
+const articlesWithAbstract = computed(() => {
+  return store.articles.filter(a => a.abstract && a.abstract.trim().length > 0)
 })
 
 function truncateAbstract(text, maxLength = 150) {
@@ -886,6 +922,20 @@ function exportAllArticles(format) {
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
+}
+
+/* Abstract filter checkbox styling */
+#abstractOnly:checked + label {
+  color: var(--terracotta-600);
+}
+
+#abstractOnly:focus {
+  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
+}
+
+.form-check-input:checked {
+  background-color: var(--terracotta-500);
+  border-color: var(--terracotta-500);
 }
 
 </style>
