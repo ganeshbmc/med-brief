@@ -36,7 +36,14 @@
               {{ message }}
             </div>
 
-            <!-- Show navigation options after successful save -->
+            <div class="mb-4">
+              <router-link to="/preferences" class="btn btn-outline-secondary d-flex align-items-center gap-2 w-100" style="pointer-events: auto;">
+                <Settings :size="18" />
+                User Preferences
+              </router-link>
+              <div class="form-text mt-1">Customize font size, line spacing, and default date range</div>
+            </div>
+
             <div v-if="saved" class="d-flex gap-2 flex-wrap">
               <button type="button" @click="resetEdit" class="btn btn-primary d-flex align-items-center gap-2">
                 <Edit :size="18" />
@@ -51,7 +58,6 @@
                 Manage Profiles
               </router-link>
             </div>
-            <!-- Show form buttons before save -->
             <div v-else class="d-flex gap-2">
               <button type="submit" class="btn btn-primary" :disabled="loading">
                 <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
@@ -69,7 +75,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import { AlertCircle, CheckCircle, LayoutDashboard, Users, Edit } from 'lucide-vue-next'
+import { AlertCircle, CheckCircle, LayoutDashboard, Users, Edit, Settings } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 const fullName = ref('')

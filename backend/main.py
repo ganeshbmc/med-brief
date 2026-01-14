@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from app.routers import auth, journals, profiles, briefs
+from app.routers import auth, journals, profiles, briefs, preferences
 from app.config import settings
 from app.database import engine, Base
 from app import models  # noqa: F401 - imports models to register them
@@ -42,6 +42,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(journals.router, prefix="/api/journals", tags=["Journals"])
 app.include_router(profiles.router, prefix="/api/profiles", tags=["Profiles"])
 app.include_router(briefs.router, prefix="/api/briefs", tags=["Briefs"])
+app.include_router(preferences.router, prefix="/api", tags=["Preferences"])
 
 
 @app.get("/health")

@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getPreferences, updatePreferences as apiUpdatePreferences } from '../services/api'
 
 export const useAuthStore = defineStore('auth', () => {
     const token = ref(localStorage.getItem('token') || null)
     const user = ref(null)
+    const preferences = ref({ fontSize: 'medium', lineSpacing: 'normal', defaultDays: 7 })
 
     const isAuthenticated = computed(() => !!token.value)
 
@@ -76,9 +78,31 @@ export const useAuthStore = defineStore('auth', () => {
             })
             if (response.ok) {
                 user.value = await response.json()
+                if (user.value.preferences) {
+                    preferences.value = { ...preferences.value, ...user.value.preferences }
+                }
             }
         } catch (e) {
             console.error('Failed to fetch user', e)
+        }
+    }
+
+    async function fetchPreferences() {
+        try {
+            const prefs = await getPreferences()
+            preferences.value = { ...preferences.value, ...prefs }
+        } catch (e) {
+            console.error('Failed to fetch preferences', e)
+        }
+    }
+
+    async function updateUserPreferences(newPrefs) {
+        try {
+            const updated = await apiUpdatePreferences(newPrefs)
+            preferences.value = { ...preferences.value, ...updated }
+            return updated
+        } catch (e) {
+            throw e
         }
     }
 
@@ -102,5 +126,5 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    return { token, user, isAuthenticated, login, register, logout, getAuthHeaders, fetchUser, updateProfile }
+    return { token, user, isAuthenticated, preferences, login, register, logout, getAuthHeaders, fetchUser, updateProfile, fetchPreferences, updateUserPreferences }
 })

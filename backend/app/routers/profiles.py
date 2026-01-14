@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -21,17 +21,22 @@ class NewJournal(BaseModel):
 
 class ProfileCreate(BaseModel):
     name: str
-    journal_ids: List[int] = []  # Existing journal IDs
-    new_journals: List[NewJournal] = []  # New journals from PubMed
+    journal_ids: List[int] = []
+    new_journals: List[NewJournal] = []
 
 
 class ProfileOut(BaseModel):
     id: int
     name: str
     journal_ids: List[int]
+    is_default: bool = False
 
     class Config:
         from_attributes = True
+
+
+class SetDefaultRequest(BaseModel):
+    is_default: bool = True
 
 
 @router.get("/", response_model=List[ProfileOut])
@@ -46,7 +51,7 @@ async def list_profiles(
     )
     profiles = result.scalars().all()
     return [
-        ProfileOut(id=p.id, name=p.name, journal_ids=[j.id for j in p.journals])
+        ProfileOut(id=p.id, name=p.name, journal_ids=[j.id for j in p.journals], is_default=p.is_default)
         for p in profiles
     ]
 
@@ -86,12 +91,22 @@ async def create_profile(
             await db.flush()  # Get the ID
             journals.append(journal)
 
-    profile = Profile(name=data.name, user_id=current_user.id, journals=journals)
+    # Check if this is the user's first profile
+    result = await db.execute(select(Profile).where(Profile.user_id == current_user.id))
+    existing_profiles = result.scalars().all()
+    is_first_profile = len(existing_profiles) == 0
+
+    profile = Profile(
+        name=data.name,
+        user_id=current_user.id,
+        journals=journals,
+        is_default=is_first_profile  # First profile is automatically default
+    )
     db.add(profile)
     await db.commit()
     await db.refresh(profile)
 
-    return ProfileOut(id=profile.id, name=profile.name, journal_ids=[j.id for j in journals])
+    return ProfileOut(id=profile.id, name=profile.name, journal_ids=[j.id for j in journals], is_default=profile.is_default)
 
 
 @router.put("/{profile_id}", response_model=ProfileOut)
@@ -120,7 +135,39 @@ async def update_profile(
     await db.commit()
     await db.refresh(profile)
 
-    return ProfileOut(id=profile.id, name=profile.name, journal_ids=[j.id for j in profile.journals])
+    return ProfileOut(id=profile.id, name=profile.name, journal_ids=[j.id for j in profile.journals], is_default=profile.is_default)
+
+
+@router.post("/{profile_id}/set-default", response_model=ProfileOut)
+async def set_default_profile(
+    profile_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Set a profile as the default profile for the user."""
+    # Verify profile belongs to user
+    result = await db.execute(
+        select(Profile)
+        .options(selectinload(Profile.journals))
+        .where(Profile.id == profile_id, Profile.user_id == current_user.id)
+    )
+    profile = result.scalar_one_or_none()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    # Set all user's profiles to not default
+    await db.execute(
+        Profile.__table__.update()
+        .where(Profile.user_id == current_user.id)
+        .values(is_default=False)
+    )
+
+    # Set the target profile as default
+    profile.is_default = True
+    await db.commit()
+    await db.refresh(profile)
+
+    return ProfileOut(id=profile.id, name=profile.name, journal_ids=[j.id for j in profile.journals], is_default=profile.is_default)
 
 
 @router.delete("/{profile_id}")

@@ -35,9 +35,12 @@
     <div v-else class="row g-4">
       <div v-for="profile in profiles" :key="profile.id" class="col-md-6">
         <div class="card h-100 profile-card" :class="{ 'editing': editingId === profile.id }" @click="handleCardClick(profile)">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <div v-if="editingId !== profile.id">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div v-if="editingId !== profile.id" class="d-flex align-items-center gap-2 flex-wrap">
               <h5 class="mb-0 text-warm-dark">{{ profile.name }}</h5>
+              <span v-if="profile.is_default" class="badge bg-terracotta-100 text-terracotta-600 d-flex align-items-center gap-1">
+                <Star :size="12" /> Default
+              </span>
             </div>
             <div v-else class="flex-grow-1 me-2">
               <input 
@@ -46,7 +49,15 @@
                 placeholder="Profile name"
               />
             </div>
-            <div class="d-flex gap-1">
+            <div class="d-flex gap-1 flex-wrap">
+              <button 
+                v-if="editingId !== profile.id && !profile.is_default"
+                class="btn btn-sm btn-outline-terracotta d-flex align-items-center gap-1" 
+                @click.stop="setAsDefault(profile.id)"
+                title="Set as default profile"
+              >
+                <Star :size="14" /> Set Default
+              </button>
               <button 
                 v-if="editingId !== profile.id"
                 class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" 
@@ -190,15 +201,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
+import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds, setDefaultProfile } from '../services/api'
 import { useDashboardStore } from '../stores/dashboard'
+import { useToast } from '@/utils/shareUtils'
 import { 
-  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle 
+  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle, Star 
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const store = useDashboardStore()
+const { show } = useToast()
 
 const profiles = ref([])
 const loading = ref(true)
@@ -298,6 +311,16 @@ function getJournalName(journalId) {
 
 function confirmDelete(profile) {
   deleteTarget.value = profile
+}
+
+async function setAsDefault(profileId) {
+  try {
+    await setDefaultProfile(profileId)
+    await loadProfiles()
+    show('Default profile updated!', 'success')
+  } catch (e) {
+    show('Failed to set default: ' + e.message, 'error')
+  }
 }
 
 async function doDelete() {

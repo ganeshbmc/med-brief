@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, JSON
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -19,6 +19,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     full_name = Column(String, nullable=True)
     password_hash = Column(String, nullable=False)
+    preferences = Column(JSON, nullable=True)
 
     profiles = relationship("Profile", back_populates="user")
 
@@ -29,6 +30,7 @@ class Profile(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, default="My Brief")
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    is_default = Column(Boolean, default=False, nullable=False)
 
     user = relationship("User", back_populates="profiles")
     journals = relationship("Journal", secondary=profile_journals, back_populates="profiles")

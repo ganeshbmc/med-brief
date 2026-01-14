@@ -277,3 +277,44 @@ a:hover {
   border-color: var(--terracotta-500);
   color: var(--warm-900);
 }
+
+/* User Preferences - Font Size */
+.font-small {
+  font-size: 14px !important;
+}
+
+.font-medium {
+  font-size: 16px !important;
+}
+
+.font-large {
+  font-size: 18px !important;
+}
+
+/* User Preferences - Line Spacing */
+.line-normal {
+  line-height: 1.5 !important;
+}
+
+.line-relaxed {
+  line-height: 1.8 !important;
+}
+
+/* Article content with dynamic preferences */
+.article-text {
+  transition: font-size 0.2s ease, line-height 0.2s ease;
+}
+
+/* Outline Terracotta Button */
+.btn-outline-terracotta {
+  color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-terracotta:hover,
+.btn-outline-terracotta:focus {
+  background-color: var(--terracotta-500) !important;
+  border-color: var(--terracotta-500) !important;
+  color: white !important;
+}

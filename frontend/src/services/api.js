@@ -104,3 +104,29 @@ export async function deleteProfile(profileId) {
     })
 }
 
+/**
+ * Set a profile as the default profile
+ */
+export async function setDefaultProfile(profileId) {
+    return request(`/api/profiles/${profileId}/set-default`, {
+        method: 'POST',
+    })
+}
+
+/**
+ * Get user preferences
+ */
+export async function getPreferences() {
+    return request('/api/preferences')
+}
+
+/**
+ * Update user preferences
+ */
+export async function updatePreferences(prefs) {
+    return request('/api/preferences', {
+        method: 'PUT',
+        body: JSON.stringify(prefs),
+    })
+}
+
