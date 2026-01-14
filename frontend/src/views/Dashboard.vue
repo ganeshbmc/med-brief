@@ -252,6 +252,10 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+                  <Share2 :size="16" class="me-1" />Share via...
+                </a></li>
               </ul>
             </div>
             <!-- Export dropdown for all articles -->
@@ -264,6 +268,10 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
+                  <Share2 :size="16" class="me-1" />Share via...
+                </a></li>
               </ul>
             </div>
           </div>
@@ -366,11 +374,13 @@ import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
 import { 
   FileText, Check, Plus, RefreshCw, Search, Newspaper, 
   AlertTriangle, CheckSquare, Square, X, Download, 
-  Calendar, ArrowRight 
+  Calendar, ArrowRight, Share2 
 } from 'lucide-vue-next'
+import { generateArticlesShareText, shareContent, useToast } from '@/utils/shareUtils'
 
 const router = useRouter()
 const store = useDashboardStore()
+const { show } = useToast()
 
 // Local state (not persisted across navigations)
 const searchQuery = ref('')
@@ -804,6 +814,28 @@ function exportAllArticles(format) {
   link.download = filename
   link.click()
   URL.revokeObjectURL(url)
+}
+
+async function shareSelectedArticles() {
+  const selectedList = filteredArticles.value.filter(a => selectedArticles.value.includes(a.pmid))
+  if (!selectedList.length) return
+
+  const text = generateArticlesShareText(selectedList)
+  const result = await shareContent(text, `MedBrief - ${selectedList.length} articles`)
+  if (result.method === 'clipboard') {
+    show(`Copied ${selectedList.length} articles to clipboard!`, 'success')
+  }
+}
+
+async function shareAllArticles() {
+  const articlesList = filteredArticles.value
+  if (!articlesList.length) return
+
+  const text = generateArticlesShareText(articlesList)
+  const result = await shareContent(text, `MedBrief - ${articlesList.length} articles`)
+  if (result.method === 'clipboard') {
+    show(`Copied ${articlesList.length} articles to clipboard!`, 'success')
+  }
 }
 </script>
 

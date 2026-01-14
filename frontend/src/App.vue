@@ -74,6 +74,7 @@
     <main>
       <router-view />
     </main>
+    <Toast />
   </div>
 </template>
 
@@ -82,6 +83,7 @@ import { useAuthStore } from './stores/auth'
 import { useDashboardStore } from './stores/dashboard'
 import { useRouter } from 'vue-router'
 import { LayoutDashboard, Users, LogOut, Menu, User, Settings } from 'lucide-vue-next'
+import Toast from '@/components/Toast.vue'
 
 const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()

@@ -30,6 +30,10 @@
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="handleShare">
+              <Share2 :size="14" class="me-1" />Share
+            </a></li>
           </ul>
         </div>
       </div>
@@ -103,15 +107,17 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, Download, ExternalLink } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2 } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
+import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { show } = useToast()
 
 const article = ref(null)
-const articles = ref([]) // All articles for navigation
+const articles = ref([])
 const currentIndex = ref(-1)
 
 const hasPrev = computed(() => currentIndex.value > 0)
@@ -132,6 +138,14 @@ function navigateTo(offset) {
   if (newIndex >= 0 && newIndex < articles.value.length) {
     const newArticle = articles.value[newIndex]
     router.push(`/article/${newArticle.pmid}`)
+  }
+}
+
+async function handleShare() {
+  const text = generateArticleShareText(article.value)
+  const result = await shareContent(text, article.value.title)
+  if (result.method === 'clipboard') {
+    show('Copied to clipboard!', 'success')
   }
 }
 
