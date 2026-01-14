@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4" :class="preferencesClasses">
     <!-- Back Navigation -->
     <div class="mb-4">
       <a @click.prevent="goBack" href="#" class="text-link d-inline-flex align-items-center gap-1">
@@ -107,6 +107,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2 } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
@@ -114,6 +115,7 @@ import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const { show } = useToast()
 
 const article = ref(null)
@@ -122,6 +124,18 @@ const currentIndex = ref(-1)
 
 const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
+
+// User preferences classes
+const preferencesClasses = computed(() => {
+  const prefs = authStore.preferences || {}
+  return {
+    'font-small': prefs.fontSize === 'small',
+    'font-medium': prefs.fontSize === 'medium' || !prefs.fontSize,
+    'font-large': prefs.fontSize === 'large',
+    'line-normal': prefs.lineSpacing === 'normal' || !prefs.lineSpacing,
+    'line-relaxed': prefs.lineSpacing === 'relaxed',
+  }
+})
 
 function formatAuthors(authors) {
   if (!authors || authors.length === 0) return 'Authors not available'

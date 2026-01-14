@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4" :class="preferencesClasses">
     <!-- Header Section -->
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -370,6 +370,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
+import { useAuthStore } from '../stores/auth'
 import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
 import { 
   FileText, Check, Plus, RefreshCw, Search, Newspaper, 
@@ -380,7 +381,23 @@ import { generateArticlesShareText, shareContent, useToast } from '@/utils/share
 
 const router = useRouter()
 const store = useDashboardStore()
+const authStore = useAuthStore()
 const { show } = useToast()
+
+// User preferences classes
+const preferencesClasses = computed(() => {
+  const prefs = authStore.preferences || {}
+  return {
+    'font-small': prefs.fontSize === 'small',
+    'font-medium': prefs.fontSize === 'medium' || !prefs.fontSize,
+    'font-large': prefs.fontSize === 'large',
+    'line-normal': prefs.lineSpacing === 'normal' || !prefs.lineSpacing,
+    'line-relaxed': prefs.lineSpacing === 'relaxed',
+  }
+})
+
+// Get default days from user preferences
+const defaultDays = computed(() => authStore.preferences?.defaultDays || 7)
 
 // Local state (not persisted across navigations)
 const searchQuery = ref('')
