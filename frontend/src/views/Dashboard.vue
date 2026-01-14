@@ -702,7 +702,10 @@ async function loadData() {
 onMounted(async () => {
   console.log('Dashboard mounted - hasCache:', store.hasCache, 'hasLoadedArticles:', store.hasLoadedArticles, 'articles:', store.articles.length)
   console.log('Scroll position from store:', store.scrollPosition)
-  const savedScroll = store.scrollPosition  // Capture before async ops
+  const savedScroll = store.scrollPosition
+  
+  // Initialize date range from user preferences BEFORE loading profiles
+  store.initializeDateRange()
   
   await store.loadProfiles()
   if (store.selectedProfileId) {

@@ -59,12 +59,23 @@
               </div>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2" v-if="!saved">
               <button type="submit" class="btn btn-primary" :disabled="saving">
                 <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
                 {{ saving ? 'Saving...' : 'Save Preferences' }}
               </button>
               <router-link to="/account" class="btn btn-outline-secondary">Cancel</router-link>
+            </div>
+
+            <div v-if="saved" class="d-flex gap-2 flex-wrap">
+              <button type="button" @click="enableEdit" class="btn btn-primary d-flex align-items-center gap-2">
+                <Edit :size="18" />
+                Edit
+              </button>
+              <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                <LayoutDashboard :size="18" />
+                Go to Dashboard
+              </router-link>
             </div>
 
             <div v-if="message" :class="['alert mt-3 d-flex align-items-center gap-2', isError ? 'alert-danger' : 'alert-success']">
@@ -82,7 +93,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import { ArrowLeft, Check, AlertCircle } from 'lucide-vue-next'
+import { ArrowLeft, Check, AlertCircle, Edit, LayoutDashboard } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 
@@ -95,6 +106,7 @@ const loading = ref(true)
 const saving = ref(false)
 const message = ref('')
 const isError = ref(false)
+const saved = ref(false)
 
 async function loadPreferences() {
   loading.value = true
@@ -121,12 +133,19 @@ async function handleSave() {
   try {
     await authStore.updateUserPreferences(prefs.value)
     message.value = 'Preferences saved successfully!'
+    saved.value = true
   } catch (e) {
     isError.value = true
     message.value = 'Failed to save preferences: ' + e.message
   } finally {
     saving.value = false
   }
+}
+
+function enableEdit() {
+  saved.value = false
+  message.value = ''
+  isError.value = false
 }
 
 onMounted(() => {
