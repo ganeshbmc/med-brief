@@ -255,7 +255,42 @@ d181090 fix: correct preferences router URL path
 ## Known Issues / Follow-ups
 - Issue #22 (Badge count) still open on GitHub despite being completed
 - Consider adding more preference options in future (font family, theme)
+- Railway platform occasionally experiences "Metal builds delayed" incidents
+
+---
+
+## Additional Updates (Post-Session)
+
+### Share Button Date Format Fix
+**Issue**: Date was showing "undefined" month in share text
+**Fix**: 
+- Moved date next to journal name: `JAMA Cardiology (14-Jan-2026)`
+- Removed separate "Date: ..." line from share content
+- Added error handling for edge cases in date parsing
+
+### Docker Build Optimization
+**Issue**: Railway deployment timeout due to large build context
+**Fix**:
+- Added `.dockerignore` file to exclude:
+  - `node_modules/` (reinstalled in Docker)
+  - `.git/` (not needed in container)
+  - `dist/`, `logs/`, `*.log`, `.env`, IDE files, etc.
+
+### Files Changed (Additional)
+| File | Change Type | Lines |
+|------|-------------|-------|
+| frontend/src/utils/shareUtils.js | Modified | +24/-7 |
+| .dockerignore | New | +62 |
+
+### Git History (Continued)
+```
+9cdbc10 fix: share article date format and layout
+d28d292 chore: force railway redeploy
+23256cf chore: add .dockerignore to reduce build context size
+```
 
 ---
 
 **Session Status**: ✅ **COMPLETED SUCCESSFULLY**
+**Last Updated**: 2026-01-15
+**Railway Status**: Platform incident (Metal builds delayed) - awaiting resolution
