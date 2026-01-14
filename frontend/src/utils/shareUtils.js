@@ -24,9 +24,12 @@ export function useToast() {
 
 export function generateArticleShareText(article) {
   const dateFormatted = formatDateMonthYear(article.pub_date)
-  let text = `${article.journal}\n\n${article.title}\n\n`
+  let text = `${article.journal}`
+  if (dateFormatted) {
+    text += ` (${dateFormatted})`
+  }
+  text += `\n\n${article.title}\n\n`
   text += `Authors: ${formatAuthors(article.authors)}\n`
-  text += `Date: ${dateFormatted}\n\n`
   text += `PMID: ${article.pmid}\n`
   if (article.doi) {
     text += `DOI: https://doi.org/${article.doi}\n`
@@ -35,9 +38,19 @@ export function generateArticleShareText(article) {
 }
 
 export function generateArticlesShareText(articles) {
-  return articles.map(a =>
-    `${a.journal}\n${a.title}\nAuthors: ${formatAuthors(a.authors)}\nDate: ${formatDateMonthYear(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\n${'─'.repeat(40)}`
-  ).join('\n\n')
+  return articles.map(a => {
+    const dateFormatted = formatDateMonthYear(a.pub_date)
+    let text = a.journal
+    if (dateFormatted) {
+      text += ` (${dateFormatted})`
+    }
+    text += `\n${a.title}\n`
+    text += `Authors: ${formatAuthors(a.authors)}\n`
+    text += `PMID: ${a.pmid}\n`
+    text += `DOI: ${a.doi || 'N/A'}\n`
+    text += `${'─'.repeat(40)}`
+    return text
+  }).join('\n\n')
 }
 
 export async function shareContent(text, title = 'MedBrief Article') {
@@ -65,8 +78,12 @@ export async function shareContent(text, title = 'MedBrief Article') {
 function formatDateMonthYear(dateStr) {
   if (!dateStr) return ''
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const [year, month, day] = dateStr.split('-')
-  return `${day}-${months[parseInt(month) - 1]}-${year}`
+  const parts = dateStr.split('-')
+  if (parts.length !== 3) return ''
+  const [year, month, day] = parts
+  const monthIndex = parseInt(month) - 1
+  if (isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return ''
+  return `${day}-${months[monthIndex]}-${year}`
 }
 
 function formatAuthors(authors) {
