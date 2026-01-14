@@ -39,7 +39,7 @@
             <div v-if="editingId !== profile.id" class="d-flex align-items-center gap-2 flex-wrap">
               <h5 class="mb-0 text-warm-dark">{{ profile.name }}</h5>
               <span v-if="profile.is_default" class="badge bg-terracotta-100 text-terracotta-600 d-flex align-items-center gap-1">
-                <Star :size="12" /> Default
+                <Star :size="12" /> Current Default
               </span>
             </div>
             <div v-else class="flex-grow-1 me-2">
@@ -317,6 +317,8 @@ async function setAsDefault(profileId) {
   try {
     await setDefaultProfile(profileId)
     await loadProfiles()
+    // Also refresh the dashboard store to pick up the new default
+    store.loadProfiles(true)
     show('Default profile updated!', 'success')
   } catch (e) {
     show('Failed to set default: ' + e.message, 'error')

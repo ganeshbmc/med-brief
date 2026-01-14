@@ -54,7 +54,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
             profiles.value = await getProfiles()
             hasLoadedProfiles.value = true
             if (profiles.value.length > 0 && !selectedProfileId.value) {
-                selectedProfileId.value = profiles.value[0].id
+                // Select the default profile if one exists, otherwise select the first
+                const defaultProfile = profiles.value.find(p => p.is_default)
+                selectedProfileId.value = defaultProfile ? defaultProfile.id : profiles.value[0].id
             }
             // When force-refreshing, also invalidate journal and article caches
             // so they get re-fetched with updated profile data
