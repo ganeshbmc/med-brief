@@ -55,7 +55,7 @@
           </router-link>
         </div>
 
-        <!-- User Details Modal -->
+          <!-- User Details Modal -->
         <div v-if="showUserDetails" class="modal-backdrop" @click="closeUserDetails">
           <div class="modal-dialog" @click.stop>
             <div class="card p-4">
@@ -63,6 +63,16 @@
               
               <form @submit.prevent="handleSave">
                 <div class="mb-3">
+                  <label class="form-label">Full Name</label>
+                  <input 
+                    v-model="fullName" 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Enter your name"
+                  />
+                </div>
+
+                <div class="mb-4">
                   <label class="form-label">Email Address</label>
                   <input 
                     type="email" 
@@ -72,16 +82,6 @@
                     readonly
                   />
                   <div class="form-text">Email cannot be changed.</div>
-                </div>
-
-                <div class="mb-4">
-                  <label class="form-label">Full Name</label>
-                  <input 
-                    v-model="fullName" 
-                    type="text" 
-                    class="form-control" 
-                    placeholder="Enter your name"
-                  />
                 </div>
 
                 <div v-if="message" :class="['alert mb-3 d-flex align-items-center gap-2', isError ? 'alert-danger' : 'alert-success']">
