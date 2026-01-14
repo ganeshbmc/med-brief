@@ -33,7 +33,7 @@
 
     <!-- Profiles List -->
     <div v-else class="row g-4">
-      <div v-for="profile in profiles" :key="profile.id" class="col-md-6">
+      <div v-for="profile in sortedProfiles" :key="profile.id" class="col-md-6">
         <div class="card h-100 profile-card" :class="{ 'editing': editingId === profile.id }" @click="handleCardClick(profile)">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div v-if="editingId !== profile.id" class="d-flex align-items-center gap-2 flex-wrap">
@@ -199,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds, setDefaultProfile } from '../services/api'
 import { useDashboardStore } from '../stores/dashboard'
@@ -227,6 +227,15 @@ const successMessage = ref('')
 const allJournals = ref({}) // Cache journal names
 
 let searchTimeout = null
+
+// Sort profiles: default first, then alphabetical by name
+const sortedProfiles = computed(() => {
+  return [...profiles.value].sort((a, b) => {
+    if (a.is_default && !b.is_default) return -1
+    if (!a.is_default && b.is_default) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
 
 async function loadProfiles() {
   loading.value = true
