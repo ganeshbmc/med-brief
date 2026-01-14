@@ -42,7 +42,7 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(journals.router, prefix="/api/journals", tags=["Journals"])
 app.include_router(profiles.router, prefix="/api/profiles", tags=["Profiles"])
 app.include_router(briefs.router, prefix="/api/briefs", tags=["Briefs"])
-app.include_router(preferences.router, prefix="/api", tags=["Preferences"])
+app.include_router(preferences.router, prefix="/api/preferences", tags=["Preferences"])
 
 
 @app.get("/health")

@@ -117,14 +117,14 @@ export async function setDefaultProfile(profileId) {
  * Get user preferences
  */
 export async function getPreferences() {
-    return request('/api/preferences')
+    return request('/api/preferences/')
 }
 
 /**
  * Update user preferences
  */
 export async function updatePreferences(prefs) {
-    return request('/api/preferences', {
+    return request('/api/preferences/', {
         method: 'PUT',
         body: JSON.stringify(prefs),
     })
