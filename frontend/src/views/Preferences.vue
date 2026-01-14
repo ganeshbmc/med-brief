@@ -68,10 +68,10 @@
             </div>
 
             <div v-if="saved" class="d-flex gap-2 flex-wrap">
-              <button type="button" @click="enableEdit" class="btn btn-primary d-flex align-items-center gap-2">
-                <Edit :size="18" />
-                Edit
-              </button>
+              <router-link to="/account" class="btn btn-primary d-flex align-items-center gap-2">
+                <ArrowLeft :size="18" />
+                Back to Account Settings
+              </router-link>
               <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
                 <LayoutDashboard :size="18" />
                 Go to Dashboard
@@ -93,7 +93,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import { ArrowLeft, Check, AlertCircle, Edit, LayoutDashboard } from 'lucide-vue-next'
+import { ArrowLeft, Check, AlertCircle, LayoutDashboard } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 

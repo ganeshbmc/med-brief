@@ -30,13 +30,13 @@
             <ArrowRight :size="20" class="card-arrow" />
           </router-link>
 
-          <!-- Manage Profiles Card -->
+          <!-- Manage Journal Profiles Card -->
           <router-link to="/profiles" class="settings-card">
             <div class="card-icon">
               <Users :size="24" />
             </div>
             <div class="card-content">
-              <h4>Manage Profiles</h4>
+              <h4>Manage Journal Profiles</h4>
               <p class="text-muted mb-0">{{ profileCount }} profile{{ profileCount !== 1 ? 's' : '' }} configured</p>
             </div>
             <ArrowRight :size="20" class="card-arrow" />

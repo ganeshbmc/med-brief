@@ -1,14 +1,19 @@
 <template>
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
-        <h2 class="text-warm-dark fw-bold mb-1">Manage Profiles</h2>
+        <h2 class="text-warm-dark fw-bold mb-1">Manage Journal Profiles</h2>
         <p class="text-muted mb-0">Edit, add, or remove journals from your profiles</p>
       </div>
-      <router-link to="/dashboard" class="btn btn-light d-flex align-items-center gap-2">
-        <ArrowLeft :size="18" />
-        Back to Dashboard
-      </router-link>
+      <div class="d-flex gap-2">
+        <router-link to="/account" class="btn btn-primary d-flex align-items-center gap-2">
+          <ArrowLeft :size="18" />
+          Account Settings
+        </router-link>
+        <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+          Dashboard
+        </router-link>
+      </div>
     </div>
 
     <!-- Success Message -->

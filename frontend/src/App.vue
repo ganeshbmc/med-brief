@@ -30,7 +30,11 @@
               </router-link>
               <router-link class="nav-link d-flex align-items-center gap-1" to="/profiles">
                 <Users :size="18" />
-                <span>Profiles</span>
+                <span>Journal Profiles</span>
+              </router-link>
+              <router-link class="nav-link d-flex align-items-center gap-1" to="/account">
+                <Settings :size="18" />
+                <span>Account</span>
               </router-link>
 
               
