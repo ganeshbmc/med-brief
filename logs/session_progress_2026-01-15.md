@@ -1,102 +1,260 @@
-# Session Progress: 2026-01-15 - Share Button Implementation
+# Session Progress: 2026-01-15 - User Preferences, Default Profile & Account Settings Redesign
 
 ## Summary
-Implemented Issue #40: Add share button functionality to Article and Dashboard pages.
+Implemented Issues #34 (User Preferences) and #35 (Default Profile), plus a complete redesign of the Account Settings page with improved navigation flow.
 
 ## Issues Addressed
-- **Issue #40**: Share button - Implemented complete share functionality
+- **Issue #34**: User Preferences - Font size, line spacing, default date range
+- **Issue #35**: Default Profile - Set default profile, first profile auto-selected
+- **UX Improvements**: Account Settings page redesign, navigation flow fixes
 
-## Changes Made
+---
+
+## Database Schema Changes
+
+### New Columns Added (via Alembic migration `6db7e0d84c40`)
+```sql
+-- profiles table
+ALTER TABLE profiles ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- users table  
+ALTER TABLE users ADD COLUMN preferences JSON;
+```
+
+### Migration File
+- `backend/alembic/versions/6db7e0d84c40_add_is_default_and_preferences_columns.py`
+
+---
+
+## Backend Changes
 
 ### New Files Created
-1. **`frontend/src/utils/shareUtils.js`**
-   - `generateArticleShareText()` - Formats single article for sharing
-   - `generateArticlesShareText()` - Formats multiple articles for sharing
-   - `shareContent()` - Triggers native Web Share API or clipboard fallback
-   - `useToast()` - Reactive toast notification system
-
-2. **`frontend/src/components/Toast.vue`**
-   - Global toast notification component
-   - Smooth slide-up animation
-   - Success/info/error variants
-   - Auto-dismiss after 3 seconds
+1. **`backend/app/routers/preferences.py`**
+   - `GET /api/preferences/` - Get user preferences (with defaults)
+   - `PUT /api/preferences/` - Update user preferences
+   - Response model: `fontSize`, `lineSpacing`, `defaultDays`
 
 ### Files Modified
-1. **`frontend/src/App.vue`**
-   - Added `<Toast />` component for global toast notifications
+1. **`backend/app/models.py`**
+   - Added `is_default` column to `Profile` model
+   - Added `preferences` column to `User` model (JSON type)
 
-2. **`frontend/src/views/Article.vue`**
-   - Added Share button to Export dropdown (next to Export/TXT/RIS/NBIB)
-   - Imported Share2 icon and share utilities
-   - Added `handleShare()` function
-   - Format matches issue requirements: Journal, Title, Authors, Date (dd-mmm-yyyy), PMID, DOI link
+2. **`backend/app/routers/profiles.py`**
+   - Added `is_default` to `ProfileOut` response model
+   - Added `POST /api/profiles/{id}/set-default` endpoint
+   - First created profile automatically set as default
+   - `create_profile()` auto-sets `is_default=True` for first profile
 
-3. **`frontend/src/views/Dashboard.vue`**
-   - Added "Share via..." option to Export Selected dropdown (selection mode)
-   - Added "Share via..." option to Export dropdown (normal mode)
-   - Imported Share2 icon and share utilities
-   - Added `shareSelectedArticles()` and `shareAllArticles()` functions
+3. **`backend/app/routers/auth.py`**
+   - Added `preferences` field to `UserOut` response model
 
-## Implementation Details
+4. **`backend/main.py`**
+   - Registered `preferences` router at `/api/preferences`
 
-### Share Format (per issue requirements)
+---
+
+## Frontend Changes
+
+### New Files Created
+1. **`frontend/src/views/Preferences.vue`**
+   - User preferences page with 3 settings:
+     - Font Size: Small / Medium / Large
+     - Line Spacing: Normal / Relaxed
+     - Default Date Range: 3 / 7 / 14 / 30 days
+   - Edit button after saving (to make more changes)
+   - Navigation: Back to Account Settings / Go to Dashboard
+
+### Files Modified
+
+1. **`frontend/src/services/api.js`**
+   - Added `setDefaultProfile(profileId)`
+   - Added `getPreferences()`
+   - Added `updatePreferences(prefs)`
+
+2. **`frontend/src/stores/auth.js`**
+   - Added `preferences` state ref
+   - Added `fetchPreferences()` action
+   - Added `updateUserPreferences(newPrefs)` action
+   - Loads preferences on user fetch
+
+3. **`frontend/src/stores/dashboard.js`**
+   - Added `initializeDateRange()` function
+   - Modified `loadProfiles()` to select default profile on login
+   - Default profile takes priority over first profile
+
+4. **`frontend/src/views/Account.vue`** - COMPLETE REDESIGN
+   - **Before**: Single form with inline preferences link
+   - **After**: 2x2 card grid layout
+   - 4 equal-sized clickable cards:
+     - **User Details** - Click to edit name/email in modal
+     - **User Preferences** - Navigate to preferences page
+     - **Manage Journal Profiles** - Navigate to profiles page
+     - **Go to Dashboard** - Navigate to dashboard
+   - Consistent styling, no highlighting (all cards same)
+   - Hover effects with terracotta border
+
+5. **`frontend/src/views/Profiles.vue`**
+   - Page title: "Manage Journal Profiles" (was "Manage Profiles")
+   - Added "Current Default" badge on default profile
+   - Added "Set Default" button on non-default profiles
+   - Added `sortedProfiles` computed property:
+     - Default profile first, then alphabetical by name
+   - Dual navigation: Account Settings (primary) + Dashboard
+   - Added `setAsDefault()` function with toast notification
+   - Force refreshes dashboard store when default changes
+
+6. **`frontend/src/views/Preferences.vue`**
+   - Added Edit button after saving (to make more changes)
+   - Added "Back to Account Settings" navigation
+   - Cleaned up imports
+
+7. **`frontend/src/views/Dashboard.vue`**
+   - Imported `useAuthStore`
+   - Added `preferencesClasses` computed property
+   - Applied font/line-spacing classes to container
+   - Calls `initializeDateRange()` on mount
+
+8. **`frontend/src/views/Article.vue`**
+   - Imported `useAuthStore`
+   - Added `preferencesClasses` computed property
+   - Applied font/line-spacing classes to container
+
+9. **`frontend/src/router/index.js`**
+   - Added `/preferences` route
+
+10. **`frontend/src/assets/theme.css`**
+    - Added `.font-small`, `.font-medium`, `.font-large`
+    - Added `.line-normal`, `.line-relaxed`
+    - Added `.btn-outline-terracotta` styling
+
+11. **`frontend/src/App.vue`**
+    - Removed "Account" from main navbar (kept in dropdown)
+    - Renamed "Profiles" nav link to "Journal Profiles"
+
+---
+
+## Feature Details
+
+### User Preferences
+**Preferences Structure:**
+```json
+{
+  "fontSize": "medium",     // small | medium | large
+  "lineSpacing": "normal",  // normal | relaxed
+  "defaultDays": 7          // 3 | 7 | 14 | 30
+}
 ```
-{Journal Name}
 
-{Title}
+**Applied To:**
+- Dashboard: Uses `defaultDays` for initial date range
+- Article.vue: Applies `fontSize` and `lineSpacing` CSS classes
+- Dashboard.vue: Applies `fontSize` and `lineSpacing` CSS classes
 
-Authors: {Authors}
-Date: {dd-mmm-yyyy}
+### Default Profile
+**Behavior:**
+1. First profile created → automatically set as default
+2. User can change default via "Set Default" button on Profiles page
+3. Dashboard loads with default profile selected
+4. Default profile shown first in list with "Current Default" badge
 
-PMID: {PMID}
-DOI: https://doi.org/{DOI}
+**API Endpoints:**
+- `POST /api/profiles/{id}/set-default` - Set profile as default
+- GET profiles includes `is_default` boolean field
+
+### Navigation Flow
+```
+Dashboard (navbar)
+  ├── Journal Profiles → /profiles
+  └── User Dropdown → Account Settings / Logout
+
+/account (4 card grid)
+  ├── User Details → Modal (on same page)
+  ├── User Preferences → /preferences
+  ├── Manage Journal Profiles → /profiles
+  └── Go to Dashboard → /dashboard
+
+/preferences
+  ├── Before save: Save | Cancel
+  └── After save: Edit | Back to Account Settings | Go to Dashboard
+
+/profiles
+  ├── Account Settings (primary) | Dashboard (secondary)
+  └── Current Default badge | Set Default button
 ```
 
-### Platform Behavior
-- **Mobile**: Uses native Web Share API → shows share sheet (WhatsApp, messaging, etc.)
-- **Desktop**: Falls back to clipboard copy → shows toast "Copied to clipboard!"
-- **Clipboard feedback**: Toast notification confirms the action
-
-### No Database Changes ✓
-All changes are frontend-only.
-
-## Technical Stack Used
-- Vue 3 Composition API
-- Web Share API (`navigator.share`)
-- Clipboard API (`navigator.clipboard`)
-- Lucide Vue Next icons
-- Bootstrap 5 dropdowns
-
-## Build Verification
-- ✓ Build successful (1733 modules transformed)
-- ✓ No lint errors
-- ✓ Production build: 262KB JS, 33KB gzip
-
-## Git History
-```
-e4205f6 feat(#40): add share button functionality
-```
+---
 
 ## Files Changed Summary
+
 | File | Change Type | Lines |
 |------|-------------|-------|
-| frontend/src/utils/shareUtils.js | New | +95 |
-| frontend/src/components/Toast.vue | New | +58 |
-| frontend/src/App.vue | Modified | +2 |
-| frontend/src/views/Article.vue | Modified | +18 |
-| frontend/src/views/Dashboard.vue | Modified | +24 |
-| **Total** | | **+197** |
+| backend/alembic/versions/6db7e0d84c40_*.py | New | +18 |
+| backend/app/models.py | Modified | +2 |
+| backend/app/routers/preferences.py | New | +51 |
+| backend/app/routers/profiles.py | Modified | +25 |
+| backend/app/routers/auth.py | Modified | +2 |
+| backend/main.py | Modified | +2 |
+| frontend/src/views/Preferences.vue | New | +155 |
+| frontend/src/services/api.js | Modified | +15 |
+| frontend/src/stores/auth.js | Modified | +12 |
+| frontend/src/stores/dashboard.js | Modified | +15 |
+| frontend/src/views/Account.vue | Complete rewrite | +241/-115 |
+| frontend/src/views/Profiles.vue | Modified | +35 |
+| frontend/src/views/Preferences.vue | Modified | +10 |
+| frontend/src/views/Dashboard.vue | Modified | +15 |
+| frontend/src/views/Article.vue | Modified | +12 |
+| frontend/src/router/index.js | Modified | +2 |
+| frontend/src/assets/theme.css | Modified | +25 |
+| frontend/src/App.vue | Modified | +5/-10 |
+| **Total** | | **+650** |
+
+---
+
+## Testing Checklist
+
+- [x] First profile created is set as default
+- [x] User can change default profile on Profiles page
+- [x] Dashboard loads with default profile selected
+- [x] Preferences save correctly to database
+- [x] Preferences apply to Dashboard (font size, line spacing)
+- [x] Preferences apply to Article page
+- [x] Default date range is used on Dashboard load
+- [x] Account Settings page shows 4 equal cards
+- [x] User Details modal shows Full Name first
+- [x] Preferences page has Edit button after saving
+- [x] All pages can navigate back to Account Settings
+- [x] Account removed from navbar (still in dropdown)
+- [x] Build successful (1735 modules)
+
+---
+
+## Git History
+
+```
+57f4891 fix: profile sorting and default selection
+d167a61 fix: default profile selection and badge text
+ec09a93 fix: apply user preferences to Dashboard and improve UX
+4c268c6 fix: apply user preferences to Dashboard and Article pages
+d181090 fix: correct preferences router URL path
+213b4a3 feat(#34, #35): add user preferences and default profile
+282a6be docs: add session log for share button implementation
+```
+
+---
 
 ## Session Metrics
-- **Duration**: ~1 hour
-- **Issues Completed**: 1
-- **Files Created**: 2
-- **Files Modified**: 3
+- **Duration**: ~4 hours across multiple sessions
+- **Issues Completed**: 2 (#34, #35) + UX improvements
+- **Files Created**: 4
+- **Files Modified**: 16
+- **Lines Changed**: ~650
 - **Build Status**: ✓ Passed
 
-## Related Notes
-- Issue #22 (Badge count) remains open on GitHub despite being completed per docs/issue_22_fix_summary.md
-- User may want to close #22 manually
+---
+
+## Known Issues / Follow-ups
+- Issue #22 (Badge count) still open on GitHub despite being completed
+- Consider adding more preference options in future (font family, theme)
 
 ---
 
