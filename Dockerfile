@@ -19,9 +19,6 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     libcairo-gobject2 \
     libcairo2 \
-    libgdk-pixbuf2.0-0 \
-    libffi8 \
-    shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
