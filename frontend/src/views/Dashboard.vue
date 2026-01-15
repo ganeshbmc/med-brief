@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4" :class="preferencesClasses">
     <!-- Header Section -->
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -252,6 +252,10 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+                  <Share2 :size="16" class="me-1" />Share via...
+                </a></li>
               </ul>
             </div>
             <!-- Export dropdown for all articles -->
@@ -264,6 +268,10 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
+                  <Share2 :size="16" class="me-1" />Share via...
+                </a></li>
               </ul>
             </div>
           </div>
@@ -362,15 +370,34 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
+import { useAuthStore } from '../stores/auth'
 import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
 import { 
   FileText, Check, Plus, RefreshCw, Search, Newspaper, 
   AlertTriangle, CheckSquare, Square, X, Download, 
-  Calendar, ArrowRight 
+  Calendar, ArrowRight, Share2 
 } from 'lucide-vue-next'
+import { generateArticlesShareText, shareContent, useToast } from '@/utils/shareUtils'
 
 const router = useRouter()
 const store = useDashboardStore()
+const authStore = useAuthStore()
+const { show } = useToast()
+
+// User preferences classes
+const preferencesClasses = computed(() => {
+  const prefs = authStore.preferences || {}
+  return {
+    'font-small': prefs.fontSize === 'small',
+    'font-medium': prefs.fontSize === 'medium' || !prefs.fontSize,
+    'font-large': prefs.fontSize === 'large',
+    'line-normal': prefs.lineSpacing === 'normal' || !prefs.lineSpacing,
+    'line-relaxed': prefs.lineSpacing === 'relaxed',
+  }
+})
+
+// Get default days from user preferences
+const defaultDays = computed(() => authStore.preferences?.defaultDays || 7)
 
 // Local state (not persisted across navigations)
 const searchQuery = ref('')
@@ -675,7 +702,10 @@ async function loadData() {
 onMounted(async () => {
   console.log('Dashboard mounted - hasCache:', store.hasCache, 'hasLoadedArticles:', store.hasLoadedArticles, 'articles:', store.articles.length)
   console.log('Scroll position from store:', store.scrollPosition)
-  const savedScroll = store.scrollPosition  // Capture before async ops
+  const savedScroll = store.scrollPosition
+  
+  // Initialize date range from user preferences BEFORE loading profiles
+  store.initializeDateRange()
   
   await store.loadProfiles()
   if (store.selectedProfileId) {
@@ -804,6 +834,28 @@ function exportAllArticles(format) {
   link.download = filename
   link.click()
   URL.revokeObjectURL(url)
+}
+
+async function shareSelectedArticles() {
+  const selectedList = filteredArticles.value.filter(a => selectedArticles.value.includes(a.pmid))
+  if (!selectedList.length) return
+
+  const text = generateArticlesShareText(selectedList)
+  const result = await shareContent(text, `MedBrief - ${selectedList.length} articles`)
+  if (result.method === 'clipboard') {
+    show(`Copied ${selectedList.length} articles to clipboard!`, 'success')
+  }
+}
+
+async function shareAllArticles() {
+  const articlesList = filteredArticles.value
+  if (!articlesList.length) return
+
+  const text = generateArticlesShareText(articlesList)
+  const result = await shareContent(text, `MedBrief - ${articlesList.length} articles`)
+  if (result.method === 'clipboard') {
+    show(`Copied ${articlesList.length} articles to clipboard!`, 'success')
+  }
 }
 </script>
 

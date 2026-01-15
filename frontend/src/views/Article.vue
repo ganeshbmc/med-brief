@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4" :class="preferencesClasses">
     <!-- Back Navigation -->
     <div class="mb-4">
       <a @click.prevent="goBack" href="#" class="text-link d-inline-flex align-items-center gap-1">
@@ -30,6 +30,10 @@
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="handleShare">
+              <Share2 :size="14" class="me-1" />Share
+            </a></li>
           </ul>
         </div>
       </div>
@@ -103,19 +107,35 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, Download, ExternalLink } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2 } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
+import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
+const { show } = useToast()
 
 const article = ref(null)
-const articles = ref([]) // All articles for navigation
+const articles = ref([])
 const currentIndex = ref(-1)
 
 const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
+
+// User preferences classes
+const preferencesClasses = computed(() => {
+  const prefs = authStore.preferences || {}
+  return {
+    'font-small': prefs.fontSize === 'small',
+    'font-medium': prefs.fontSize === 'medium' || !prefs.fontSize,
+    'font-large': prefs.fontSize === 'large',
+    'line-normal': prefs.lineSpacing === 'normal' || !prefs.lineSpacing,
+    'line-relaxed': prefs.lineSpacing === 'relaxed',
+  }
+})
 
 function formatAuthors(authors) {
   if (!authors || authors.length === 0) return 'Authors not available'
@@ -132,6 +152,14 @@ function navigateTo(offset) {
   if (newIndex >= 0 && newIndex < articles.value.length) {
     const newArticle = articles.value[newIndex]
     router.push(`/article/${newArticle.pmid}`)
+  }
+}
+
+async function handleShare() {
+  const text = generateArticleShareText(article.value)
+  const result = await shareContent(text, article.value.title)
+  if (result.method === 'clipboard') {
+    show('Copied to clipboard!', 'success')
   }
 }
 

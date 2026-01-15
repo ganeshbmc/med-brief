@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -84,9 +86,10 @@ class UserOut(BaseModel):
     id: int
     email: EmailStr
     full_name: str | None = None
+    preferences: Optional[Dict] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserUpdate(BaseModel):

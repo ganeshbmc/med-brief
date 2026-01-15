@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getProfiles, generateBrief, getJournalsByIds } from '../services/api'
+import { useAuthStore } from './auth'
 
 export const useDashboardStore = defineStore('dashboard', () => {
     // Core data
@@ -35,19 +36,34 @@ export const useDashboardStore = defineStore('dashboard', () => {
         return hasLoadedArticles.value && articles.value.length >= 0
     })
 
+    // Initialize date range from user preferences
+    function initializeDateRange() {
+        const authStore = useAuthStore()
+        const defaultDays = authStore.preferences?.defaultDays || 7
+        if (!hasLoadedProfiles.value && !hasLoadedArticles.value) {
+            applyPreset(defaultDays)
+        }
+    }
+
     // Actions
     async function loadProfiles(force = false) {
         if (!force && hasLoadedProfiles.value) return
 
         loadingProfiles.value = true
         try {
-            profiles.value = await getProfiles()
+            const fetchedProfiles = await getProfiles()
+            profiles.value = fetchedProfiles
             hasLoadedProfiles.value = true
-            if (profiles.value.length > 0 && !selectedProfileId.value) {
-                selectedProfileId.value = profiles.value[0].id
+            
+            // Always try to select the default profile on login
+            const defaultProfile = fetchedProfiles.find(p => p.is_default)
+            if (defaultProfile) {
+                selectedProfileId.value = defaultProfile.id
+            } else if (fetchedProfiles.length > 0 && !selectedProfileId.value) {
+                selectedProfileId.value = fetchedProfiles[0].id
             }
+            
             // When force-refreshing, also invalidate journal and article caches
-            // so they get re-fetched with updated profile data
             if (force) {
                 loadedJournalsForProfileId.value = null
                 profileJournals.value = []
@@ -183,5 +199,6 @@ export const useDashboardStore = defineStore('dashboard', () => {
         clearCache,
         saveScrollPosition,
         scrollPosition,
+        initializeDateRange,
     }
 })

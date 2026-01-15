@@ -9,6 +9,7 @@ import Onboarding from '../views/Onboarding.vue'
 import Profiles from '../views/Profiles.vue'
 import Article from '../views/Article.vue'
 import Account from '../views/Account.vue'
+import Preferences from '../views/Preferences.vue'
 
 const routes = [
     { path: '/', name: 'Home', component: Home },
@@ -19,6 +20,7 @@ const routes = [
     { path: '/profiles', name: 'Profiles', component: Profiles, meta: { requiresAuth: true } },
     { path: '/article/:pmid', name: 'Article', component: Article, meta: { requiresAuth: true } },
     { path: '/account', name: 'Account', component: Account, meta: { requiresAuth: true } },
+    { path: '/preferences', name: 'Preferences', component: Preferences, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

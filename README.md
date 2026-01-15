@@ -30,3 +30,4 @@ MedBrief is a lightweight app that pulls the latest publications from PubMed for
 - Connect to zotero, notebooklm
 - User collections 
 - Browser extension plugin for adding to collections  
+# Force redeploy Thu Jan 15 02:51:51 IST 2026

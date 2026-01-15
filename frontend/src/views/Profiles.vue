@@ -1,14 +1,19 @@
 <template>
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <div>
-        <h2 class="text-warm-dark fw-bold mb-1">Manage Profiles</h2>
+        <h2 class="text-warm-dark fw-bold mb-1">Manage Journal Profiles</h2>
         <p class="text-muted mb-0">Edit, add, or remove journals from your profiles</p>
       </div>
-      <router-link to="/dashboard" class="btn btn-light d-flex align-items-center gap-2">
-        <ArrowLeft :size="18" />
-        Back to Dashboard
-      </router-link>
+      <div class="d-flex gap-2">
+        <router-link to="/account" class="btn btn-primary d-flex align-items-center gap-2">
+          <ArrowLeft :size="18" />
+          Account Settings
+        </router-link>
+        <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+          Dashboard
+        </router-link>
+      </div>
     </div>
 
     <!-- Success Message -->
@@ -33,11 +38,14 @@
 
     <!-- Profiles List -->
     <div v-else class="row g-4">
-      <div v-for="profile in profiles" :key="profile.id" class="col-md-6">
+      <div v-for="profile in sortedProfiles" :key="profile.id" class="col-md-6">
         <div class="card h-100 profile-card" :class="{ 'editing': editingId === profile.id }" @click="handleCardClick(profile)">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <div v-if="editingId !== profile.id">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div v-if="editingId !== profile.id" class="d-flex align-items-center gap-2 flex-wrap">
               <h5 class="mb-0 text-warm-dark">{{ profile.name }}</h5>
+              <span v-if="profile.is_default" class="badge bg-terracotta-100 text-terracotta-600 d-flex align-items-center gap-1">
+                <Star :size="12" /> Current Default
+              </span>
             </div>
             <div v-else class="flex-grow-1 me-2">
               <input 
@@ -46,7 +54,15 @@
                 placeholder="Profile name"
               />
             </div>
-            <div class="d-flex gap-1">
+            <div class="d-flex gap-1 flex-wrap">
+              <button 
+                v-if="editingId !== profile.id && !profile.is_default"
+                class="btn btn-sm btn-outline-terracotta d-flex align-items-center gap-1" 
+                @click.stop="setAsDefault(profile.id)"
+                title="Set as default profile"
+              >
+                <Star :size="14" /> Set Default
+              </button>
               <button 
                 v-if="editingId !== profile.id"
                 class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" 
@@ -188,17 +204,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds } from '../services/api'
+import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds, setDefaultProfile } from '../services/api'
 import { useDashboardStore } from '../stores/dashboard'
+import { useToast } from '@/utils/shareUtils'
 import { 
-  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle 
+  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle, Star 
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const store = useDashboardStore()
+const { show } = useToast()
 
 const profiles = ref([])
 const loading = ref(true)
@@ -214,6 +232,15 @@ const successMessage = ref('')
 const allJournals = ref({}) // Cache journal names
 
 let searchTimeout = null
+
+// Sort profiles: default first, then alphabetical by name
+const sortedProfiles = computed(() => {
+  return [...profiles.value].sort((a, b) => {
+    if (a.is_default && !b.is_default) return -1
+    if (!a.is_default && b.is_default) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
 
 async function loadProfiles() {
   loading.value = true
@@ -298,6 +325,18 @@ function getJournalName(journalId) {
 
 function confirmDelete(profile) {
   deleteTarget.value = profile
+}
+
+async function setAsDefault(profileId) {
+  try {
+    await setDefaultProfile(profileId)
+    await loadProfiles()
+    // Also refresh the dashboard store to pick up the new default
+    store.loadProfiles(true)
+    show('Default profile updated!', 'success')
+  } catch (e) {
+    show('Failed to set default: ' + e.message, 'error')
+  }
 }
 
 async function doDelete() {
