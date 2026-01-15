@@ -10,7 +10,7 @@ def generate_brief_pdf(articles: List[Dict[str, Any]], profile_name: str = "MedB
 
     Args:
         articles: List of article dictionaries with keys:
-                 title, authors, journal, pub_date, pubmed_id, doi, abstract
+                 title, authors, journal, pub_date, doi, abstract
         profile_name: Name of the brief/profile
 
     Returns:
@@ -32,6 +32,23 @@ def generate_brief_pdf(articles: List[Dict[str, Any]], profile_name: str = "MedB
 def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) -> str:
     """Generate HTML content for PDF."""
 
+    # Group articles by journal
+    journals = {}
+    for article in articles:
+        journal = article.get('journal', 'Unknown Journal')
+        if journal not in journals:
+            journals[journal] = []
+        journals[journal].append(article)
+
+    # Generate table of contents if multiple journals
+    toc_html = ""
+    if len(journals) > 1:
+        toc_html = _generate_table_of_contents(journals)
+
+    # Generate articles content
+    articles_html = _generate_articles_content(journals)
+
+    # Generate complete HTML
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -39,174 +56,282 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
         <meta charset="utf-8">
         <title>{profile_name}</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+            @font-face {{
+                font-family: 'Charter';
+                src: local('Bitstream Charter'), local('Charter');
+            }}
 
             body {{
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-family: 'Charter', 'Bitstream Charter', Georgia, serif;
                 font-size: 11pt;
-                line-height: 1.5;
-                margin: 50px;
-                color: #1f2937;
-                background: #ffffff;
+                line-height: 1.6;
+                margin: 1in;
+                color: #1a1a1a;
+            }}
+
+            .page-header {{
+                position: fixed;
+                top: 0.5in;
+                left: 1in;
+                right: 1in;
+                font-size: 9pt;
+                color: #666666;
+                border-bottom: 1pt solid #e0e0e0;
+                padding-bottom: 8pt;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-weight: 500;
+            }}
+
+            .page-header-content {{
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+            }}
+
+            .page-title {{
+                font-weight: 600;
+            }}
+
+            .page-number {{
+                font-weight: 400;
+            }}
+
+            .content {{
+                margin-top: 0.8in;
             }}
 
             .header {{
-                text-align: center;
-                margin-bottom: 40px;
-                border-bottom: 3px solid #e07a5f;
-                padding-bottom: 25px;
-                background: linear-gradient(135deg, #fef7f5 0%, #ffffff 100%);
-                padding: 30px;
-                border-radius: 8px;
-                margin-left: -30px;
-                margin-right: -30px;
-                margin-bottom: 50px;
+                margin-bottom: 48pt;
+                border-bottom: 2pt solid #e07a5f;
+                padding-bottom: 12pt;
             }}
 
             .header h1 {{
-                font-size: 28pt;
+                font-size: 18pt;
                 margin: 0;
                 font-weight: 600;
-                color: #1f2937;
-                letter-spacing: -0.5px;
+                color: #1a1a1a;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                letter-spacing: -0.3px;
             }}
 
             .generated-date {{
-                font-size: 10pt;
-                color: #6b7280;
-                margin-top: 8px;
+                font-size: 9pt;
+                color: #666666;
+                margin-top: 6pt;
                 font-weight: 500;
+            }}
+
+            .toc-header {{
+                font-size: 16pt;
+                font-weight: 600;
+                margin-bottom: 24pt;
+                text-align: center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                page-break-after: avoid;
+            }}
+
+            .toc-entry {{
+                font-size: 11pt;
+                margin-bottom: 8pt;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                page-break-inside: avoid;
+            }}
+
+            .toc-journal {{
+                flex: 1;
+                font-weight: 500;
+            }}
+
+            .toc-dots {{
+                flex: 1;
+                border-bottom: 1pt dotted #999;
+                margin: 0 12pt;
+                position: relative;
+                top: -4pt;
+            }}
+
+            .toc-page {{
+                font-weight: 600;
+                color: #666666;
             }}
 
             .journal-section {{
-                margin-bottom: 45px;
+                margin-bottom: 48pt;
                 page-break-inside: avoid;
-                background: #fafafa;
-                padding: 25px;
-                border-radius: 6px;
-                border-left: 4px solid #e07a5f;
             }}
 
             .journal-name {{
-                font-size: 16pt;
+                font-size: 14pt;
                 font-weight: 600;
-                margin-bottom: 15px;
-                color: #e07a5f;
-                border-bottom: 2px solid #f3f4f6;
-                padding-bottom: 8px;
-                letter-spacing: -0.2px;
+                margin-bottom: 20pt;
+                color: #1a1a1a;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                page-break-after: avoid;
+            }}
+
+            .article {{
+                margin-bottom: 36pt;
+                page-break-inside: avoid;
             }}
 
             .article-title {{
-                font-size: 14pt;
+                font-size: 13pt;
                 font-weight: 600;
-                margin-bottom: 12px;
-                line-height: 1.3;
-                color: #1f2937;
+                margin-bottom: 8pt;
+                line-height: 1.4;
+                color: #1a1a1a;
             }}
 
             .article-meta {{
-                margin-bottom: 15px;
-                font-size: 10.5pt;
-                line-height: 1.4;
+                font-size: 10pt;
+                margin-bottom: 16pt;
+                color: #4a4a4a;
+                line-height: 1.5;
             }}
 
             .authors {{
-                margin-bottom: 6px;
-                color: #374151;
+                margin-bottom: 6pt;
             }}
 
             .published {{
-                margin-bottom: 6px;
-                color: #6b7280;
-                font-weight: 500;
+                margin-bottom: 6pt;
             }}
 
             .links {{
-                margin-bottom: 15px;
+                margin-bottom: 16pt;
             }}
 
             .link {{
-                margin-right: 20px;
-                color: #059669;
+                margin-right: 16pt;
+                color: #2563eb;
                 text-decoration: none;
                 font-weight: 500;
-                font-size: 10pt;
-                padding: 4px 8px;
-                background: #ecfdf5;
-                border-radius: 4px;
-                border: 1px solid #d1fae5;
             }}
 
             .link:hover {{
-                background: #d1fae5;
+                text-decoration: underline;
             }}
 
             .abstract {{
-                text-align: justify;
-                margin-top: 15px;
-                line-height: 1.6;
-                color: #374151;
-                background: #ffffff;
-                padding: 15px;
-                border-radius: 4px;
-                border: 1px solid #f3f4f6;
+                margin-top: 16pt;
             }}
 
-            .abstract-title {{
+            .abstract-label {{
                 font-weight: 600;
-                margin-bottom: 8px;
-                color: #1f2937;
-                font-size: 11pt;
+                font-size: 10pt;
+                margin-bottom: 6pt;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            }}
+
+            .abstract-text {{
+                text-align: justify;
+                font-size: 10pt;
+                line-height: 1.7;
+                text-indent: 0;
+            }}
+
+            .divider {{
+                border-top: 0.5pt solid #d0d0d0;
+                margin: 24pt 0;
+                page-break-inside: avoid;
             }}
 
             @page {{
                 margin: 1in;
-                @bottom-right {{
+                @top {{
+                    content: element(pageHeader);
+                }}
+                @bottom-center {{
                     content: "Page " counter(page) " of " counter(pages);
                     font-size: 9pt;
-                    color: #9ca3af;
+                    color: #666666;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
                     font-weight: 500;
                 }}
+            }}
+
+            .page-header {{
+                position: running(pageHeader);
             }}
         </style>
     </head>
     <body>
-        <div class="header">
-            <h1>MedBrief - Summary</h1>
-            <div class="generated-date">Generated: {datetime.now().strftime('%B %d, %Y')}</div>
+        <div class="page-header">
+            <div class="page-header-content">
+                <span class="page-title">MedBrief</span>
+                <span class="page-number">Page <span class="page-num"></span></span>
+            </div>
         </div>
-    """
 
-    current_journal = None
+        <div class="content">
+            <div class="header">
+                <h1>{profile_name}</h1>
+                <div class="generated-date">Generated: {datetime.now().strftime('%B %d, %Y')}</div>
+            </div>
 
-    for article in articles:
-        journal = article.get('journal', 'Unknown Journal')
+            {toc_html}
 
-        # Add journal section header if this is a new journal
-        if journal != current_journal:
-            if current_journal is not None:
-                html += "</div>"  # Close previous journal section
-
-            html += f"""
-        <div class="journal-section">
-            <div class="journal-name">{journal}</div>
-            """
-            current_journal = journal
-
-        # Add article content
-        html += _generate_article_html(article)
-
-    # Close the last journal section
-    if current_journal is not None:
-        html += "</div>"
-
-    html += """
+            {articles_html}
+        </div>
     </body>
     </html>
     """
 
     return html
+
+
+def _generate_table_of_contents(journals: Dict[str, List[Dict[str, Any]]]) -> str:
+    """Generate table of contents HTML."""
+    if len(journals) <= 1:
+        return ""
+
+    toc_entries = []
+    page_num = 2  # ToC starts on page 1, articles on page 2
+
+    for journal_name in sorted(journals.keys()):
+        toc_entries.append(f"""
+            <div class="toc-entry">
+                <span class="toc-journal">{journal_name}</span>
+                <span class="toc-dots"></span>
+                <span class="toc-page">{page_num}</span>
+            </div>
+        """)
+        page_num += 1  # Each journal gets its own page
+
+    return f"""
+        <div class="toc-header">Table of Contents</div>
+        {"".join(toc_entries)}
+        <div style="page-break-after: always;"></div>
+    """
+
+
+def _generate_articles_content(journals: Dict[str, List[Dict[str, Any]]]) -> str:
+    """Generate articles content HTML."""
+    html_parts = []
+
+    for journal_name in sorted(journals.keys()):
+        articles = journals[journal_name]
+
+        journal_html = f"""
+            <div class="journal-section">
+                <div class="journal-name">{journal_name}</div>
+        """
+
+        for article in articles:
+            journal_html += _generate_article_html(article)
+
+        journal_html += "</div>"
+
+        # Add page break between journals (except for the last one)
+        if journal_name != list(sorted(journals.keys()))[-1]:
+            journal_html += '<div style="page-break-after: always;"></div>'
+
+        html_parts.append(journal_html)
+
+    return "".join(html_parts)
 
 
 def _generate_article_html(article: Dict[str, Any]) -> str:
@@ -239,43 +364,41 @@ def _generate_article_html(article: Dict[str, Any]) -> str:
     except:
         formatted_date = str(pub_date)
 
-    html = f"""
-            <div class="article-title">{title}</div>
-            <div class="article-meta">
-                <div class="authors">{authors_display}</div>
-                <div class="published">Published: {formatted_date}</div>
-                <div class="links">
-    """
-
-    # Add PMID link
+    links_html = ""
     if pubmed_id:
         pubmed_url = f"https://pubmed.ncbi.nlm.nih.gov/{pubmed_id}/"
-        html += f'<a href="{pubmed_url}" class="link" target="_blank">PMID: {pubmed_id}</a>'
-
-    # Add DOI link
+        links_html += f'<a href="{pubmed_url}" class="link">PMID: {pubmed_id}</a>'
     if doi:
         doi_url = f"https://doi.org/{doi}"
-        html += f'<a href="{doi_url}" class="link" target="_blank">DOI: {doi}</a>'
+        links_html += f'<a href="{doi_url}" class="link">DOI: {doi}</a>'
 
-    html += """
-                </div>
-            </div>
-    """
-
-    # Add abstract section only if abstract exists
+    abstract_html = ""
     if abstract and abstract.strip():
-        html += f"""
+        abstract_html = f"""
             <div class="abstract">
-                <div class="abstract-title">Abstract:</div>
-                <div>{abstract}</div>
+                <div class="abstract-label">Abstract</div>
+                <div class="abstract-text">{abstract}</div>
             </div>
         """
     else:
-        html += """
+        abstract_html = f"""
             <div class="abstract">
-                <div class="abstract-title">Abstract:</div>
-                <div>No abstract available for this article.</div>
+                <div class="abstract-label">Abstract</div>
+                <div class="abstract-text">No abstract available for this article.</div>
             </div>
         """
+
+    html = f"""
+            <div class="article">
+                <div class="article-title">{title}</div>
+                <div class="article-meta">
+                    <div class="authors">{authors_display}</div>
+                    <div class="published">Published: {formatted_date}</div>
+                    <div class="links">{links_html}</div>
+                </div>
+                {abstract_html}
+            </div>
+            <div class="divider"></div>
+    """
 
     return html
