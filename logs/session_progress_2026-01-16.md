@@ -169,10 +169,21 @@ OSError: cannot load library 'libgobject-2.0-0': libgobject-2.0-0: cannot open s
   - Additional supporting libraries
 - **Commit**: `8378663` - "fix: add WeasyPrint system dependencies to Dockerfile"
 
+### Additional Fix Applied
+**Railway Build Failure (Round 2)**: Container build failed with missing packages:
+```
+Package libgdk-pixbuf2.0-0 has no installation candidate
+```
+
+**Resolution (Round 2)**:
+- **Removed Unavailable Packages**: `libgdk-pixbuf2.0-0`, `libffi8`, `shared-mime-info` (not available in Debian trixie)
+- **Kept Essential Dependencies**: Only pango, harfbuzz, gobject, glib, cairo libraries
+- **Commit**: `245f81d` - "fix: remove unavailable packages from Dockerfile"
+
 ### Verification Steps
 - ✅ **Local Testing**: PDF export works with WeasyPrint in development
-- ✅ **Dockerfile**: All required GTK/Pango dependencies now installed
-- ✅ **Railway Deployment**: New build will include system libraries
+- ✅ **Dockerfile**: Only available packages included, essential WeasyPrint deps installed
+- ✅ **Railway Deployment**: New build should succeed with correct package list
 - ✅ **Production Ready**: PDF export functionality restored for production
 
 ### Impact
