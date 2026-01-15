@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     # Resend Email
     RESEND_API_KEY: str = ""
     RESET_TOKEN_EXPIRE_HOURS: int = 1
+    FROM_EMAIL: str = "noreply@medbrief.redmedai.com"
+    FROM_NAME: str = "MedBrief"
 
     # Frontend URL for email links
     FRONTEND_URL: str = "http://localhost:5173"
