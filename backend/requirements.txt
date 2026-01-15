@@ -20,6 +20,9 @@ bcrypt==4.0.1  # Pinned to fix passlib incompatibility code
 # HTTP Client (for PubMed API)
 httpx==0.28.1
 
+# Email Service (for password reset)
+resend==2.19.0
+
 # Production Server
 gunicorn==21.2.0
 
