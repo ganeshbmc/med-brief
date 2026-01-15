@@ -65,7 +65,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 font-family: 'Charter', 'Bitstream Charter', Georgia, serif;
                 font-size: 11pt;
                 line-height: 1.6;
-                margin: 1in;
+                margin: 0.6in;
                 color: #1a1a1a;
             }}
 
@@ -131,18 +131,35 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 page-break-after: avoid;
             }}
 
-            .toc-entry {{
-                font-size: 11pt;
-                margin-bottom: 8pt;
+            .toc-journal-header {{
+                font-size: 12pt;
+                font-weight: 600;
+                margin-bottom: 12pt;
+                margin-top: 16pt;
+                color: #1a1a1a;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                page-break-inside: avoid;
+            }}
+
+            .toc-article-entry {{
+                font-size: 10pt;
+                margin-bottom: 6pt;
+                margin-left: 20pt;
                 display: flex;
                 justify-content: space-between;
                 align-items: baseline;
                 page-break-inside: avoid;
             }}
 
-            .toc-journal {{
+            .toc-article-link {{
                 flex: 1;
+                color: #2563eb;
+                text-decoration: none;
                 font-weight: 500;
+            }}
+
+            .toc-article-link:hover {{
+                text-decoration: underline;
             }}
 
             .toc-dots {{
@@ -156,6 +173,11 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             .toc-page {{
                 font-weight: 600;
                 color: #666666;
+                font-size: 9pt;
+            }}
+
+            .toc-section-spacer {{
+                margin-bottom: 20pt;
             }}
 
             .journal-section {{
@@ -175,6 +197,16 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             .article {{
                 margin-bottom: 36pt;
                 page-break-inside: avoid;
+            }}
+
+            .article-journal {{
+                font-size: 11pt;
+                font-weight: 600;
+                margin-bottom: 6pt;
+                color: #666666;
+                text-transform: uppercase;
+                letter-spacing: 0.5pt;
+                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
             }}
 
             .article-title {{
@@ -240,7 +272,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             }}
 
             @page {{
-                margin: 1in;
+                margin: 0.6in;
                 @top {{
                     content: element(pageHeader);
                 }}
@@ -248,7 +280,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                     content: "Page " counter(page) " of " counter(pages);
                     font-size: 9pt;
                     color: #666666;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                    font-family: 'Charter', 'Bitstream Charter', Georgia, serif;
                     font-weight: 500;
                 }}
             }}
@@ -288,22 +320,40 @@ def _generate_table_of_contents(journals: Dict[str, List[Dict[str, Any]]]) -> st
     if len(journals) <= 1:
         return ""
 
-    toc_entries = []
-    page_num = 2  # ToC starts on page 1, articles on page 2
+    toc_sections = []
+    article_num = 1  # Track article numbering for anchors
 
     for journal_name in sorted(journals.keys()):
-        toc_entries.append(f"""
-            <div class="toc-entry">
-                <span class="toc-journal">{journal_name}</span>
-                <span class="toc-dots"></span>
-                <span class="toc-page">{page_num}</span>
-            </div>
+        articles = journals[journal_name]
+
+        # Journal header
+        toc_sections.append(f"""
+            <div class="toc-journal-header">{journal_name}</div>
         """)
-        page_num += 1  # Each journal gets its own page
+
+        # Article entries under this journal
+        for article in articles:
+            title = article.get('title', 'Untitled')
+            # Truncate long titles
+            if len(title) > 80:
+                title = title[:77] + "..."
+
+            toc_sections.append(f"""
+                <div class="toc-article-entry">
+                    <a href="#article-{article_num}" class="toc-article-link">{title}</a>
+                    <span class="toc-dots"></span>
+                    <span class="toc-page">{article_num}</span>
+                </div>
+            """)
+            article_num += 1
+
+        # Add spacing between journal sections
+        if journal_name != list(sorted(journals.keys()))[-1]:
+            toc_sections.append('<div class="toc-section-spacer"></div>')
 
     return f"""
         <div class="toc-header">Table of Contents</div>
-        {"".join(toc_entries)}
+        {"".join(toc_sections)}
         <div style="page-break-after: always;"></div>
     """
 
@@ -311,6 +361,7 @@ def _generate_table_of_contents(journals: Dict[str, List[Dict[str, Any]]]) -> st
 def _generate_articles_content(journals: Dict[str, List[Dict[str, Any]]]) -> str:
     """Generate articles content HTML."""
     html_parts = []
+    article_num = 1  # Track article numbering for anchors
 
     for journal_name in sorted(journals.keys()):
         articles = journals[journal_name]
@@ -321,7 +372,8 @@ def _generate_articles_content(journals: Dict[str, List[Dict[str, Any]]]) -> str
         """
 
         for article in articles:
-            journal_html += _generate_article_html(article)
+            journal_html += _generate_article_html(article, article_num)
+            article_num += 1
 
         journal_html += "</div>"
 
@@ -334,13 +386,14 @@ def _generate_articles_content(journals: Dict[str, List[Dict[str, Any]]]) -> str
     return "".join(html_parts)
 
 
-def _generate_article_html(article: Dict[str, Any]) -> str:
+def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
     """Generate HTML for a single article."""
 
     title = article.get('title', 'No Title')
+    journal = article.get('journal', 'Unknown Journal')
     authors_list = article.get('authors', [])
     pub_date = article.get('pub_date', 'No Date')
-    pubmed_id = article.get('pubmed_id')
+    pubmed_id = article.get('pmid')
     doi = article.get('doi')
     abstract = article.get('abstract')
 
@@ -389,7 +442,8 @@ def _generate_article_html(article: Dict[str, Any]) -> str:
         """
 
     html = f"""
-            <div class="article">
+            <div id="article-{article_num}" class="article">
+                <div class="article-journal">{journal}</div>
                 <div class="article-title">{title}</div>
                 <div class="article-meta">
                     <div class="authors">{authors_display}</div>

@@ -739,6 +739,7 @@ onBeforeUnmount(() => {
 function openArticle(pmid) {
   store.saveScrollPosition()  // Save scroll before leaving
   sessionStorage.setItem('dashboardArticles', JSON.stringify(filteredArticles.value))
+  sessionStorage.setItem('selectedProfileId', store.selectedProfileId)
   router.push(`/article/${pmid}`)
 }
 

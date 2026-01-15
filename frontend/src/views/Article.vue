@@ -167,11 +167,12 @@ async function handleShare() {
 
 async function exportAs(format) {
   const a = article.value
+  const profileId = sessionStorage.getItem('selectedProfileId')
 
   if (format === 'pdf') {
     try {
       // Use server-side PDF generation via API
-      const response = await fetch(`/api/briefs/export-pdf?article_ids=${a.pmid}`, {
+      const response = await fetch(`/api/briefs/export-pdf?profile_id=${profileId}&article_ids=${a.pmid}`, {
         method: 'GET',
         headers: {
           ...authStore.getAuthHeaders(),
@@ -225,8 +226,9 @@ async function exportAs(format) {
 
 function loadArticle() {
   const storedArticles = sessionStorage.getItem('dashboardArticles')
+  const storedProfileId = sessionStorage.getItem('selectedProfileId')
   const pmid = route.params.pmid
-  
+
   if (storedArticles) {
     articles.value = JSON.parse(storedArticles)
     currentIndex.value = articles.value.findIndex(a => a.pmid === pmid)
@@ -234,7 +236,7 @@ function loadArticle() {
       article.value = articles.value[currentIndex.value]
     }
   }
-  
+
   if (!article.value) {
     console.warn('Article not found in session')
   }
