@@ -75,9 +75,9 @@
 
       <!-- Footer Navigation -->
       <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-        <a 
-          v-if="hasPrev" 
-          @click.prevent="navigateTo(-1)" 
+        <a
+          v-if="hasPrev"
+          @click.prevent="navigateTo(-1)"
           href="#"
           class="text-link d-flex align-items-center gap-1"
         >
@@ -85,9 +85,9 @@
           Previous
         </a>
         <div v-else></div>
-        <a 
-          v-if="hasNext" 
-          @click.prevent="navigateTo(1)" 
+        <a
+          v-if="hasNext"
+          @click.prevent="navigateTo(1)"
           href="#"
           class="text-link d-flex align-items-center gap-1"
         >
@@ -195,22 +195,6 @@ async function exportAs(format) {
     } catch (e) {
       console.error('PDF export failed:', e)
       show('PDF export failed', 'error')
-    }
-    return
-  }
-
-      html2pdf().set(opt).from(tempDiv).save().then(() => {
-        document.body.removeChild(tempDiv)
-        show('Article exported as PDF', 'success')
-      }).catch((error) => {
-        document.body.removeChild(tempDiv)
-        console.error('PDF generation failed:', error)
-        show('PDF export failed', 'error')
-      })
-
-    } catch (e) {
-      console.error('Export failed:', e)
-      show('Export failed', 'error')
     }
     return
   }
