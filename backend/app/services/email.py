@@ -1,23 +1,22 @@
+import resend
 from app.config import settings
 
-try:
-    from resend import Resend
-    resend_client = Resend(api_key=settings.RESEND_API_KEY) if settings.RESEND_API_KEY else None
-except ImportError:
-    resend_client = None
+# Configure resend with API key
+if settings.RESEND_API_KEY:
+    resend.api_key = settings.RESEND_API_KEY
 
 
 async def send_password_reset_email(email: str, reset_link: str) -> bool:
     """Send password reset email via Resend."""
-    if not resend_client:
+    if not settings.RESEND_API_KEY:
         # Log to console for development
         print(f"[DEV EMAIL] To: {email}")
         print(f"[DEV EMAIL] Reset link: {reset_link}")
         return True
 
     try:
-        resend_client.send({
-            "from": "MedBrief <noreply@medbrief.redmedai.com>",
+        result = resend.Emails.send({
+            "from": f"{settings.FROM_NAME} <{settings.FROM_EMAIL}>",
             "to": email,
             "subject": "Reset your MedBrief password",
             "html": f"""
@@ -60,6 +59,7 @@ async def send_password_reset_email(email: str, reset_link: str) -> bool:
             </html>
             """
         })
+        print(f"Email sent successfully: {result.get('id')}")
         return True
     except Exception as e:
         print(f"Failed to send email: {e}")
