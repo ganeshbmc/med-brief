@@ -130,3 +130,48 @@ export async function updatePreferences(prefs) {
     })
 }
 
+/**
+ * Request password reset email
+ */
+export async function requestPasswordReset(email) {
+    // Use fetch directly since this doesn't require auth
+    const response = await fetch('/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+    })
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+
+/**
+ * Reset password with token
+ */
+export async function resetPassword(token, newPassword) {
+    // Use fetch directly since this doesn't require auth
+    const response = await fetch('/auth/reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token,
+            new_password: newPassword
+        }),
+    })
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+

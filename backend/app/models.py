@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, JSON, DateTime
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -20,6 +20,8 @@ class User(Base):
     full_name = Column(String, nullable=True)
     password_hash = Column(String, nullable=False)
     preferences = Column(JSON, nullable=True)
+    reset_token = Column(String(64), nullable=True)
+    reset_token_expires_at = Column(DateTime, nullable=True)
 
     profiles = relationship("Profile", back_populates="user")
 

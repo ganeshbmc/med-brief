@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     # PubMed
     PUBMED_EMAIL: str = "your_email@example.com"  # Required by NCBI
 
+    # Resend Email
+    RESEND_API_KEY: str = ""
+    RESET_TOKEN_EXPIRE_HOURS: int = 1
+
+    # Frontend URL for email links
+    FRONTEND_URL: str = "http://localhost:5173"
+
     class Config:
         env_file = ".env"
 
