@@ -23,6 +23,9 @@ httpx==0.28.1
 # Email Service (for password reset)
 resend==2.19.0
 
+# PDF Generation (for brief export)
+weasyprint==67.0
+
 # Production Server
 gunicorn==21.2.0
 

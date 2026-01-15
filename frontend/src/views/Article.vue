@@ -27,6 +27,8 @@
             Export
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="14" class="me-1" />PDF</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
@@ -108,9 +110,10 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2 } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
+import html2pdf from 'html2pdf.js'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
 
 const route = useRoute()
@@ -163,12 +166,144 @@ async function handleShare() {
   }
 }
 
-function exportAs(format) {
+async function exportAs(format) {
   const a = article.value
+
+  if (format === 'pdf') {
+    try {
+      // Create a temporary HTML element for PDF generation
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = `
+        <div style="
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 12pt;
+          line-height: 1.6;
+          margin: 50px;
+          color: #1f2937;
+          max-width: 800px;
+        ">
+          <div style="
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #e07a5f;
+            padding-bottom: 25px;
+          ">
+            <h1 style="
+              font-size: 24pt;
+              margin: 0;
+              font-weight: 600;
+              color: #1f2937;
+            ">MedBrief Article</h1>
+          </div>
+
+          <div style="
+            background: #fef3f2;
+            color: #e07a5f;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10pt;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 20px;
+          ">${a.journal}</div>
+
+          <h1 style="
+            font-size: 18pt;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.3;
+            color: #1f2937;
+          ">${a.title}</h1>
+
+          <div style="
+            font-size: 11pt;
+            color: #374151;
+            margin-bottom: 8px;
+          ">${formatAuthors(a.authors)}</div>
+
+          <div style="
+            font-size: 11pt;
+            color: #6b7280;
+            margin-bottom: 15px;
+            font-weight: 500;
+          ">Published: ${formatDateDisplay(a.pub_date)}</div>
+
+          <div style="margin-bottom: 20px;">
+            ${a.pmid ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${a.pmid}/" style="
+              display: inline-block;
+              margin-right: 15px;
+              color: #059669;
+              text-decoration: none;
+              font-weight: 500;
+              font-size: 10pt;
+              padding: 6px 12px;
+              background: #ecfdf5;
+              border-radius: 6px;
+              border: 1px solid #d1fae5;
+            " target="_blank">PMID: ${a.pmid}</a>` : ''}
+
+            ${a.doi ? `<a href="https://doi.org/${a.doi}" style="
+              display: inline-block;
+              margin-right: 15px;
+              color: #059669;
+              text-decoration: none;
+              font-weight: 500;
+              font-size: 10pt;
+              padding: 6px 12px;
+              background: #ecfdf5;
+              border-radius: 6px;
+              border: 1px solid #d1fae5;
+            " target="_blank">DOI: ${a.doi}</a>` : ''}
+          </div>
+
+          <div style="
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #e07a5f;
+            line-height: 1.6;
+          ">
+            <div style="
+              font-weight: 600;
+              margin-bottom: 10px;
+              color: #1f2937;
+              font-size: 12pt;
+            ">Abstract:</div>
+            <div>${a.abstract || 'No abstract available for this article.'}</div>
+          </div>
+        </div>
+      `
+
+      document.body.appendChild(tempDiv)
+
+      const opt = {
+        margin: 1,
+        filename: `article_${a.pmid}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      }
+
+      html2pdf().set(opt).from(tempDiv).save().then(() => {
+        document.body.removeChild(tempDiv)
+        show('Article exported as PDF', 'success')
+      }).catch((error) => {
+        document.body.removeChild(tempDiv)
+        console.error('PDF generation failed:', error)
+        show('PDF export failed', 'error')
+      })
+
+    } catch (e) {
+      console.error('Export failed:', e)
+      show('Export failed', 'error')
+    }
+    return
+  }
+
   let content = ''
   let filename = `article_${a.pmid}`
   let mimeType = 'text/plain'
-  
+
   if (format === 'txt') {
     content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
     filename += '.txt'
