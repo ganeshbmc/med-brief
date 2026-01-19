@@ -249,6 +249,8 @@
                 Export Selected
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
@@ -265,6 +267,8 @@
                 Export
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">TXT</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
@@ -358,6 +362,8 @@
         Export <span class="d-none d-md-inline">Selected</span> ({{ selectedArticles.length }})
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+        <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
@@ -372,12 +378,13 @@ import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
 import { useAuthStore } from '../stores/auth'
 import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
-import { 
-  FileText, Check, Plus, RefreshCw, Search, Newspaper, 
-  AlertTriangle, CheckSquare, Square, X, Download, 
-  Calendar, ArrowRight, Share2 
+import {
+  FileText, Check, Plus, RefreshCw, Search, Newspaper,
+  AlertTriangle, CheckSquare, Square, X, Download,
+  Calendar, ArrowRight, Share2, File
 } from 'lucide-vue-next'
 import { generateArticlesShareText, shareContent, useToast } from '@/utils/shareUtils'
+import { exportToPdf } from '../services/api'
 
 const router = useRouter()
 const store = useDashboardStore()
@@ -732,6 +739,7 @@ onBeforeUnmount(() => {
 function openArticle(pmid) {
   store.saveScrollPosition()  // Save scroll before leaving
   sessionStorage.setItem('dashboardArticles', JSON.stringify(filteredArticles.value))
+  sessionStorage.setItem('selectedProfileId', store.selectedProfileId)
   router.push(`/article/${pmid}`)
 }
 
@@ -770,13 +778,33 @@ function clearSelection() {
   selectionMode.value = false
 }
 
-function exportSelectedArticles(format) {
+async function exportSelectedArticles(format) {
   const selectedList = filteredArticles.value.filter(a => selectedArticles.value.includes(a.pmid))
   if (!selectedList.length) return
-  
+
+  if (format === 'pdf') {
+    try {
+      const blob = await exportToPdf(store.selectedProfileId, {
+        fromDate: store.fromDate,
+        toDate: store.toDate,
+        articleIds: selectedList.map(a => a.pmid).join(',')
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `selected_articles_${selectedArticles.value.length}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('PDF export failed:', e)
+      show('PDF export failed', 'error')
+    }
+    return
+  }
+
   let content = ''
   let filename = `selected_articles_${selectedArticles.value.length}`
-  
+
   if (format === 'txt') {
     content = selectedList.map(a => 
       `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
@@ -803,13 +831,32 @@ function exportSelectedArticles(format) {
   URL.revokeObjectURL(url)
 }
 
-function exportAllArticles(format) {
+async function exportAllArticles(format) {
   const articlesList = filteredArticles.value
   if (!articlesList.length) return
-  
+
+  if (format === 'pdf') {
+    try {
+      const blob = await exportToPdf(store.selectedProfileId, {
+        fromDate: store.fromDate,
+        toDate: store.toDate
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `articles_${store.fromDate}_${store.toDate}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('PDF export failed:', e)
+      show('PDF export failed', 'error')
+    }
+    return
+  }
+
   let content = ''
   let filename = `articles_${store.fromDate}_${store.toDate}`
-  
+
   if (format === 'txt') {
     content = articlesList.map(a => 
       `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`

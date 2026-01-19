@@ -4,6 +4,8 @@ import { useAuthStore } from '../stores/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import ForgotPassword from '../views/ForgotPassword.vue'
+import ResetPassword from '../views/ResetPassword.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Onboarding from '../views/Onboarding.vue'
 import Profiles from '../views/Profiles.vue'
@@ -15,6 +17,8 @@ const routes = [
     { path: '/', name: 'Home', component: Home },
     { path: '/login', name: 'Login', component: Login },
     { path: '/register', name: 'Register', component: Register },
+    { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
+    { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
     { path: '/onboarding', name: 'Onboarding', component: Onboarding, meta: { requiresAuth: true } },
     { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
     { path: '/profiles', name: 'Profiles', component: Profiles, meta: { requiresAuth: true } },

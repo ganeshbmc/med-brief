@@ -5,11 +5,12 @@
         <div class="card p-4">
           <div class="text-center mb-4">
             <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3" style="height: 48px;" />
-            <h2 class="fw-bold text-warm-dark">Sign In</h2>
-            <p class="text-muted">Welcome back to MedBrief</p>
+            <h2 class="fw-bold text-warm-dark">Reset Password</h2>
+            <p class="text-muted">Enter your email to receive a reset link</p>
           </div>
-          <form @submit.prevent="handleLogin">
-            <div class="mb-3">
+
+          <form v-if="!sent" @submit.prevent="handleSubmit">
+            <div class="mb-4">
               <label class="form-label">Email</label>
               <div class="input-group">
                 <span class="input-group-text bg-white">
@@ -24,39 +25,38 @@
                 />
               </div>
             </div>
-            <div class="mb-4">
-              <label class="form-label">Password</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <Lock :size="18" class="icon-muted" />
-                </span>
-                <input
-                  v-model="password"
-                  type="password"
-                  class="form-control form-control-lg"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-            </div>
+
             <div v-if="error" class="alert alert-danger d-flex align-items-center gap-2">
               <AlertCircle :size="18" />
               {{ error }}
             </div>
+
             <button type="submit" class="btn btn-primary w-100 btn-lg d-flex align-items-center justify-content-center gap-2" :disabled="loading">
               <span v-if="loading" class="spinner-border spinner-border-sm"></span>
-              <LogIn v-else :size="18" />
-              {{ loading ? 'Signing in...' : 'Sign In' }}
+              <Mail :size="18" v-else />
+              {{ loading ? 'Sending...' : 'Send Reset Link' }}
             </button>
           </form>
-          <p class="text-center mt-3">
-            <router-link to="/forgot-password" class="text-muted text-decoration-none">
-              Forgot password?
+
+          <div v-else class="text-center">
+            <div class="mb-4">
+              <CheckCircle :size="48" class="text-success" />
+            </div>
+            <h4 class="fw-bold text-warm-dark mb-3">Check Your Email</h4>
+            <p class="text-muted mb-4">
+              If an account exists for <strong>{{ email }}</strong>, we've sent password reset instructions.
+            </p>
+            <p class="text-muted small mb-4">
+              Didn't receive the email? Check your spam folder or try again.
+            </p>
+            <router-link to="/login" class="btn btn-outline-terracotta">
+              Back to Login
             </router-link>
-          </p>
+          </div>
+
           <p class="text-center mt-4 text-muted">
-            Don't have an account?
-            <router-link to="/register" class="text-decoration-none">Register</router-link>
+            Remember your password?
+            <router-link to="/login" class="text-decoration-none">Sign In</router-link>
           </p>
         </div>
       </div>
@@ -66,32 +66,23 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { useDashboardStore } from '../stores/dashboard'
-import { Mail, Lock, AlertCircle, LogIn } from 'lucide-vue-next'
+import { Mail, AlertCircle, CheckCircle } from 'lucide-vue-next'
+import { requestPasswordReset } from '../services/api'
 
 const email = ref('')
-const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const sent = ref(false)
 
-const router = useRouter()
-const authStore = useAuthStore()
-const dashboardStore = useDashboardStore()
-
-async function handleLogin() {
+async function handleSubmit() {
   error.value = ''
   loading.value = true
-  
-  // Clear any previous session data
-  dashboardStore.clearCache()
-  
+
   try {
-    await authStore.login(email.value, password.value)
-    router.push('/dashboard')
+    await requestPasswordReset(email.value)
+    sent.value = true
   } catch (e) {
-    error.value = e.message
+    error.value = e.message || 'Failed to send reset email'
   } finally {
     loading.value = false
   }

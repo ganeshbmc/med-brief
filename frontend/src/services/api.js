@@ -130,3 +130,79 @@ export async function updatePreferences(prefs) {
     })
 }
 
+/**
+ * Export brief as PDF
+ */
+export async function exportToPdf(profileId, { days = 7, fromDate = null, toDate = null, articleIds = null } = {}) {
+    let url = `/api/briefs/export-pdf?profile_id=${profileId}`
+    if (fromDate && toDate) {
+        url += `&from_date=${fromDate}&to_date=${toDate}`
+    } else {
+        url += `&days=${days}`
+    }
+    if (articleIds) {
+        url += `&article_ids=${encodeURIComponent(articleIds)}`
+    }
+
+    // Use fetch directly for file download
+    const authStore = useAuthStore()
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            ...authStore.getAuthHeaders(),
+        },
+    })
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Export failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+    }
+
+    return response.blob()  // Return blob for file download
+}
+
+/**
+ * Request password reset email
+ */
+export async function requestPasswordReset(email) {
+    // Use fetch directly since this doesn't require auth
+    const response = await fetch('/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+    })
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+
+/**
+ * Reset password with token
+ */
+export async function resetPassword(token, newPassword) {
+    // Use fetch directly since this doesn't require auth
+    const response = await fetch('/auth/reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token,
+            new_password: newPassword
+        }),
+    })
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+}
+

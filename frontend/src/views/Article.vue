@@ -27,6 +27,8 @@
             Export
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="14" class="me-1" />PDF</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
             <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
@@ -73,9 +75,9 @@
 
       <!-- Footer Navigation -->
       <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-        <a 
-          v-if="hasPrev" 
-          @click.prevent="navigateTo(-1)" 
+        <a
+          v-if="hasPrev"
+          @click.prevent="navigateTo(-1)"
           href="#"
           class="text-link d-flex align-items-center gap-1"
         >
@@ -83,9 +85,9 @@
           Previous
         </a>
         <div v-else></div>
-        <a 
-          v-if="hasNext" 
-          @click.prevent="navigateTo(1)" 
+        <a
+          v-if="hasNext"
+          @click.prevent="navigateTo(1)"
           href="#"
           class="text-link d-flex align-items-center gap-1"
         >
@@ -108,7 +110,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2 } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
@@ -163,12 +165,45 @@ async function handleShare() {
   }
 }
 
-function exportAs(format) {
+async function exportAs(format) {
   const a = article.value
+  const profileId = sessionStorage.getItem('selectedProfileId')
+
+  if (format === 'pdf') {
+    try {
+      // Use server-side PDF generation via API
+      const response = await fetch(`/api/briefs/export-pdf?profile_id=${profileId}&article_ids=${a.pmid}`, {
+        method: 'GET',
+        headers: {
+          ...authStore.getAuthHeaders(),
+        },
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Export failed' }))
+        throw new Error(error.detail || `HTTP ${response.status}`)
+      }
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `article_${a.pmid}.pdf`
+      link.click()
+      URL.revokeObjectURL(url)
+
+      show('Article exported as PDF', 'success')
+    } catch (e) {
+      console.error('PDF export failed:', e)
+      show('PDF export failed', 'error')
+    }
+    return
+  }
+
   let content = ''
   let filename = `article_${a.pmid}`
   let mimeType = 'text/plain'
-  
+
   if (format === 'txt') {
     content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
     filename += '.txt'
@@ -191,8 +226,9 @@ function exportAs(format) {
 
 function loadArticle() {
   const storedArticles = sessionStorage.getItem('dashboardArticles')
+  const storedProfileId = sessionStorage.getItem('selectedProfileId')
   const pmid = route.params.pmid
-  
+
   if (storedArticles) {
     articles.value = JSON.parse(storedArticles)
     currentIndex.value = articles.value.findIndex(a => a.pmid === pmid)
@@ -200,7 +236,7 @@ function loadArticle() {
       article.value = articles.value[currentIndex.value]
     }
   }
-  
+
   if (!article.value) {
     console.warn('Article not found in session')
   }
