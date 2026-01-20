@@ -160,7 +160,7 @@
                 <span 
                   v-for="jId in profile.journal_ids.slice(0, 5)" 
                   :key="jId" 
-                  class="badge bg-secondary me-1 mb-1"
+                  class="badge badge-journal me-1 mb-1"
                 >
                   {{ getJournalName(jId) }}
                 </span>
@@ -470,6 +470,10 @@ function handleCardClick(profile) {
 .badge-journal {
   background-color: var(--terracotta-100);
   color: var(--terracotta-600);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .input-group-text {
