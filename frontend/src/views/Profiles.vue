@@ -140,7 +140,7 @@
                   <span 
                     v-for="jId in editJournalIds" 
                     :key="jId" 
-                    class="badge badge-journal me-1 mb-1 d-inline-flex align-items-center gap-1"
+                    class="badge badge-journal-full me-1 mb-1 d-inline-flex align-items-center gap-1"
                     style="cursor: pointer;"
                     @click="toggleJournal(jId)"
                   >
@@ -474,6 +474,13 @@ function handleCardClick(profile) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.badge-journal-full {
+  background-color: var(--terracotta-100);
+  color: var(--terracotta-600);
+  white-space: normal;
+  text-align: left;
 }
 
 .input-group-text {
