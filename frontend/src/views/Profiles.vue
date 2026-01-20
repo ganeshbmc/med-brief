@@ -6,7 +6,11 @@
         <p class="text-muted mb-0">Edit, add, or remove journals from your profiles</p>
       </div>
       <div class="d-flex gap-2">
-        <router-link to="/account" class="btn btn-primary d-flex align-items-center gap-2">
+        <router-link to="/onboarding" class="btn btn-primary d-flex align-items-center gap-2">
+          <Plus :size="18" />
+          Create New Profile
+        </router-link>
+        <router-link to="/account" class="btn btn-outline-secondary d-flex align-items-center gap-2">
           <ArrowLeft :size="18" />
           Account Settings
         </router-link>
@@ -447,7 +451,7 @@ function handleCardClick(profile) {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1050;
+  z-index: 1070;
 }
 
 .modal-dialog {
@@ -455,7 +459,7 @@ function handleCardClick(profile) {
   width: 100%;
   margin: 1rem;
   position: relative;
-  z-index: 1051;
+  z-index: 1071;
 }
 
 .card-header {
