@@ -29,7 +29,7 @@ This project uses AI agents for development.
 > **CRITICAL FOR AGENTS:** Before performing any tasks, reading the codebase, or executing terminal commands, all AI agents **must** read and follow the instructions in [AGENTS.md](../AGENTS.md). For Antigravity specifics, see [ANTIGRAVITY.md](./ANTIGRAVITY.md).
 
 ## Getting Started
-* **Tech Stack:** [See tech_stack.md](./tech_stack.md)]
+* **Tech Stack:** [See AGENTS.md](../AGENTS.md)
 * **Main Branch:** Production-ready code only.
 * **Working Branch:** `agy` (See AGENTS.md for workflow details).
 

@@ -26,7 +26,11 @@ These instructions apply to **all** AI agents (Opencode, Antigravity, etc.) work
 ### Backend
 - **Language**: Python 3.10+
 - **Framework**: FastAPI (Async)
-- **Database**: SQLite (Dev) / PostgreSQL (Prod) with SQLAlchemy (Async)
+- **Database**: 
+  - ORM: SQLAlchemy (Async)
+  - Migrations: Alembic
+  - RDBMS: SQLite (Dev) / PostgreSQL (Prod)
+- **External APIs**: PubMed Entrez API (via BioPython or httpx)
 - **Testing**: Pytest
 
 ### Frontend
@@ -34,10 +38,12 @@ These instructions apply to **all** AI agents (Opencode, Antigravity, etc.) work
 - **Build Tool**: Vite
 - **Styling**: Bootstrap 5
 - **State Management**: Pinia
+- **Testing**: Vitest (optional)
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose
 - **Platform**: Cloud Run (target)
+- **CI/CD**: GitHub Actions (future)
 
 ## 🎨 UI & Design Standards
 - **Aesthetic**: Premium news app experience with warm neutrals and terracotta accents.
