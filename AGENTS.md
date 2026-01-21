@@ -61,7 +61,3 @@ This script kills existing uvicorn/vite processes and starts fresh backend + fro
 * **Do Not** touch the `main` branch.
 * **Do Not** push to a remote repository without confirmation if credentials are not pre-configured.
 * **Do Not** delete existing project documentation unless specifically requested.
-
----
-
-For Google Antigravity specific workflows, see [ANTIGRAVITY.md](./instruction_files/ANTIGRAVITY.md).

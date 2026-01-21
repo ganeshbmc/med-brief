@@ -26,7 +26,7 @@ MedBrief is a lightweight app that pulls the latest publications from PubMed for
 ## 🤖 AI Development
 This project uses AI agents for development. 
 
-> **CRITICAL FOR AGENTS:** Before performing any tasks, reading the codebase, or executing terminal commands, all AI agents **must** read and follow the instructions in [AGENTS.md](../AGENTS.md). For Antigravity specifics, see [ANTIGRAVITY.md](./ANTIGRAVITY.md).
+> **CRITICAL FOR AGENTS:** Before performing any tasks, reading the codebase, or executing terminal commands, all AI agents **must** read and follow the instructions in [AGENTS.md](../AGENTS.md).
 
 ## Getting Started
 * **Tech Stack:** [See AGENTS.md](../AGENTS.md)
