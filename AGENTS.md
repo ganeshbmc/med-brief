@@ -57,6 +57,15 @@ bash scripts/restart-dev.sh
 ```
 This script kills existing uvicorn/vite processes and starts fresh backend + frontend servers.
 
+## 📝 Session Logging Protocol
+At the end of every session, create or update a log file in the `logs/` directory (e.g., `logs/session_progress_YYYY-MM-DD.md`).
+
+**Required Content:**
+1.  **Executive Summary**: High-level achievements and impact.
+2.  **Changes**: Detailed list of modified files and architectural updates.
+3.  **Verification**: Test results, manual checks, and status.
+4.  **Commits**: List of atomic commits made during the session.
+
 ## 🛑 Boundaries
 * **Do Not** touch the `main` branch.
 * **Do Not** push to a remote repository without confirmation if credentials are not pre-configured.
