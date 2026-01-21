@@ -24,7 +24,7 @@ These instructions apply to **all** AI agents (Opencode, Antigravity, etc.) work
 ## 🔄 Dev Server Restart Protocol
 After making code changes, restart the dev servers using:
 ```bash
-wsl bash /mnt/d/Github/med-brief/scripts/restart-dev.sh
+bash scripts/restart-dev.sh
 ```
 This script kills existing uvicorn/vite processes and starts fresh backend + frontend servers.
 
