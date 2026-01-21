@@ -21,6 +21,29 @@ These instructions apply to **all** AI agents (Opencode, Antigravity, etc.) work
     *   Verify the fix.
     *   Merge back to `agy`.
 
+## 💻 Tech Stack
+
+### Backend
+- **Language**: Python 3.10+
+- **Framework**: FastAPI (Async)
+- **Database**: SQLite (Dev) / PostgreSQL (Prod) with SQLAlchemy (Async)
+- **Testing**: Pytest
+
+### Frontend
+- **Framework**: Vue.js 3
+- **Build Tool**: Vite
+- **Styling**: Bootstrap 5
+- **State Management**: Pinia
+
+### Infrastructure
+- **Containerization**: Docker & Docker Compose
+- **Platform**: Cloud Run (target)
+
+## 🎨 UI & Design Standards
+- **Aesthetic**: Premium news app experience with warm neutrals and terracotta accents.
+- **Style Guide**: Detailed specs for colors, typography, and components are in [UI_STYLE_GUIDE.md](./instruction_files/UI_STYLE_GUIDE.md).
+- **Icons**: Use `lucide-vue-next` (Lucide) for all iconography.
+
 ## 🔄 Dev Server Restart Protocol
 After making code changes, restart the dev servers using:
 ```bash
