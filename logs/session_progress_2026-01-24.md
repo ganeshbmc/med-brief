@@ -56,6 +56,37 @@ Successfully implemented and standardized the share text formatting across the a
 ## Session Status: ✅ COMPLETED SUCCESSFULLY
 **Next Steps**: Address Issue #48 (Preset Journal Profiles) or #47 (Improve journal search).
 
-## Railway app
-- Production env connected to main branch. The postgres db left untouched.
-- New Staging env created with new postgres-staging db, added new dns record named staging.medbrief.redmedai.com to namecheap, populated the new db and tested with a newly created account. 
+---
+
+# Session Progress: 2026-01-24 - Staging Deploy + Seed Guidance
+
+## Executive Summary
+Documented the staging deployment steps for Railway and the database population flow for the new staging Postgres instance tied to the `agy` branch.
+
+## Changes
+- No code changes.
+- Deployment guidance captured for Railway staging (`agy`) and database seeding via `POST /seed` on `med-brief.railway.internal`.
+
+## Verification
+- Not run (pending manual deploy/seed actions in Railway).
+
+## Commits
+- None
+
+---
+
+# Session Progress: 2026-01-24 - Staging Verification + Seed Run
+
+## Executive Summary
+Verified staging deployment health and populated the staging Postgres via the seed endpoint.
+
+## Changes
+- No code changes.
+- Ran `/health` and `/seed` against `https://staging.medbrief.redmedai.com`.
+
+## Verification
+- `GET /health` -> 200 `{"status":"ok"}`
+- `POST /seed` -> 200 `{"message":"Seeded successfully (Safe Upsert)","count":310}`
+
+## Commits
+- None
