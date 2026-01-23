@@ -255,9 +255,9 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
-                  <Share2 :size="16" class="me-1" />Share via...
-                </a></li>
+                 <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+                   <Share2 :size="16" class="me-1" />Share
+                 </a></li>
               </ul>
             </div>
             <!-- Export dropdown for all articles -->
@@ -273,9 +273,9 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
-                  <Share2 :size="16" class="me-1" />Share via...
-                </a></li>
+                 <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
+                   <Share2 :size="16" class="me-1" />Share
+                 </a></li>
               </ul>
             </div>
           </div>
@@ -365,8 +365,12 @@
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
-        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
+         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+          <Share2 :size="16" class="me-1" />Share
+        </a></li>
       </ul>
     </div>
   </div>
