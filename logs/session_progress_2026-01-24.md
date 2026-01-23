@@ -55,3 +55,20 @@ Successfully implemented and standardized the share text formatting across the a
 
 ## Session Status: ✅ COMPLETED SUCCESSFULLY
 **Next Steps**: Address Issue #48 (Preset Journal Profiles) or #47 (Improve journal search).
+
+---
+
+# Session Progress: 2026-01-24 - Staging Deploy + Seed Guidance
+
+## Executive Summary
+Documented the staging deployment steps for Railway and the database population flow for the new staging Postgres instance tied to the `agy` branch.
+
+## Changes
+- No code changes.
+- Deployment guidance captured for Railway staging (`agy`) and database seeding via `POST /seed` on `med-brief.railway.internal`.
+
+## Verification
+- Not run (pending manual deploy/seed actions in Railway).
+
+## Commits
+- None
