@@ -5,14 +5,57 @@
         <h2 class="text-warm-dark fw-bold mb-1">Manage Journal Profiles</h2>
         <p class="text-muted mb-0">Edit, add, or remove journals from your profiles</p>
       </div>
-      <div class="d-flex gap-2">
-        <router-link to="/account" class="btn btn-primary d-flex align-items-center gap-2">
-          <ArrowLeft :size="18" />
-          Account Settings
+      <div class="d-flex gap-2 align-items-center">
+        <!-- Primary Action: Create New Profile -->
+        <router-link 
+          to="/onboarding" 
+          class="btn btn-primary d-flex align-items-center gap-2"
+          :class="{ 'flex-grow-1': isMobile }"
+        >
+          <Plus :size="18" />
+          <span class="d-none d-sm-inline">Create New Profile</span>
+          <span class="d-sm-none">New Profile</span>
         </router-link>
-        <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
-          Dashboard
-        </router-link>
+
+        <!-- Desktop-only secondary actions -->
+        <div class="d-none d-md-flex gap-2">
+          <router-link to="/dashboard" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <Layout :size="18" />
+            Dashboard
+          </router-link>
+          <router-link to="/account" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <ArrowLeft :size="18" />
+            Account Settings
+          </router-link>
+        </div>
+
+        <!-- Mobile "More" dropdown for secondary actions -->
+        <div class="dropdown d-md-none">
+          <button 
+            class="btn btn-outline-secondary" 
+            type="button" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false"
+            style="min-width: 44px; padding: 0.375rem 0.75rem;"
+          >
+            <MoreHorizontal :size="20" />
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <router-link class="dropdown-item d-flex align-items-center gap-2" to="/dashboard">
+                <Layout :size="16" />
+                Dashboard
+              </router-link>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <router-link class="dropdown-item d-flex align-items-center gap-2" to="/account">
+                <ArrowLeft :size="16" />
+                Account Settings
+              </router-link>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -136,7 +179,7 @@
                   <span 
                     v-for="jId in editJournalIds" 
                     :key="jId" 
-                    class="badge badge-journal me-1 mb-1 d-inline-flex align-items-center gap-1"
+                    class="badge badge-journal-full me-1 mb-1 d-inline-flex align-items-center gap-1"
                     style="cursor: pointer;"
                     @click="toggleJournal(jId)"
                   >
@@ -156,7 +199,7 @@
                 <span 
                   v-for="jId in profile.journal_ids.slice(0, 5)" 
                   :key="jId" 
-                  class="badge bg-secondary me-1 mb-1"
+                  class="badge badge-journal me-1 mb-1"
                 >
                   {{ getJournalName(jId) }}
                 </span>
@@ -204,13 +247,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProfiles, searchJournals, updateProfile, deleteProfile, getJournalsByIds, setDefaultProfile } from '../services/api'
 import { useDashboardStore } from '../stores/dashboard'
 import { useToast } from '@/utils/shareUtils'
 import { 
-  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle, Star 
+  ArrowLeft, Users, Edit2, Check, X, Trash2, Search, Plus, AlertTriangle, CheckCircle, Star, Layout, MoreHorizontal 
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -230,6 +273,11 @@ const deleteTarget = ref(null)
 const deleting = ref(false)
 const successMessage = ref('')
 const allJournals = ref({}) // Cache journal names
+const isMobile = ref(window.innerWidth < 768)
+
+function handleResize() {
+  isMobile.value = window.innerWidth < 768
+}
 
 let searchTimeout = null
 
@@ -380,6 +428,8 @@ async function loadJournalNames() {
 }
 
 onMounted(async () => {
+  window.addEventListener('resize', handleResize)
+  handleResize()
   await loadProfiles()
   loadJournalNames()
   
@@ -393,6 +443,10 @@ onMounted(async () => {
     // Auto-hide success message after 5 seconds
     setTimeout(() => { successMessage.value = '' }, 5000)
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 
 // Handle profile card click - navigate to dashboard with that profile active
@@ -447,7 +501,7 @@ function handleCardClick(profile) {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1050;
+  z-index: 1070;
 }
 
 .modal-dialog {
@@ -455,7 +509,7 @@ function handleCardClick(profile) {
   width: 100%;
   margin: 1rem;
   position: relative;
-  z-index: 1051;
+  z-index: 1071;
 }
 
 .card-header {
@@ -466,6 +520,17 @@ function handleCardClick(profile) {
 .badge-journal {
   background-color: var(--terracotta-100);
   color: var(--terracotta-600);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-journal-full {
+  background-color: var(--terracotta-100);
+  color: var(--terracotta-600);
+  white-space: normal;
+  text-align: left;
 }
 
 .input-group-text {
@@ -485,5 +550,11 @@ function handleCardClick(profile) {
 
 .profile-card.editing {
   cursor: default;
+}
+
+@media (max-width: 767.98px) {
+  .btn-primary.flex-grow-1 {
+    justify-content: center;
+  }
 }
 </style>
