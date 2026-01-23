@@ -24,33 +24,42 @@ export function useToast() {
 
 export function generateArticleShareText(article) {
   const dateFormatted = formatDateMonthYear(article.pub_date)
-  let text = `${article.journal}`
+  const shareLink = article.doi ? `https://doi.org/${article.doi}` : `https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/`
+  
+  let text = `*${article.title}*\n`
+  text += `${article.journal}\n\n`
+  
+  text += `PMID: ${article.pmid}`
   if (dateFormatted) {
-    text += ` (${dateFormatted})`
+    text += ` • ${dateFormatted}`
   }
-  text += `\n\n${article.title}\n\n`
-  text += `Authors: ${formatAuthors(article.authors)}\n`
-  text += `PMID: ${article.pmid}\n`
-  if (article.doi) {
-    text += `DOI: https://doi.org/${article.doi}\n`
-  }
+  text += `\n`
+  
+  text += `Authors: ${formatAuthors(article.authors)}\n\n`
+  text += `${shareLink}`
+  
   return text
 }
 
 export function generateArticlesShareText(articles) {
-  return articles.map(a => {
+  const header = `*MedBrief Selection* (${articles.length} articles)\n\n`
+  
+  const body = articles.map((a, index) => {
     const dateFormatted = formatDateMonthYear(a.pub_date)
-    let text = a.journal
+    const shareLink = a.doi ? `https://doi.org/${a.doi}` : `https://pubmed.ncbi.nlm.nih.gov/${a.pmid}/`
+    
+    let text = `${index + 1}. *${a.title}*\n`
+    text += `   ${a.journal}\n`
+    text += `   PMID: ${a.pmid}`
     if (dateFormatted) {
-      text += ` (${dateFormatted})`
+      text += ` • ${dateFormatted}`
     }
-    text += `\n${a.title}\n`
-    text += `Authors: ${formatAuthors(a.authors)}\n`
-    text += `PMID: ${a.pmid}\n`
-    text += `DOI: ${a.doi || 'N/A'}\n`
-    text += `${'─'.repeat(40)}`
+    text += `\n`
+    text += `   ${shareLink}`
     return text
   }).join('\n\n')
+  
+  return header + body
 }
 
 export async function shareContent(text, title = 'MedBrief Article') {
@@ -79,11 +88,30 @@ function formatDateMonthYear(dateStr) {
   if (!dateStr) return ''
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const parts = dateStr.split('-')
-  if (parts.length !== 3) return ''
-  const [year, month, day] = parts
-  const monthIndex = parseInt(month) - 1
-  if (isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return ''
-  return `${day}-${months[monthIndex]}-${year}`
+  
+  const year = parts[0] || ''
+  const month = parts[1] || ''
+  const day = parts[2] || ''
+  
+  if (!year) return ''
+
+  let monthText = ''
+  if (month) {
+    let monthIndex = parseInt(month) - 1
+    if (isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) {
+      monthIndex = months.findIndex(m => m.toLowerCase() === month.toLowerCase().substring(0, 3))
+    }
+    if (monthIndex >= 0 && monthIndex <= 11) {
+      monthText = months[monthIndex]
+    }
+  }
+
+  let result = ''
+  if (day) result += `${day}-`
+  if (monthText) result += `${monthText}-`
+  result += year
+  
+  return result
 }
 
 function formatAuthors(authors) {
