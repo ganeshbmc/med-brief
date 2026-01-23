@@ -55,3 +55,7 @@ Successfully implemented and standardized the share text formatting across the a
 
 ## Session Status: ✅ COMPLETED SUCCESSFULLY
 **Next Steps**: Address Issue #48 (Preset Journal Profiles) or #47 (Improve journal search).
+
+## Railway app
+- Production env connected to main branch. The postgres db left untouched.
+- New Staging env created with new postgres-staging db, added new dns record named staging.medbrief.redmedai.com to namecheap, populated the new db and tested with a newly created account. 
