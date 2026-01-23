@@ -72,3 +72,21 @@ Documented the staging deployment steps for Railway and the database population 
 
 ## Commits
 - None
+
+---
+
+# Session Progress: 2026-01-24 - Staging Verification + Seed Run
+
+## Executive Summary
+Verified staging deployment health and populated the staging Postgres via the seed endpoint.
+
+## Changes
+- No code changes.
+- Ran `/health` and `/seed` against `https://staging.medbrief.redmedai.com`.
+
+## Verification
+- `GET /health` -> 200 `{"status":"ok"}`
+- `POST /seed` -> 200 `{"message":"Seeded successfully (Safe Upsert)","count":310}`
+
+## Commits
+- None
