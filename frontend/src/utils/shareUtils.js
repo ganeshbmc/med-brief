@@ -26,14 +26,14 @@ export function generateArticleShareText(article) {
   const dateFormatted = formatDateMonthYear(article.pub_date)
   const shareLink = article.doi ? `https://doi.org/${article.doi}` : `https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/`
   
-  let text = `*${article.title}*\n`
+  let text = `*${article.title}*\n\n`
   text += `${article.journal}\n\n`
   
   text += `PMID: ${article.pmid}`
   if (dateFormatted) {
     text += ` • ${dateFormatted}`
   }
-  text += `\n`
+  text += `\n\n`
   
   text += `Authors: ${formatAuthors(article.authors)}\n\n`
   text += `${shareLink}`
