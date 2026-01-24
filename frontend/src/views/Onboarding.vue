@@ -4,7 +4,7 @@
       <div class="col-lg-8">
         <div class="card p-4 p-md-5">
           <div class="text-center mb-4">
-            <img src="/medbrief_icon.png" alt="MedBrief" class="mb-3" style="width: 64px; height: 64px; background-color: var(--terracotta-100); border-radius: 8px;" />
+            <img src="/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="width: 64px; height: 64px;" />
             <h2 class="fw-bold text-warm-dark">Welcome to MedBrief!</h2>
             <p class="text-muted">Let's personalize your experience</p>
           </div>

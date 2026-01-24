@@ -332,3 +332,11 @@ a:hover {
   border-color: var(--terracotta-500) !important;
   color: white !important;
 }
+
+/* Logo Icon standardization */
+.logo-icon {
+  background-color: rgba(224, 122, 95, 0.15) !important;
+  border-radius: 8px;
+  padding: 4px;
+  object-fit: contain;
+}
