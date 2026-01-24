@@ -65,9 +65,6 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
 <style scoped>
 .hero-icon {
   display: inline-block;
-  padding: 1rem;
-  background: var(--terracotta-100);
-  border-radius: 1rem;
 }
 
 .feature-card {
