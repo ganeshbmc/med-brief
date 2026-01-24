@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-8 text-center">
         <div class="hero-icon mb-4">
-          <img src="@/assets/medbrief_icon.png" alt="MedBrief" style="height: 80px;" />
+          <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 80px;" />
         </div>
         <h1 class="display-3 fw-bold mb-4 text-warm-dark">
           MedBrief
@@ -65,9 +65,6 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
 <style scoped>
 .hero-icon {
   display: inline-block;
-  padding: 1rem;
-  background: var(--terracotta-100);
-  border-radius: 1rem;
 }
 
 .feature-card {

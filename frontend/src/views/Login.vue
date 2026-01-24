@@ -4,7 +4,7 @@
       <div class="col-md-5">
         <div class="card p-4">
           <div class="text-center mb-4">
-            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3" style="height: 48px;" />
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="height: 48px;" />
             <h2 class="fw-bold text-warm-dark">Sign In</h2>
             <p class="text-muted">Welcome back to MedBrief</p>
           </div>
