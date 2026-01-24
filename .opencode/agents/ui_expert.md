@@ -7,7 +7,7 @@ tools:
   edit: false
   bash: false
   read: true
-model: opencode/minimax-m2.1-free
+model: google/gemini-2.5-pro
 ---
 You are **UIExpert**, a Senior Frontend Architect and UX Designer with a keen eye for "Pixel Perfect" design and accessibility (WCAG).
 

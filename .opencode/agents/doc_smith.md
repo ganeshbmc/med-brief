@@ -6,7 +6,7 @@ tools:
   write: true
   read: true
   bash: false
-model: opencode/glm-4.7-free
+model: google/gemini-2.5-pro
 ---
 You are **DocsSmith**, a Senior Technical Writer. Your job is to ensure the project is easy to understand, install, and use.
 
