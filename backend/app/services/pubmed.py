@@ -96,6 +96,29 @@ async def fetch_articles_for_journals(
     return all_articles
 
 
+async def fetch_article_by_pmid(pmid: str) -> dict | None:
+    """Fetch a single article by PMID."""
+    if not pmid:
+        return None
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        fetch_params = {
+            "db": "pubmed",
+            "id": pmid,
+            "rettype": "xml",
+            "email": settings.PUBMED_EMAIL,
+        }
+        try:
+            fetch_resp = await client.get(EFETCH_URL, params=fetch_params)
+            articles = _parse_pubmed_xml(fetch_resp.text)
+            if not articles:
+                return None
+            return articles[0]
+        except Exception as e:
+            print(f"EFetch error for PMID {pmid}: {e}")
+            return None
+
+
 def _parse_pubmed_xml(xml_text: str) -> List[dict]:
     """Parse PubMed XML response into article dicts."""
     articles = []

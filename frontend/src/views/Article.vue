@@ -9,9 +9,20 @@
     </div>
 
     <!-- Loading -->
-    <div v-if="!article" class="text-center py-5">
+    <div v-if="isLoading" class="text-center py-5">
       <div class="spinner-border"></div>
       <p class="text-muted mt-3">Loading article...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="errorMessage" class="empty-state">
+      <FileText :size="48" class="icon-muted mb-3" />
+      <h4 class="mb-3">Couldn't load this article</h4>
+      <p class="text-muted mb-4">{{ errorMessage }}</p>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary px-4" @click="loadArticle">Retry</button>
+        <router-link to="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</router-link>
+      </div>
     </div>
 
     <!-- Article Content (Borderless Layout) -->
@@ -99,6 +110,7 @@
 
     <!-- Sticky Navigation -->
     <StickyArticleNavigation
+      v-if="!isLoading && !errorMessage"
       :hasPrev="hasPrev"
       :hasNext="hasNext"
       @navigate="navigateTo"
@@ -110,10 +122,11 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File, FileText } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
+import { getArticleByPmid } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -123,6 +136,8 @@ const { show } = useToast()
 const article = ref(null)
 const articles = ref([])
 const currentIndex = ref(-1)
+const isLoading = ref(true)
+const errorMessage = ref('')
 
 const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
@@ -224,21 +239,40 @@ async function exportAs(format) {
   URL.revokeObjectURL(url)
 }
 
-function loadArticle() {
+async function loadArticle() {
+  isLoading.value = true
+  errorMessage.value = ''
+  article.value = null
+  articles.value = []
+  currentIndex.value = -1
+
   const storedArticles = sessionStorage.getItem('dashboardArticles')
-  const storedProfileId = sessionStorage.getItem('selectedProfileId')
   const pmid = route.params.pmid
 
   if (storedArticles) {
-    articles.value = JSON.parse(storedArticles)
-    currentIndex.value = articles.value.findIndex(a => a.pmid === pmid)
-    if (currentIndex.value >= 0) {
-      article.value = articles.value[currentIndex.value]
+    try {
+      articles.value = JSON.parse(storedArticles)
+      currentIndex.value = articles.value.findIndex(a => String(a.pmid) === String(pmid))
+      if (currentIndex.value >= 0) {
+        article.value = articles.value[currentIndex.value]
+        isLoading.value = false
+        return
+      }
+    } catch (e) {
+      console.warn('Failed to parse cached articles', e)
     }
   }
 
-  if (!article.value) {
-    console.warn('Article not found in session')
+  try {
+    const fetchedArticle = await getArticleByPmid(pmid)
+    article.value = fetchedArticle
+    articles.value = [fetchedArticle]
+    currentIndex.value = 0
+  } catch (e) {
+    console.error('Failed to load article:', e)
+    errorMessage.value = e?.message || 'Please try again or return to the dashboard.'
+  } finally {
+    isLoading.value = false
   }
 }
 

@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from app.database import get_db
 from app.models import Profile, User
 from app.routers.auth import get_current_user
-from app.services.pubmed import fetch_articles_for_journals
+from app.services.pubmed import fetch_articles_for_journals, fetch_article_by_pmid
 from app.services.pdf_generator import generate_brief_pdf
 
 router = APIRouter()
@@ -128,3 +128,15 @@ async def export_brief_pdf(
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+
+@router.get("/article", response_model=ArticleOut)
+async def get_article_by_pmid(
+    pmid: str,
+    current_user: User = Depends(get_current_user),
+):
+    """Fetch a single article by PMID."""
+    _ = current_user
+    article = await fetch_article_by_pmid(pmid)
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    return article

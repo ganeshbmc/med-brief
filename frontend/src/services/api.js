@@ -86,6 +86,13 @@ export async function generateBrief(profileId, { days = 7, fromDate = null, toDa
 }
 
 /**
+ * Fetch a single article by PMID
+ */
+export async function getArticleByPmid(pmid) {
+    return request(`/api/briefs/article?pmid=${encodeURIComponent(pmid)}`)
+}
+
+/**
  * Update a profile
  */
 export async function updateProfile(profileId, name, journalIds) {
@@ -205,4 +212,3 @@ export async function resetPassword(token, newPassword) {
 
     return response.json()
 }
-
