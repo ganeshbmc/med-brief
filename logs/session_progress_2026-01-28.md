@@ -8,7 +8,8 @@ Added dashboard handling for profile load failures to avoid misleading empty sta
 - Updated `frontend/src/views/Dashboard.vue` to show a retry/error state before the empty-profiles message.
 
 ## Verification
-- Not run (not requested).
+- Manual: user verified empty dashboard fix after merge.
 
 ## Commits
 - fix: surface dashboard profile load errors
+- chore: add session log for 2026-01-28
