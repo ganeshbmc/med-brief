@@ -9,20 +9,31 @@
       </div>
     </div>
 
-    <!-- No Profiles State -->
-    <div v-if="!store.loadingProfiles && store.profiles.length === 0" class="empty-state">
-      <FileText :size="48" class="icon-muted mb-3" />
-      <h4 class="mb-3">Welcome to MedBrief!</h4>
-      <p class="text-muted mb-4">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
-      <router-link to="/onboarding" class="btn btn-primary px-4">Create Your First Profile</router-link>
-    </div>
-
     <!-- Loading Profiles State -->
-    <div v-else-if="store.loadingProfiles" class="text-center py-5">
+    <div v-if="store.loadingProfiles" class="text-center py-5">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="text-muted mt-3">Loading your profiles...</p>
+    </div>
+
+    <!-- Profiles Error State -->
+    <div v-else-if="store.profilesError" class="empty-state">
+      <AlertTriangle :size="48" class="icon-muted mb-3 text-warning" />
+      <h4 class="mb-3">We couldn't load your profiles</h4>
+      <p class="text-muted mb-4">{{ store.profilesError }}</p>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary px-4" @click="retryProfiles">Retry</button>
+        <router-link v-if="!authStore.isAuthenticated" to="/login" class="btn btn-outline-secondary">Log in</router-link>
+      </div>
+    </div>
+
+    <!-- No Profiles State -->
+    <div v-else-if="store.profiles.length === 0" class="empty-state">
+      <FileText :size="48" class="icon-muted mb-3" />
+      <h4 class="mb-3">Welcome to MedBrief!</h4>
+      <p class="text-muted mb-4">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
+      <router-link to="/onboarding" class="btn btn-primary px-4">Create Your First Profile</router-link>
     </div>
 
     <!-- Main Content -->
@@ -708,6 +719,13 @@ async function refreshArticles() {
 async function loadData() {
   await store.loadProfileJournals()
   await store.fetchArticles() // Will use cache if available
+}
+
+async function retryProfiles() {
+  await store.loadProfiles(true)
+  if (store.selectedProfileId) {
+    await loadData()
+  }
 }
 
 onMounted(async () => {

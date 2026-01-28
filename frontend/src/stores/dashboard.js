@@ -19,6 +19,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     // Loading states
     const loading = ref(false)
     const loadingProfiles = ref(false)
+    const profilesError = ref('')
 
     // Track if data has been loaded this session
     const hasLoadedProfiles = ref(false)
@@ -49,6 +50,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     async function loadProfiles(force = false) {
         if (!force && hasLoadedProfiles.value) return
 
+        profilesError.value = ''
         loadingProfiles.value = true
         try {
             const fetchedProfiles = await getProfiles()
@@ -72,6 +74,15 @@ export const useDashboardStore = defineStore('dashboard', () => {
             }
         } catch (e) {
             console.error('Failed to load profiles:', e)
+            const message = e?.message || 'Failed to load profiles'
+            const lowerMessage = message.toLowerCase()
+            if (lowerMessage.includes('invalid token') || lowerMessage.includes('user not found') || lowerMessage.includes('401')) {
+                const authStore = useAuthStore()
+                authStore.logout()
+                profilesError.value = 'Your session expired. Please log in again.'
+            } else {
+                profilesError.value = message
+            }
         } finally {
             loadingProfiles.value = false
         }
@@ -165,6 +176,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         hasLoadedProfiles.value = false
         hasLoadedArticles.value = false
         scrollPosition.value = 0
+        profilesError.value = ''
     }
 
     // Scroll position functions
@@ -185,6 +197,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         todayDate,
         loading,
         loadingProfiles,
+        profilesError,
         hasLoadedArticles,
         // Computed
         currentProfile,
