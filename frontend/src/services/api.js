@@ -23,6 +23,14 @@ async function request(endpoint, options = {}) {
 
     const response = await fetch(`${BASE_URL}${endpoint}`, config)
 
+    if (response.status === 401) {
+        authStore.logout()
+        sessionStorage.removeItem('dashboardArticles')
+        sessionStorage.removeItem('selectedProfileId')
+        window.location.replace('/login?reason=session-expired')
+        throw new Error('Session expired. Please log in again.')
+    }
+
     if (!response.ok) {
         const error = await response.json().catch(() => ({ detail: 'Request failed' }))
         throw new Error(error.detail || `HTTP ${response.status}`)

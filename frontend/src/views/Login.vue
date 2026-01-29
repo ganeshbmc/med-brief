@@ -65,11 +65,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useDashboardStore } from '../stores/dashboard'
 import { Mail, Lock, AlertCircle, LogIn } from 'lucide-vue-next'
+import { useToast } from '@/utils/shareUtils'
 
 const email = ref('')
 const password = ref('')
@@ -77,8 +78,17 @@ const error = ref('')
 const loading = ref(false)
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const dashboardStore = useDashboardStore()
+const { show } = useToast()
+
+onMounted(() => {
+  if (route.query?.reason === 'session-expired') {
+    show('Session expired. Please sign in again.', 'error')
+    router.replace({ query: {} })
+  }
+})
 
 async function handleLogin() {
   error.value = ''
