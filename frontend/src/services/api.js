@@ -23,6 +23,14 @@ async function request(endpoint, options = {}) {
 
     const response = await fetch(`${BASE_URL}${endpoint}`, config)
 
+    if (response.status === 401) {
+        authStore.logout()
+        sessionStorage.removeItem('dashboardArticles')
+        sessionStorage.removeItem('selectedProfileId')
+        window.location.replace('/login?reason=session-expired')
+        throw new Error('Session expired. Please log in again.')
+    }
+
     if (!response.ok) {
         const error = await response.json().catch(() => ({ detail: 'Request failed' }))
         throw new Error(error.detail || `HTTP ${response.status}`)
@@ -83,6 +91,13 @@ export async function generateBrief(profileId, { days = 7, fromDate = null, toDa
         url += `&days=${days}`
     }
     return request(url)
+}
+
+/**
+ * Fetch a single article by PMID
+ */
+export async function getArticleByPmid(pmid) {
+    return request(`/api/briefs/article?pmid=${encodeURIComponent(pmid)}`)
 }
 
 /**
@@ -205,4 +220,3 @@ export async function resetPassword(token, newPassword) {
 
     return response.json()
 }
-
