@@ -3,7 +3,7 @@
 ## Executive Summary
 - Added a global 401 handler to redirect to login and clear cached article context.
 - Added a login toast for session-expired redirects.
-- Restarted dev servers to apply frontend changes.
+- Merged the fix PR into agy.
 
 ## Changes
 - Updated API request helper to detect session expiry, clear session-scoped article data, and force navigation to login: `frontend/src/services/api.js`.
@@ -14,4 +14,5 @@
 - No automated tests run.
 
 ## Commits
-- No commits created.
+- d524651 fix: redirect on session expiry
+- 7c224f1 Merge pull request #64 from ganeshbmc/agy-issue-62-article-reload
