@@ -3,7 +3,7 @@
     <div class="d-flex align-items-center gap-2 mb-4">
       <button @click.prevent="goBack" class="btn btn-link text-decoration-none d-inline-flex align-items-center gap-1">
         <ArrowLeft :size="16" />
-        Back to Brief
+        Back to Dashboard
       </button>
     </div>
 
@@ -20,7 +20,7 @@
       <p class="text-muted">{{ errorMessage }}</p>
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-primary" @click="loadArticle">Retry</button>
-        <router-link to="/dashboard" class="btn btn-outline-secondary">Back to Brief</router-link>
+        <router-link to="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</router-link>
       </div>
     </div>
 
@@ -30,18 +30,18 @@
         <span class="badge-journal">{{ article.journal }}</span>
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
-            <Download :size="14" />
+            <Download :size="16" />
             Export
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="14" class="me-1" />PDF</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="16" class="me-1" />PDF</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" @click.prevent="handleShare">
-              <Share2 :size="14" class="me-1" />Share
+              <Share2 :size="16" class="me-1" />Share
             </a></li>
           </ul>
         </div>

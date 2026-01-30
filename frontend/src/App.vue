@@ -27,7 +27,7 @@
             <template v-if="authStore.isAuthenticated">
               <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/dashboard">
                 <LayoutDashboard :size="18" />
-                <span>Briefs</span>
+                <span>Dashboard</span>
               </router-link>
               <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/profiles">
                 <Users :size="18" />
@@ -35,7 +35,7 @@
               </router-link>
               <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/preferences">
                 <SlidersHorizontal :size="18" />
-                <span>Reading</span>
+                <span>Preferences</span>
               </router-link>
 
               

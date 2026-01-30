@@ -3,7 +3,6 @@
     <section class="masthead">
       <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
         <div>
-          <span class="chip">Weekly brief</span>
           <h1 class="masthead-title">Your research brief</h1>
           <p class="masthead-subtitle">{{ formatDateRange(store.fromDate, store.toDate) }} · Curated from your profile journals</p>
         </div>
@@ -24,7 +23,39 @@
       <div class="summary-grid mt-4">
         <div class="summary-tile">
           <div class="summary-label">Active profile</div>
-          <div class="summary-value">{{ store.currentProfile?.name || 'None' }}</div>
+          <div class="dropdown">
+            <button
+              class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle d-flex align-items-center gap-2"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {{ store.currentProfile?.name || 'None' }}
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="p in store.profiles" :key="p.id">
+                <a
+                  class="dropdown-item d-flex align-items-center justify-content-between"
+                  :class="{ active: store.selectedProfileId === p.id }"
+                  href="#"
+                  @click.prevent="selectProfile(p.id)"
+                >
+                  {{ p.name }}
+                  <span class="d-flex align-items-center gap-2">
+                    <span v-if="p.is_default" class="text-muted small">Default</span>
+                    <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
+                  </span>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
+                  <Plus :size="16" />
+                  Create New Profile
+                </router-link>
+              </li>
+            </ul>
+          </div>
         </div>
         <div class="summary-tile">
           <div class="summary-label">Journals tracked</div>
@@ -70,49 +101,6 @@
 
     <!-- Main Content -->
     <template v-else>
-      <div class="section-card section-card--soft mb-4">
-        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
-          <div>
-            <div class="summary-label">Current profile</div>
-            <div class="dropdown">
-              <button 
-                class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
-                type="button" 
-                data-bs-toggle="dropdown" 
-                aria-expanded="false"
-              >
-                {{ store.currentProfile?.name }}
-              </button>
-              <ul class="dropdown-menu">
-                <li v-for="p in store.profiles" :key="p.id">
-                  <a 
-                    class="dropdown-item d-flex align-items-center justify-content-between" 
-                    :class="{ active: store.selectedProfileId === p.id }"
-                    href="#" 
-                    @click.prevent="selectProfile(p.id)"
-                  >
-                    {{ p.name }}
-                    <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-                  </a>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
-                    <Plus :size="16" />
-                    Create New Profile
-                  </router-link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge-soft">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
-            <span class="badge-amber">{{ filteredArticles.length }} articles</span>
-            <span v-if="showAbstractOnly" class="badge-soft">Abstracts only</span>
-          </div>
-        </div>
-      </div>
-      
       <!-- Filters -->
       <div class="section-card mb-4">
         <div class="filter-grid">
