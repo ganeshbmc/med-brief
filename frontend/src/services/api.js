@@ -103,10 +103,14 @@ export async function getArticleByPmid(pmid) {
 /**
  * Update a profile
  */
-export async function updateProfile(profileId, name, journalIds) {
+export async function updateProfile(profileId, name, journalIds, newJournals = []) {
     return request(`/api/profiles/${profileId}`, {
         method: 'PUT',
-        body: JSON.stringify({ name, journal_ids: journalIds }),
+        body: JSON.stringify({
+            name,
+            journal_ids: journalIds,
+            new_journals: newJournals,
+        }),
     })
 }
 
