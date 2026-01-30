@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from pydantic import BaseModel
 from typing import List, Optional
@@ -32,7 +31,18 @@ class PubmedJournalOut(BaseModel):
     is_local: bool = False  # Whether it exists in our DB
 
 
-@router.get("/search", response_model=List[JournalOut])
+class SearchJournalOut(BaseModel):
+    id: Optional[int] = None
+    name: str
+    issn: Optional[str] = None
+    iso_abbreviation: Optional[str] = None
+    category: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+@router.get("/search", response_model=List[SearchJournalOut])
 async def search_journals(
     q: str = Query(..., min_length=2),
     db: AsyncSession = Depends(get_db),
@@ -41,7 +51,46 @@ async def search_journals(
     result = await db.execute(
         select(Journal).where(Journal.name.ilike(f"%{q}%")).limit(20)
     )
-    return result.scalars().all()
+    local_journals = result.scalars().all()
+    if local_journals:
+        return local_journals
+
+    nlm_journals = await search_nlm_journals(q, limit=20)
+    if not nlm_journals:
+        return []
+
+    issns = sorted({j.issn for j in nlm_journals if j.issn})
+    local_map = {}
+    if issns:
+        existing_result = await db.execute(
+            select(Journal).where(Journal.issn.in_(issns))
+        )
+        existing_journals = existing_result.scalars().all()
+        local_map = {j.issn: j for j in existing_journals if j.issn}
+
+    results = []
+    for journal in nlm_journals:
+        local = local_map.get(journal.issn) if journal.issn else None
+        if local:
+            results.append(
+                SearchJournalOut(
+                    id=local.id,
+                    name=local.name,
+                    issn=local.issn,
+                    iso_abbreviation=local.iso_abbreviation,
+                    category=local.category,
+                )
+            )
+        else:
+            results.append(
+                SearchJournalOut(
+                    name=journal.name,
+                    issn=journal.issn,
+                    iso_abbreviation=journal.iso_abbreviation,
+                )
+            )
+
+    return results
 
 
 @router.get("/pubmed-search", response_model=List[PubmedJournalOut])
@@ -103,4 +152,3 @@ async def get_journals_by_ids(
         select(Journal).where(Journal.id.in_(id_list))
     )
     return result.scalars().all()
-

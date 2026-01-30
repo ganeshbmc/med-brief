@@ -158,12 +158,12 @@
                 <div class="journal-list">
                   <div 
                     v-for="j in searchResults" 
-                    :key="'search-' + j.id"
+                    :key="journalKey(j)"
                     class="journal-item d-flex align-items-center p-2 rounded"
-                    :class="{ selected: editJournalIds.includes(j.id) }"
-                    @click="toggleJournal(j.id)"
+                    :class="{ selected: isJournalSelected(j) }"
+                    @click="toggleJournal(j)"
                   >
-                    <input type="checkbox" class="form-check-input me-2" :checked="editJournalIds.includes(j.id)" />
+                    <input type="checkbox" class="form-check-input me-2" :checked="isJournalSelected(j)" />
                     <div>
                       <div class="small fw-semibold text-warm-dark">{{ j.name }}</div>
                       <small class="text-muted">{{ j.category }}</small>
@@ -174,19 +174,29 @@
               
               <!-- Selected Journals -->
               <div>
-                <small class="text-muted">Selected journals ({{ editJournalIds.length }}):</small>
+                <small class="text-muted">Selected journals ({{ editJournalIds.length + editNewJournals.length }}):</small>
                 <div class="selected-journals mt-2">
                   <span 
                     v-for="jId in editJournalIds" 
                     :key="jId" 
                     class="badge badge-journal-full me-1 mb-1 d-inline-flex align-items-center gap-1"
                     style="cursor: pointer;"
-                    @click="toggleJournal(jId)"
+                    @click="toggleJournal({ id: jId })"
                   >
                     {{ getJournalName(jId) }}
                     <X :size="12" />
                   </span>
-                  <span v-if="editJournalIds.length === 0" class="text-muted small">
+                  <span
+                    v-for="j in editNewJournals"
+                    :key="`new-${j.issn || j.name}`"
+                    class="badge badge-journal-full me-1 mb-1 d-inline-flex align-items-center gap-1"
+                    style="cursor: pointer;"
+                    @click="toggleJournal(j)"
+                  >
+                    {{ j.name }}
+                    <X :size="12" />
+                  </span>
+                  <span v-if="editJournalIds.length + editNewJournals.length === 0" class="text-muted small">
                     No journals selected
                   </span>
                 </div>
@@ -266,6 +276,7 @@ const loading = ref(true)
 const editingId = ref(null)
 const editName = ref('')
 const editJournalIds = ref([])
+const editNewJournals = ref([])
 const journalSearch = ref('')
 const searchResults = ref([])
 const saving = ref(false)
@@ -305,6 +316,7 @@ function startEdit(profile) {
   editingId.value = profile.id
   editName.value = profile.name
   editJournalIds.value = [...profile.journal_ids]
+  editNewJournals.value = []
   journalSearch.value = ''
   searchResults.value = []
 }
@@ -313,6 +325,7 @@ function cancelEdit() {
   editingId.value = null
   editName.value = ''
   editJournalIds.value = []
+  editNewJournals.value = []
   journalSearch.value = ''
   searchResults.value = []
 }
@@ -322,7 +335,12 @@ async function saveEdit(profileId) {
   
   saving.value = true
   try {
-    const updated = await updateProfile(profileId, editName.value.trim(), editJournalIds.value)
+    const updated = await updateProfile(
+      profileId,
+      editName.value.trim(),
+      editJournalIds.value,
+      editNewJournals.value
+    )
     const idx = profiles.value.findIndex(p => p.id === profileId)
     if (idx !== -1) {
       profiles.value[idx] = updated
@@ -348,7 +366,11 @@ function debouncedSearch() {
         const results = await searchJournals(journalSearch.value)
         searchResults.value = results
         // Cache journal names
-        results.forEach(j => { allJournals.value[j.id] = j.name })
+        results.forEach(j => {
+          if (j.id) {
+            allJournals.value[j.id] = j.name
+          }
+        })
       } catch (e) {
         searchResults.value = []
       }
@@ -358,12 +380,43 @@ function debouncedSearch() {
   }, 300)
 }
 
-function toggleJournal(journalId) {
-  const idx = editJournalIds.value.indexOf(journalId)
+function journalKey(journal) {
+  if (journal?.id) return `search-${journal.id}`
+  if (journal?.issn) return `search-${journal.issn}`
+  return `search-${journal?.name}`
+}
+
+function isJournalSelected(journal) {
+  if (journal?.id) {
+    return editJournalIds.value.includes(journal.id)
+  }
+  if (journal?.issn) {
+    return editNewJournals.value.some(j => j.issn === journal.issn)
+  }
+  return editNewJournals.value.some(j => j.name === journal?.name)
+}
+
+function toggleJournal(journal) {
+  if (journal?.id) {
+    const idx = editJournalIds.value.indexOf(journal.id)
+    if (idx === -1) {
+      editJournalIds.value.push(journal.id)
+    } else {
+      editJournalIds.value.splice(idx, 1)
+    }
+    return
+  }
+
+  const key = journal?.issn || journal?.name
+  const idx = editNewJournals.value.findIndex(j => (j.issn || j.name) === key)
   if (idx === -1) {
-    editJournalIds.value.push(journalId)
+    editNewJournals.value.push({
+      name: journal?.name,
+      issn: journal?.issn,
+      iso_abbreviation: journal?.iso_abbreviation,
+    })
   } else {
-    editJournalIds.value.splice(idx, 1)
+    editNewJournals.value.splice(idx, 1)
   }
 }
 

@@ -126,9 +126,39 @@ async def update_profile(
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    # Fetch new journals
-    journal_result = await db.execute(select(Journal).where(Journal.id.in_(data.journal_ids)))
-    journals = journal_result.scalars().all()
+    journals = []
+    existing_ids = set()
+
+    # Fetch existing journals by ID
+    if data.journal_ids:
+        journal_result = await db.execute(
+            select(Journal).where(Journal.id.in_(data.journal_ids))
+        )
+        journals = journal_result.scalars().all()
+        existing_ids = {j.id for j in journals}
+
+    # Create new journals from PubMed (if they don't exist)
+    for new_j in data.new_journals:
+        existing = None
+        if new_j.issn:
+            result = await db.execute(select(Journal).where(Journal.issn == new_j.issn))
+            existing = result.scalar_one_or_none()
+
+        if existing:
+            if existing.id not in existing_ids:
+                journals.append(existing)
+                existing_ids.add(existing.id)
+        else:
+            journal = Journal(
+                name=new_j.name,
+                issn=new_j.issn,
+                iso_abbreviation=new_j.iso_abbreviation,
+                category="Custom",
+            )
+            db.add(journal)
+            await db.flush()
+            journals.append(journal)
+            existing_ids.add(journal.id)
 
     profile.name = data.name
     profile.journals = journals
@@ -187,4 +217,3 @@ async def delete_profile(
     await db.delete(profile)
     await db.commit()
     return {"message": "Profile deleted"}
-

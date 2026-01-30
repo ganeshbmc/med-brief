@@ -119,6 +119,16 @@ async def fetch_article_by_pmid(pmid: str) -> dict | None:
             return None
 
 
+def _normalize_text(value: str) -> str:
+    return " ".join(value.split())
+
+
+def _get_element_text(element: ElementTree.Element | None) -> str:
+    if element is None:
+        return ""
+    return _normalize_text("".join(element.itertext()))
+
+
 def _parse_pubmed_xml(xml_text: str) -> List[dict]:
     """Parse PubMed XML response into article dicts."""
     articles = []
@@ -126,7 +136,7 @@ def _parse_pubmed_xml(xml_text: str) -> List[dict]:
         root = ElementTree.fromstring(xml_text)
         for article in root.findall(".//PubmedArticle"):
             pmid = article.findtext(".//PMID", "")
-            title = article.findtext(".//ArticleTitle", "")
+            title = _get_element_text(article.find(".//ArticleTitle"))
             journal = article.findtext(".//Journal/Title", "")
 
             # Authors
@@ -150,13 +160,13 @@ def _parse_pubmed_xml(xml_text: str) -> List[dict]:
             # Abstract - join all AbstractText elements (for structured abstracts)
             abstract_parts = []
             for abs_elem in article.findall(".//AbstractText"):
-                label = abs_elem.get("Label", "")
-                text = abs_elem.text or ""
+                label = abs_elem.get("Label") or abs_elem.get("NlmCategory") or ""
+                text = _get_element_text(abs_elem)
                 if label:
                     abstract_parts.append(f"{label}: {text}")
                 else:
                     abstract_parts.append(text)
-            abstract = " ".join(abstract_parts) if abstract_parts else ""
+            abstract = "\n\n".join([part for part in abstract_parts if part]) if abstract_parts else ""
 
             # DOI
             doi = ""
