@@ -25,7 +25,7 @@
           <div class="summary-label">Active profile</div>
           <div class="dropdown">
             <button
-              class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle d-flex align-items-center gap-2"
+              class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle summary-value summary-value--clamp text-start"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -41,10 +41,7 @@
                   @click.prevent="selectProfile(p.id)"
                 >
                   {{ p.name }}
-                  <span class="d-flex align-items-center gap-2">
-                    <span v-if="p.is_default" class="text-muted small">Default</span>
-                    <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-                  </span>
+                  <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
                 </a>
               </li>
               <li><hr class="dropdown-divider" /></li>
@@ -200,8 +197,8 @@
               aria-label="To date"
             />
           </div>
-          <div class="d-flex align-items-center gap-2 mt-2">
-            <div class="form-check">
+          <div class="filter-toggle mt-2">
+            <div class="form-check form-switch">
               <input
                 type="checkbox"
                 class="form-check-input"
@@ -209,7 +206,7 @@
                 v-model="showAbstractOnly"
               />
               <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
-                With abstract only
+                Abstracts only
               </label>
             </div>
             <span class="badge-soft">{{ articlesWithAbstract.length }} available</span>
@@ -333,7 +330,6 @@
               <div class="card-body d-flex flex-column">
                 <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                   <span class="badge-journal">{{ article.journal }}</span>
-                  <span v-if="article.abstract" class="badge-soft">Abstract</span>
                 </div>
                 <h6 class="card-title text-warm-dark">{{ article.title }}</h6>
                 <div class="article-meta mb-2">
