@@ -11,6 +11,7 @@
 - Cleaned the profile switcher label styling, removed count badge, and broadened preference default range options.
 - Updated dashboard profile truncation and refined the abstracts-only filter control.
 - Removed the abstract badge from dashboard article cards.
+- Kept the abstracts-only label and count on a single line.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -31,6 +32,7 @@
 - frontend/src/views/Dashboard.vue: clamped profile label to two lines and restyled the abstracts-only toggle.
 - frontend/src/assets/main.css: added clamp and toggle utility styles.
 - frontend/src/views/Dashboard.vue: removed abstract badge from article cards.
+- frontend/src/assets/main.css: prevented abstracts-only label wrapping.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
