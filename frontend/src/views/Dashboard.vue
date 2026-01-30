@@ -1,120 +1,135 @@
 <template>
-  <div class="container py-4" :class="preferencesClasses">
-    <!-- Header Section -->
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-      <div>
-        <h2 class="text-warm-dark fw-bold mb-1">Your Brief</h2>
-        <p class="text-warm-muted mb-0">Research from {{ formatDateRange(store.fromDate, store.toDate) }}</p>
+  <div class="container" :class="preferencesClasses">
+    <section class="masthead">
+      <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+        <div>
+          <span class="chip">Weekly brief</span>
+          <h1 class="masthead-title">Your research brief</h1>
+          <p class="masthead-subtitle">{{ formatDateRange(store.fromDate, store.toDate) }} · Curated from your profile journals</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            class="btn btn-light btn-sm d-inline-flex align-items-center gap-2"
+            @click="refreshArticles"
+            :disabled="store.loading"
+            aria-label="Refresh articles"
+          >
+            <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
+            <RefreshCw v-else :size="16" />
+            Refresh
+          </button>
+          <router-link class="btn btn-outline-terracotta btn-sm" to="/profiles">Manage profiles</router-link>
+        </div>
       </div>
-    </div>
+      <div class="summary-grid mt-4">
+        <div class="summary-tile">
+          <div class="summary-label">Active profile</div>
+          <div class="summary-value">{{ store.currentProfile?.name || 'None' }}</div>
+        </div>
+        <div class="summary-tile">
+          <div class="summary-label">Journals tracked</div>
+          <div class="summary-value">{{ store.currentProfile?.journal_ids?.length || 0 }}</div>
+        </div>
+        <div class="summary-tile">
+          <div class="summary-label">Articles in range</div>
+          <div class="summary-value">{{ filteredArticles.length }}</div>
+        </div>
+        <div class="summary-tile">
+          <div class="summary-label">Abstracts available</div>
+          <div class="summary-value">{{ articlesWithAbstract.length }}</div>
+        </div>
+      </div>
+    </section>
 
     <!-- Loading Profiles State -->
-    <div v-if="store.loadingProfiles" class="text-center py-5">
+    <div v-if="store.loadingProfiles" class="loading-state">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-      <p class="text-muted mt-3">Loading your profiles...</p>
+      <p class="text-muted">Preparing your brief settings...</p>
     </div>
 
     <!-- Profiles Error State -->
     <div v-else-if="store.profilesError" class="empty-state">
-      <AlertTriangle :size="48" class="icon-muted mb-3 text-warning" />
-      <h4 class="mb-3">We couldn't load your profiles</h4>
-      <p class="text-muted mb-4">{{ store.profilesError }}</p>
+      <AlertTriangle :size="48" class="icon-muted text-warning" />
+      <h4>We couldn't load your profiles</h4>
+      <p class="text-muted">{{ store.profilesError }}</p>
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-primary px-4" @click="retryProfiles">Retry</button>
+        <button class="btn btn-primary" @click="retryProfiles">Retry</button>
         <router-link v-if="!authStore.isAuthenticated" to="/login" class="btn btn-outline-secondary">Log in</router-link>
       </div>
     </div>
 
     <!-- No Profiles State -->
     <div v-else-if="store.profiles.length === 0" class="empty-state">
-      <FileText :size="48" class="icon-muted mb-3" />
-      <h4 class="mb-3">Welcome to MedBrief!</h4>
-      <p class="text-muted mb-4">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
-      <router-link to="/onboarding" class="btn btn-primary px-4">Create Your First Profile</router-link>
+      <FileText :size="48" class="icon-muted" />
+      <h4>Welcome to MedBrief!</h4>
+      <p class="text-muted">You haven't created any profiles yet. Create one to start receiving personalized research briefs.</p>
+      <router-link to="/onboarding" class="btn btn-primary">Create Your First Profile</router-link>
     </div>
 
     <!-- Main Content -->
     <template v-else>
-      <!-- Control Bar: Profile Selector & Stats -->
-      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-        <!-- Left: Profile Selector -->
-        <div class="d-flex align-items-center gap-2">
-          <span class="text-muted small fw-semibold ls-1">Current Profile:</span>
-          <div class="dropdown">
-            <button 
-              class="btn btn-link text-decoration-none p-0 fw-bold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
-              type="button" 
-              data-bs-toggle="dropdown" 
-              aria-expanded="false"
-            >
-              {{ store.currentProfile?.name }}
-            </button>
-            <ul class="dropdown-menu">
-              <li v-for="p in store.profiles" :key="p.id">
-                <a 
-                  class="dropdown-item d-flex align-items-center justify-content-between" 
-                  :class="{ active: store.selectedProfileId === p.id }"
-                  href="#" 
-                  @click.prevent="selectProfile(p.id)"
-                >
-                  {{ p.name }}
-                  <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-                </a>
-              </li>
-              <li><hr class="dropdown-divider" /></li>
-              <li>
-                <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
-                  <Plus :size="16" />
-                  Create New Profile
-                </router-link>
-              </li>
-            </ul>
+      <div class="section-card section-card--soft mb-4">
+        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+          <div>
+            <div class="summary-label">Current profile</div>
+            <div class="dropdown">
+              <button 
+                class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle d-flex align-items-center gap-2" 
+                type="button" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+              >
+                {{ store.currentProfile?.name }}
+              </button>
+              <ul class="dropdown-menu">
+                <li v-for="p in store.profiles" :key="p.id">
+                  <a 
+                    class="dropdown-item d-flex align-items-center justify-content-between" 
+                    :class="{ active: store.selectedProfileId === p.id }"
+                    href="#" 
+                    @click.prevent="selectProfile(p.id)"
+                  >
+                    {{ p.name }}
+                    <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <router-link class="dropdown-item text-terracotta fw-semibold d-flex align-items-center gap-2" to="/onboarding">
+                    <Plus :size="16" />
+                    Create New Profile
+                  </router-link>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-
-        <!-- Right: Stats & Actions -->
-        <div class="d-flex align-items-center gap-3">
-          <span class="text-muted small">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
-          <div class="vr text-muted opacity-25"></div>
-          <span class="badge bg-terracotta-100 text-dark rounded-pill px-3" style="color: var(--terracotta-700) !important;">
-            {{ filteredArticles.length }} article{{ filteredArticles.length !== 1 ? 's' : '' }}
-            <span v-if="showAbstractOnly" class="text-terracotta-600">(with abstracts)</span>
-          </span>
-          <div class="vr text-muted opacity-25"></div>
-          
-          <button 
-            class="btn btn-light btn-sm btn-icon text-muted" 
-            @click="refreshArticles" 
-            :disabled="store.loading"
-            title="Refresh Articles"
-          >
-            <span v-if="store.loading" class="spinner-border spinner-border-sm"></span>
-            <RefreshCw v-else :size="18" />
-          </button>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge-soft">{{ store.currentProfile?.journal_ids?.length || 0 }} journals</span>
+            <span class="badge-amber">{{ filteredArticles.length }} articles</span>
+            <span v-if="showAbstractOnly" class="badge-soft">Abstracts only</span>
+          </div>
         </div>
       </div>
       
       <!-- Filters -->
-      <div class="card mb-4 p-3">
-        <div class="row g-3 align-items-center">
-          <div class="col-md-3">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0">
-                <Search :size="18" class="icon-muted" />
-              </span>
-              <input 
-                v-model="searchQuery" 
-                type="text" 
-                class="form-control border-start-0" 
-                placeholder="Search articles..."
+      <div class="section-card mb-4">
+        <div class="filter-grid">
+          <div>
+            <label class="form-label small text-muted mb-2">Search</label>
+            <div class="input-icon">
+              <Search :size="18" class="icon-muted" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search articles, journals, abstracts"
+                aria-label="Search articles"
               />
             </div>
           </div>
-          <div class="col-md-3">
-            <!-- Journal Filter Dropdown -->
+          <div>
+            <label class="form-label small text-muted mb-2">Journal filter</label>
             <div class="dropdown">
               <button 
                 class="btn btn-outline-secondary w-100 dropdown-toggle text-start d-flex align-items-center gap-2" 
@@ -123,96 +138,96 @@
                 data-bs-auto-close="outside"
               >
                 <Newspaper :size="18" />
-                {{ selectedJournals.length ? `${selectedJournals.length} journal(s)` : 'All Journals' }}
+                {{ selectedJournals.length ? `${selectedJournals.length} journal(s)` : 'All journals' }}
               </button>
-              <ul class="dropdown-menu journal-filter-dropdown" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
+              <ul class="dropdown-menu journal-filter-dropdown" style="min-width: 320px; max-height: 360px; overflow-y: auto;">
                 <li>
                   <a class="dropdown-item" href="#" @click.prevent="selectedJournals = []">
                     <em>Clear filters</em>
                   </a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
-                 <li v-for="journal in availableJournals" :key="journal.name">
-                   <a 
-                     class="dropdown-item d-flex align-items-center justify-content-between" 
-                     :class="{ 'text-muted': !journal.hasData }"
-                     href="#" 
-                     @click.prevent="toggleJournalFilter(journal.name)"
-                     :title="!journal.hasData ? 'No articles found for this journal in the selected time period' : journal.name"
-                   >
-                     <span class="d-flex align-items-center flex-grow-1">
-                       <input 
-                         type="checkbox" 
-                         class="form-check-input me-2 flex-shrink-0" 
-                         :checked="selectedJournals.includes(journal.name)"
-                         @change="toggleJournalFilter(journal.name)"
-                         @click.stop
-                         :disabled="!journal.hasData"
-                       />
-                       <span class="journal-name">{{ journal.name }}</span>
-                       <AlertTriangle v-if="!journal.hasData" :size="14" class="ms-2 text-warning flex-shrink-0" />
-                     </span>
-                     <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
-                   </a>
-                 </li>
+                <li v-for="journal in availableJournals" :key="journal.name">
+                  <a 
+                    class="dropdown-item d-flex align-items-center justify-content-between" 
+                    :class="{ 'text-muted': !journal.hasData }"
+                    href="#" 
+                    @click.prevent="toggleJournalFilter(journal.name)"
+                    :title="!journal.hasData ? 'No articles found for this journal in the selected time period' : journal.name"
+                  >
+                    <span class="d-flex align-items-center flex-grow-1">
+                      <input 
+                        type="checkbox" 
+                        class="form-check-input me-2 flex-shrink-0" 
+                        :checked="selectedJournals.includes(journal.name)"
+                        @change="toggleJournalFilter(journal.name)"
+                        @click.stop
+                        :disabled="!journal.hasData"
+                      />
+                      <span class="journal-name">{{ journal.name }}</span>
+                      <AlertTriangle v-if="!journal.hasData" :size="14" class="ms-2 text-warning flex-shrink-0" />
+                    </span>
+                    <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <!-- Responsive Filter Controls: All in one row on lg, two rows on sm/md -->
-          <div class="col-12 col-lg-auto">
-            <div class="d-flex gap-2 flex-wrap">
-              <!-- Quick Select -->
-              <div>
-                <label class="form-label small text-muted mb-1">Quick Select</label>
-                <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
-                  <option :value="1">Last 24 hours</option>
-                  <option :value="3">Last 3 days</option>
-                  <option :value="7">Last 7 days</option>
-                  <option :value="14">Last 14 days</option>
-                  <option :value="30">Last 30 days</option>
-                  <option :value="0">Custom</option>
-                </select>
-              </div>
-               <!-- Sort -->
-               <div>
-                 <label class="form-label small text-muted mb-1">Sort</label>
-                 <select v-model="sortBy" class="form-select form-select-sm">
-                   <option value="date">By Date</option>
-                   <option value="journal">By Journal</option>
-                 </select>
-               </div>
-               <!-- Abstract Only Filter -->
-               <div class="d-flex align-items-center mt-2">
-                 <div class="form-check">
-                   <input
-                     type="checkbox"
-                     class="form-check-input"
-                     id="abstractOnly"
-                     v-model="showAbstractOnly"
-                   />
-                   <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
-                     With abstract only
-                   </label>
-                 </div>
-                 <span class="badge bg-terracotta-100 text-terracotta-700 ms-2 rounded-pill" style="font-size: 0.7rem;">
-                   {{ articlesWithAbstract.length }} available
-                 </span>
-               </div>
-               <!-- From -->
-              <div>
-                <label class="form-label small text-muted mb-1">From</label>
-                <input type="date" v-model="localFromDate" class="form-control form-control-sm" @change="handleDateChange" />
-              </div>
-              <!-- To -->
-              <div>
-                <label class="form-label small text-muted mb-1">To</label>
-                <input type="date" v-model="localToDate" class="form-control form-control-sm" :max="store.todayDate" @change="handleDateChange" />
-              </div>
+          <div>
+            <label class="form-label small text-muted mb-2">Quick range</label>
+            <select v-model="store.daysPreset" class="form-select form-select-sm" @change="applyPreset">
+              <option :value="1">Last 24 hours</option>
+              <option :value="3">Last 3 days</option>
+              <option :value="7">Last 7 days</option>
+              <option :value="14">Last 14 days</option>
+              <option :value="30">Last 30 days</option>
+              <option :value="0">Custom</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label small text-muted mb-2">Sort</label>
+            <select v-model="sortBy" class="form-select form-select-sm">
+              <option value="date">By Date</option>
+              <option value="journal">By Journal</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label small text-muted mb-2">From</label>
+            <input
+              type="date"
+              v-model="localFromDate"
+              class="form-control form-control-sm"
+              @change="handleDateChange"
+              aria-label="From date"
+            />
+          </div>
+          <div>
+            <label class="form-label small text-muted mb-2">To</label>
+            <input
+              type="date"
+              v-model="localToDate"
+              class="form-control form-control-sm"
+              :max="store.todayDate"
+              @change="handleDateChange"
+              aria-label="To date"
+            />
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-2">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="abstractOnly"
+                v-model="showAbstractOnly"
+              />
+              <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
+                With abstract only
+              </label>
             </div>
+            <span class="badge-soft">{{ articlesWithAbstract.length }} available</span>
           </div>
         </div>
-        <!-- Article count, limit warning, and export buttons -->
-        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top flex-wrap gap-2">
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top flex-wrap gap-2">
           <div class="d-flex align-items-center gap-3">
             <small v-if="store.articles.length >= 500" class="text-warning d-flex align-items-center gap-1">
               <AlertTriangle :size="16" />
@@ -225,7 +240,6 @@
               </span>
             </small>
           </div>
-          <!-- Selection toggle and bulk export -->
           <div class="d-flex align-items-center gap-2">
             <button 
               class="btn btn-sm d-flex align-items-center gap-1" 
@@ -253,7 +267,6 @@
               <X :size="16" />
               Clear
             </button>
-            <!-- Export dropdown for selected articles -->
             <div class="dropdown" v-if="selectionMode && selectedArticles.length > 0">
               <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
                 <Download :size="16" />
@@ -266,12 +279,11 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
                 <li><hr class="dropdown-divider"></li>
-                 <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
-                   <Share2 :size="16" class="me-1" />Share
-                 </a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+                  <Share2 :size="16" class="me-1" />Share
+                </a></li>
               </ul>
             </div>
-            <!-- Export dropdown for all articles -->
             <div class="dropdown" v-else-if="filteredArticles.length > 0 && !selectionMode">
               <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
                 <Download :size="16" />
@@ -284,9 +296,9 @@
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
                 <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
                 <li><hr class="dropdown-divider"></li>
-                 <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
-                   <Share2 :size="16" class="me-1" />Share
-                 </a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
+                  <Share2 :size="16" class="me-1" />Share
+                </a></li>
               </ul>
             </div>
           </div>
@@ -294,74 +306,74 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="store.loading && store.articles.length === 0" class="text-center py-5">
+      <div v-if="store.loading && store.articles.length === 0" class="loading-state">
         <div class="spinner-border" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="text-muted mt-3">Fetching latest articles...</p>
+        <p class="text-muted">Fetching the latest articles...</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="filteredArticles.length === 0" class="empty-state">
-        <FileText :size="48" class="icon-muted mb-3" />
+        <FileText :size="48" class="icon-muted" />
         <h4>No articles found</h4>
         <p class="text-muted">{{ store.articles.length === 0 ? 'No new articles from your selected journals in this time period.' : 'Try adjusting your search or journal filters.' }}</p>
-        <button v-if="selectedJournals.length > 0" class="btn btn-outline-primary mt-2" @click="selectedJournals = []">
+        <button v-if="selectedJournals.length > 0" class="btn btn-outline-primary" @click="selectedJournals = []">
           Clear Journal Filters
         </button>
       </div>
 
       <!-- Articles Grid -->
-      <div v-else class="row g-4 mb-5">
-        <div v-for="article in filteredArticles" :key="article.pmid" class="col-md-6 col-lg-4">
-          <div 
-            class="card article-card h-100 card-hover-lift" 
-            :class="{ 
-              'clickable-card': !selectionMode,
-              'selected-card': selectedArticles.includes(String(article.pmid))
-            }"
-            @click="handleCardClick(article.pmid)"
-          >
-            <!-- Selection checkbox overlay -->
-            <div v-if="selectionMode" class="selection-checkbox">
-              <input 
-                type="checkbox" 
-                class="form-check-input" 
-                :checked="selectedArticles.includes(String(article.pmid))"
-                @click.stop="handleCardClick(article.pmid)"
-              />
-            </div>
-            <div class="card-body d-flex flex-column">
-              <span class="badge-journal mb-3 align-self-start">
-                {{ article.journal }}
-              </span>
-              <h6 class="card-title fw-semibold text-warm-dark">{{ article.title }}</h6>
-              <p class="card-text text-muted small mb-2">
-                {{ article.authors?.slice(0, 3).join(', ') }}{{ article.authors?.length > 3 ? ' et al.' : '' }}
-              </p>
-              <p v-if="article.abstract" class="card-text text-muted small flex-grow-1 abstract-preview">
-                {{ truncateAbstract(article.abstract) }}
-              </p>
-              <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                <small class="text-muted d-flex align-items-center gap-1">
-                  <Calendar :size="14" />
-                  {{ formatDateDisplay(article.pub_date) }}
-                </small>
-                <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
-                  View <ArrowRight :size="14" />
-                </span>
+        <div v-else class="row g-4 mb-5">
+          <div v-for="article in filteredArticles" :key="article.pmid" class="col-md-6 col-lg-4">
+            <div 
+              class="card article-card h-100 card-hover-lift" 
+              :class="{ 
+                'clickable-card': !selectionMode,
+                'selected-card': selectedArticles.includes(String(article.pmid))
+              }"
+              @click="handleCardClick(article.pmid)"
+            >
+              <div v-if="selectionMode" class="selection-checkbox">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  :checked="selectedArticles.includes(String(article.pmid))"
+                  @click.stop="handleCardClick(article.pmid)"
+                />
+              </div>
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                  <span class="badge-journal">{{ article.journal }}</span>
+                  <span v-if="article.abstract" class="badge-soft">Abstract</span>
+                </div>
+                <h6 class="card-title text-warm-dark">{{ article.title }}</h6>
+                <div class="article-meta mb-2">
+                  <span>{{ article.authors?.slice(0, 3).join(', ') }}{{ article.authors?.length > 3 ? ' et al.' : '' }}</span>
+                </div>
+                <p v-if="article.abstract" class="card-text text-muted small flex-grow-1 abstract-preview">
+                  {{ truncateAbstract(article.abstract) }}
+                </p>
+                <div class="article-actions mt-3">
+                  <small class="text-muted d-flex align-items-center gap-1">
+                    <Calendar :size="14" />
+                    {{ formatDateDisplay(article.pub_date) }}
+                  </small>
+                  <span v-if="!selectionMode" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                    View <ArrowRight :size="14" />
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
     </template>
   </div>
 
   <!-- Sticky Selection Bar (Moved outside container for better full-width handling) -->
   <div 
     v-if="selectionMode && selectedArticles.length > 0" 
-    class="sticky-selection-bar bg-white border-top shadow-lg px-3 py-2 d-flex justify-content-center justify-content-sm-between align-items-center flex-wrap gap-2"
+    class="sticky-selection-bar d-flex justify-content-center justify-content-sm-between align-items-center flex-wrap gap-2"
   >
     <div class="d-flex align-items-center gap-2 gap-sm-3">
       <span class="fw-bold text-warm-dark">{{ selectedArticles.length }} <span class="d-none d-md-inline">selected</span></span>
@@ -971,7 +983,7 @@ async function shareAllArticles() {
 }
 
 .selected-card {
-  border: 2px solid var(--terracotta-500) !important;
+  border: 2px solid rgba(224, 122, 95, 0.45) !important;
   background: var(--terracotta-100) !important;
 }
 
@@ -979,15 +991,10 @@ async function shareAllArticles() {
 .badge-journal {
   background-color: var(--terracotta-100);
   color: var(--terracotta-600);
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Search input group */
-.input-group-text {
-  border-color: var(--warm-200);
+  font-weight: 600;
 }
 
 /* Journal filter dropdown */
@@ -1009,27 +1016,6 @@ async function shareAllArticles() {
   cursor: not-allowed;
 }
 
-/* Utilities */
-.ls-1 {
-  letter-spacing: 1px;
-}
-
-.btn-icon {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.btn-icon:hover {
-  background-color: var(--warm-200);
-  color: var(--warm-dark) !important;
-}
-
 /* Sticky Selection Bar */
 .sticky-selection-bar {
   position: fixed;
@@ -1037,7 +1023,11 @@ async function shareAllArticles() {
   left: 0;
   right: 0;
   z-index: 1060;
-  animation: slideUp 0.3s ease-out;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--warm-200);
+  box-shadow: var(--shadow-3);
+  animation: slideUp var(--duration-medium) var(--ease-emphasized);
 }
 
 @keyframes slideUp {
