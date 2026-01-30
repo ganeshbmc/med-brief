@@ -12,6 +12,7 @@
 - Updated dashboard profile truncation and refined the abstracts-only filter control.
 - Removed the abstract badge from dashboard article cards.
 - Kept the abstracts-only label and count on a single line.
+- Aligned PDF styling with print-safe serif/sans typography and terracotta link accents.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -33,6 +34,7 @@
 - frontend/src/assets/main.css: added clamp and toggle utility styles.
 - frontend/src/views/Dashboard.vue: removed abstract badge from article cards.
 - frontend/src/assets/main.css: prevented abstracts-only label wrapping.
+- backend/app/services/pdf_generator.py: tightened margins and refreshed typography/colors for PDF output.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
