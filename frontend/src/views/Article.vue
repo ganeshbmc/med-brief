@@ -34,15 +34,15 @@
             Export
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+            <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAs('pdf')"><File :size="16" class="me-1" />PDF</button></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB</a></li>
+            <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAs('txt')">TXT</button></li>
+            <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAs('ris')">RIS</button></li>
+            <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAs('nbib')">NBIB</button></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="handleShare">
+            <li><button type="button" class="dropdown-item w-100 text-start" @click="handleShare">
               <Share2 :size="16" class="me-1" />Share
-            </a></li>
+            </button></li>
           </ul>
         </div>
       </div>
@@ -74,25 +74,25 @@
       </section>
 
       <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-        <a
+        <button
           v-if="hasPrev"
-          @click.prevent="navigateTo(-1)"
-          href="#"
+          type="button"
+          @click="navigateTo(-1)"
           class="article-link-chip"
         >
           <ArrowLeft :size="14" />
           Previous
-        </a>
+        </button>
         <div v-else></div>
-        <a
+        <button
           v-if="hasNext"
-          @click.prevent="navigateTo(1)"
-          href="#"
+          type="button"
+          @click="navigateTo(1)"
           class="article-link-chip"
         >
           Next
           <ArrowRight :size="14" />
-        </a>
+        </button>
       </div>
     </article>
 

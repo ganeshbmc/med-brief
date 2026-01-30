@@ -60,11 +60,11 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" @click.prevent="handleLogout()">
-                      <LogOut :size="16" />
-                      Logout
-                    </a>
-                  </li>
+                  <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2 w-100 text-start" @click="handleLogout()">
+                    <LogOut :size="16" />
+                    Logout
+                  </button>
+                </li>
                 </ul>
               </div>
             </template>

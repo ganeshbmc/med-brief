@@ -34,15 +34,15 @@
             </button>
             <ul class="dropdown-menu">
               <li v-for="p in store.profiles" :key="p.id">
-                <a
-                  class="dropdown-item d-flex align-items-center justify-content-between"
+                <button
+                  type="button"
+                  class="dropdown-item d-flex align-items-center justify-content-between w-100"
                   :class="{ active: store.selectedProfileId === p.id }"
-                  href="#"
-                  @click.prevent="selectProfile(p.id)"
+                  @click="selectProfile(p.id)"
                 >
                   {{ p.name }}
                   <Check v-if="store.selectedProfileId === p.id" :size="16" class="text-success" />
-                </a>
+                </button>
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
@@ -127,18 +127,19 @@
               </button>
               <ul class="dropdown-menu journal-filter-dropdown" style="min-width: 320px; max-height: 360px; overflow-y: auto;">
                 <li>
-                  <a class="dropdown-item" href="#" @click.prevent="selectedJournals = []">
+                  <button type="button" class="dropdown-item w-100 text-start" @click="selectedJournals = []">
                     <em>Clear filters</em>
-                  </a>
+                  </button>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li v-for="journal in availableJournals" :key="journal.name">
-                  <a 
-                    class="dropdown-item d-flex align-items-center justify-content-between" 
+                  <button 
+                    type="button"
+                    class="dropdown-item d-flex align-items-center justify-content-between w-100" 
                     :class="{ 'text-muted': !journal.hasData }"
-                    href="#" 
-                    @click.prevent="toggleJournalFilter(journal.name)"
+                    @click="toggleJournalFilter(journal.name)"
                     :title="!journal.hasData ? 'No articles found for this journal in the selected time period' : journal.name"
+                    :disabled="!journal.hasData"
                   >
                     <span class="d-flex align-items-center flex-grow-1">
                       <input 
@@ -153,7 +154,7 @@
                       <AlertTriangle v-if="!journal.hasData" :size="14" class="ms-2 text-warning flex-shrink-0" />
                     </span>
                     <span class="badge ms-2 flex-shrink-0" :class="journal.count ? 'bg-primary' : 'bg-secondary'">{{ journal.count }}</span>
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -258,15 +259,15 @@
                 Export Selected
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('txt')">TXT</button></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('ris')">RIS</button></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('nbib')">NBIB</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="shareSelectedArticles">
                   <Share2 :size="16" class="me-1" />Share
-                </a></li>
+                </button></li>
               </ul>
             </div>
             <div class="dropdown" v-else-if="filteredArticles.length > 0 && !selectionMode">
@@ -275,15 +276,15 @@
                 Export
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAllArticles('pdf')"><File :size="16" class="me-1" />PDF</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('txt')">TXT</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('ris')">RIS</a></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="exportAllArticles('nbib')">NBIB</a></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAllArticles('txt')">TXT</button></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAllArticles('ris')">RIS</button></li>
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="exportAllArticles('nbib')">NBIB</button></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" @click.prevent="shareAllArticles">
+                <li><button type="button" class="dropdown-item w-100 text-start" @click="shareAllArticles">
                   <Share2 :size="16" class="me-1" />Share
-                </a></li>
+                </button></li>
               </ul>
             </div>
           </div>
@@ -369,15 +370,15 @@
         Export <span class="d-none d-md-inline">Selected</span> ({{ selectedArticles.length }})
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</a></li>
+        <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('pdf')"><File :size="16" class="me-1" />PDF</button></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('txt')">TXT</a></li>
-         <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('ris')">RIS</a></li>
-        <li><a class="dropdown-item" href="#" @click.prevent="exportSelectedArticles('nbib')">NBIB</a></li>
+        <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('txt')">TXT</button></li>
+         <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('ris')">RIS</button></li>
+        <li><button type="button" class="dropdown-item w-100 text-start" @click="exportSelectedArticles('nbib')">NBIB</button></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#" @click.prevent="shareSelectedArticles">
+        <li><button type="button" class="dropdown-item w-100 text-start" @click="shareSelectedArticles">
           <Share2 :size="16" class="me-1" />Share
-        </a></li>
+        </button></li>
       </ul>
     </div>
   </div>
