@@ -64,8 +64,10 @@
               </div>
             </template>
             <template v-else>
-              <router-link class="nav-link" to="/login">Login</router-link>
-              <router-link class="btn btn-primary btn-sm" to="/register">Register</router-link>
+              <div class="nav-auth-actions d-flex flex-column flex-lg-row align-items-center gap-2">
+                <router-link class="btn btn-outline-terracotta btn-sm" to="/login">Login</router-link>
+                <router-link class="btn btn-primary btn-sm" to="/register">Register</router-link>
+              </div>
             </template>
           </div>
         </div>
@@ -114,5 +116,20 @@ main {
 
 .navbar-toggler:focus {
   box-shadow: none;
+}
+
+.nav-auth-actions .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+@media (max-width: 991.98px) {
+  .nav-auth-actions {
+    width: 100%;
+  }
+
+  .nav-auth-actions .btn {
+    align-self: center;
+  }
 }
 </style>
