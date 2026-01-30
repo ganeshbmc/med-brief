@@ -63,23 +63,23 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             }}
 
             body {{
-                font-family: 'Charter', 'Bitstream Charter', Georgia, serif;
+                font-family: 'Charter', 'Bitstream Charter', Georgia, 'Times New Roman', serif;
                 font-size: 11pt;
-                line-height: 1.6;
-                margin: 0.6in;
+                line-height: 1.65;
+                margin: 0.5in;
                 color: #1a1a1a;
             }}
 
             .page-header {{
                 position: fixed;
-                top: 0.5in;
-                left: 1in;
-                right: 1in;
+                top: 0.35in;
+                left: 0.5in;
+                right: 0.5in;
                 font-size: 9pt;
                 color: #666666;
                 border-bottom: 1pt solid #e0e0e0;
                 padding-bottom: 8pt;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
                 font-weight: 500;
             }}
 
@@ -98,13 +98,13 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             }}
 
             .content {{
-                margin-top: 0.8in;
+                margin-top: 0.7in;
             }}
 
             .header {{
-                margin-bottom: 48pt;
+                margin-bottom: 40pt;
                 border-bottom: 2pt solid #e07a5f;
-                padding-bottom: 12pt;
+                padding-bottom: 10pt;
             }}
 
             .header h1 {{
@@ -112,7 +112,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 margin: 0;
                 font-weight: 600;
                 color: #1a1a1a;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
                 letter-spacing: -0.3px;
             }}
 
@@ -128,7 +128,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 font-weight: 600;
                 margin-bottom: 24pt;
                 text-align: center;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
                 page-break-after: avoid;
             }}
 
@@ -138,7 +138,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 margin-bottom: 12pt;
                 margin-top: 16pt;
                 color: #1a1a1a;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
                 page-break-inside: avoid;
             }}
 
@@ -154,7 +154,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
 
             .toc-article-link {{
                 flex: 1;
-                color: #2563eb;
+                color: #C65D45;
                 text-decoration: none;
                 font-weight: 500;
             }}
@@ -191,7 +191,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 font-weight: 600;
                 margin-bottom: 20pt;
                 color: #1a1a1a;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
                 page-break-after: avoid;
             }}
 
@@ -201,13 +201,13 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
             }}
 
             .article-journal {{
-                font-size: 11pt;
+                font-size: 10pt;
                 font-weight: 600;
                 margin-bottom: 6pt;
                 color: #666666;
                 text-transform: uppercase;
                 letter-spacing: 0.5pt;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             }}
 
             .article-title {{
@@ -239,7 +239,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
 
             .link {{
                 margin-right: 16pt;
-                color: #2563eb;
+                color: #C65D45;
                 text-decoration: none;
                 font-weight: 500;
             }}
@@ -256,25 +256,25 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 font-weight: 600;
                 font-size: 10pt;
                 margin-bottom: 6pt;
-                font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             }}
 
             .abstract-text {{
                 text-align: justify;
                 font-size: 10pt;
-                line-height: 1.7;
+                line-height: 1.75;
                 text-indent: 0;
                 white-space: pre-wrap;
             }}
 
             .divider {{
-                border-top: 0.5pt solid #d0d0d0;
-                margin: 24pt 0;
+                border-top: 0.5pt solid #e7e2dc;
+                margin: 22pt 0;
                 page-break-inside: avoid;
             }}
 
             @page {{
-                margin: 0.6in;
+                margin: 0.5in;
                 @top {{
                     content: element(pageHeader);
                 }}
@@ -282,7 +282,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                     content: "Page " counter(page) " of " counter(pages);
                     font-size: 9pt;
                     color: #666666;
-                    font-family: 'Charter', 'Bitstream Charter', Georgia, serif;
+                    font-family: 'Charter', 'Bitstream Charter', Georgia, 'Times New Roman', serif;
                     font-weight: 500;
                 }}
             }}
