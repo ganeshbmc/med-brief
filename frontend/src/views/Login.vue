@@ -1,40 +1,36 @@
 <template>
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-5">
-        <div class="card p-4">
-          <div class="text-center mb-4">
-            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="height: 48px;" />
-            <h2 class="fw-bold text-warm-dark">Sign In</h2>
-            <p class="text-muted">Welcome back to MedBrief</p>
+  <div class="container auth-shell py-5">
+    <div class="row justify-content-center w-100">
+      <div class="col-md-6 col-lg-5">
+        <div class="auth-card">
+          <div class="auth-header">
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 52px;" />
+            <div class="auth-title">Sign in</div>
+            <div class="auth-subtitle">Welcome back to your weekly brief.</div>
           </div>
           <form @submit.prevent="handleLogin">
             <div class="mb-3">
               <label class="form-label">Email</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <Mail :size="18" class="icon-muted" />
-                </span>
+              <div class="input-icon">
+                <Mail :size="18" class="icon-muted" />
                 <input
                   v-model="email"
                   type="email"
-                  class="form-control form-control-lg"
                   placeholder="you@example.com"
+                  autocomplete="email"
                   required
                 />
               </div>
             </div>
             <div class="mb-4">
               <label class="form-label">Password</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <Lock :size="18" class="icon-muted" />
-                </span>
+              <div class="input-icon">
+                <Lock :size="18" class="icon-muted" />
                 <input
                   v-model="password"
                   type="password"
-                  class="form-control form-control-lg"
                   placeholder="••••••••"
+                  autocomplete="current-password"
                   required
                 />
               </div>
@@ -49,8 +45,8 @@
               {{ loading ? 'Signing in...' : 'Sign In' }}
             </button>
           </form>
-          <p class="text-center mt-3">
-            <router-link to="/forgot-password" class="text-muted text-decoration-none">
+          <p class="text-center mt-3 auth-footer-link">
+            <router-link to="/forgot-password" class="text-decoration-none auth-footer-link">
               Forgot password?
             </router-link>
           </p>
@@ -109,27 +105,7 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.input-group-text {
-  border-color: var(--warm-200);
-  border-right: none;
-}
-
-.input-group .form-control {
-  border-left: none;
-}
-
-.input-group .form-control:focus {
-  border-color: var(--warm-200);
-  box-shadow: none;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
-  border-radius: 0.375rem;
-}
-
-.input-group:focus-within .input-group-text,
-.input-group:focus-within .form-control {
-  border-color: var(--terracotta-500);
+.auth-footer-link {
+  color: var(--warm-500);
 }
 </style>
