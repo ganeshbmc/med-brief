@@ -175,7 +175,19 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.filter-toggle .form-switch {
+  margin-bottom: 0;
+}
+
+.filter-toggle .badge-soft {
+  white-space: nowrap;
+}
+
+.filter-toggle .form-check-label {
+  white-space: nowrap;
 }
 
 .article-card {
