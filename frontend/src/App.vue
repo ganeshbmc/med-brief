@@ -1,10 +1,11 @@
 <template>
-  <div id="app">
-    <nav class="navbar navbar-expand-lg navbar-warm">
+  <div id="app" class="app-shell">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <nav class="navbar navbar-expand-lg navbar-warm py-3">
       <div class="container">
-        <router-link class="navbar-brand d-flex align-items-center" :to="authStore.isAuthenticated ? '/dashboard' : '/'">
-          <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="me-2 logo-icon" style="height: 28px;" />
-          <span>MedBrief</span>
+        <router-link class="navbar-brand d-flex align-items-center gap-2" :to="authStore.isAuthenticated ? '/dashboard' : '/'">
+          <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 32px;" />
+          <span class="brand-mark">MedBrief</span>
         </router-link>
         
         <!-- Hamburger Toggle Button -->
@@ -24,20 +25,24 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <div class="navbar-nav ms-auto d-flex align-items-lg-center gap-2">
             <template v-if="authStore.isAuthenticated">
-              <router-link class="nav-link d-flex align-items-center gap-1" to="/dashboard">
+              <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/dashboard">
                 <LayoutDashboard :size="18" />
                 <span>Dashboard</span>
               </router-link>
-              <router-link class="nav-link d-flex align-items-center gap-1" to="/profiles">
+              <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/profiles">
                 <Users :size="18" />
-                <span>Journal Profiles</span>
+                <span>Profiles</span>
+              </router-link>
+              <router-link class="nav-link nav-pill d-flex align-items-center gap-1" to="/preferences">
+                <SlidersHorizontal :size="18" />
+                <span>Preferences</span>
               </router-link>
 
               
               <!-- User Dropdown -->
               <div class="dropdown">
                 <a 
-                  class="nav-link dropdown-toggle d-flex align-items-center gap-1" 
+                  class="nav-link dropdown-toggle nav-pill d-flex align-items-center gap-1" 
                   href="#" 
                   role="button" 
                   data-bs-toggle="dropdown" 
@@ -73,7 +78,7 @@
         </div>
       </div>
     </nav>
-    <main>
+    <main id="main-content">
       <router-view />
     </main>
     <Toast />
@@ -84,7 +89,7 @@
 import { useAuthStore } from './stores/auth'
 import { useDashboardStore } from './stores/dashboard'
 import { useRouter } from 'vue-router'
-import { LayoutDashboard, Users, LogOut, Menu, User, Settings } from 'lucide-vue-next'
+import { LayoutDashboard, Users, LogOut, Menu, User, Settings, SlidersHorizontal } from 'lucide-vue-next'
 import Toast from '@/components/Toast.vue'
 
 const authStore = useAuthStore()
@@ -99,15 +104,31 @@ function handleLogout() {
 </script>
 
 <style>
-#app {
-  min-height: 100vh;
-  background-color: var(--cream-50);
-}
-main {
-  padding: 2rem 0;
+.brand-mark {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
 }
 
-/* Custom hamburger styling */
+main {
+  padding: 1.5rem 0 3rem;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  padding: 0.5rem 1rem;
+  background: #FFFFFF;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-2);
+  z-index: 2000;
+}
+
+.skip-link:focus {
+  left: 16px;
+}
+
 .navbar-toggler {
   border: none;
   padding: 0.5rem;

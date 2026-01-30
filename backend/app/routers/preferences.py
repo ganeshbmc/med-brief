@@ -14,7 +14,7 @@ router = APIRouter()
 class UserPreferences(BaseModel):
     fontSize: Literal["small", "medium", "large"] = "medium"
     lineSpacing: Literal["normal", "relaxed"] = "normal"
-    defaultDays: Literal[3, 7, 14, 30] = 7
+    defaultDays: Literal[1, 3, 7, 14, 30] = 7
 
 
 class UserPreferencesOut(BaseModel):

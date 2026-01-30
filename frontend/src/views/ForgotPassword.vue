@@ -1,26 +1,24 @@
 <template>
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-5">
-        <div class="card p-4">
-          <div class="text-center mb-4">
-            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="height: 48px;" />
-            <h2 class="fw-bold text-warm-dark">Reset Password</h2>
-            <p class="text-muted">Enter your email to receive a reset link</p>
+  <div class="container auth-shell py-5">
+    <div class="row justify-content-center w-100">
+      <div class="col-md-6 col-lg-5">
+        <div class="auth-card">
+          <div class="auth-header">
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 52px;" />
+            <div class="auth-title">Reset password</div>
+            <div class="auth-subtitle">We'll send a reset link to your inbox.</div>
           </div>
 
           <form v-if="!sent" @submit.prevent="handleSubmit">
             <div class="mb-4">
               <label class="form-label">Email</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <Mail :size="18" class="icon-muted" />
-                </span>
+              <div class="input-icon">
+                <Mail :size="18" class="icon-muted" />
                 <input
                   v-model="email"
                   type="email"
-                  class="form-control form-control-lg"
                   placeholder="you@example.com"
+                  autocomplete="email"
                   required
                 />
               </div>
@@ -42,7 +40,7 @@
             <div class="mb-4">
               <CheckCircle :size="48" class="text-success" />
             </div>
-            <h4 class="fw-bold text-warm-dark mb-3">Check Your Email</h4>
+            <h4 class="fw-bold text-warm-dark mb-3">Check your email</h4>
             <p class="text-muted mb-4">
               If an account exists for <strong>{{ email }}</strong>, we've sent password reset instructions.
             </p>
@@ -89,28 +87,4 @@ async function handleSubmit() {
 }
 </script>
 
-<style scoped>
-.input-group-text {
-  border-color: var(--warm-200);
-  border-right: none;
-}
-
-.input-group .form-control {
-  border-left: none;
-}
-
-.input-group .form-control:focus {
-  border-color: var(--warm-200);
-  box-shadow: none;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
-  border-radius: 0.375rem;
-}
-
-.input-group:focus-within .input-group-text,
-.input-group:focus-within .form-control {
-  border-color: var(--terracotta-500);
-}
-</style>
+<style scoped></style>

@@ -1,96 +1,84 @@
 <template>
-  <div class="container py-4" :class="preferencesClasses">
-    <!-- Back Navigation -->
-    <div class="mb-4">
-      <a @click.prevent="goBack" href="#" class="text-link d-inline-flex align-items-center gap-1">
+  <div class="container" :class="preferencesClasses">
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <button @click.prevent="goBack" class="btn btn-link text-decoration-none d-inline-flex align-items-center gap-1">
         <ArrowLeft :size="16" />
         Back to Dashboard
-      </a>
+      </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-5">
+    <div v-if="isLoading" class="loading-state">
       <div class="spinner-border"></div>
-      <p class="text-muted mt-3">Loading article...</p>
+      <p class="text-muted">Loading article...</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="errorMessage" class="empty-state">
-      <FileText :size="48" class="icon-muted mb-3" />
-      <h4 class="mb-3">Couldn't load this article</h4>
-      <p class="text-muted mb-4">{{ errorMessage }}</p>
+      <FileText :size="48" class="icon-muted" />
+      <h4>Couldn't load this article</h4>
+      <p class="text-muted">{{ errorMessage }}</p>
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-primary px-4" @click="loadArticle">Retry</button>
+        <button class="btn btn-primary" @click="loadArticle">Retry</button>
         <router-link to="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</router-link>
       </div>
     </div>
 
     <!-- Article Content (Borderless Layout) -->
-    <article v-else class="article-content">
-      <!-- Journal Badge & Export -->
+    <article v-else class="article-content section-card">
       <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <span class="badge-journal">{{ article.journal }}</span>
-        
-        <!-- Export Dropdown -->
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown">
-            <Download :size="14" />
+            <Download :size="16" />
             Export
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="14" class="me-1" />PDF</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('pdf')"><File :size="16" class="me-1" />PDF</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT (Plain Text)</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS (EndNote, Zotero)</a></li>
-            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB (PubMed)</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('txt')">TXT</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('ris')">RIS</a></li>
+            <li><a class="dropdown-item" href="#" @click.prevent="exportAs('nbib')">NBIB</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" @click.prevent="handleShare">
-              <Share2 :size="14" class="me-1" />Share
+              <Share2 :size="16" class="me-1" />Share
             </a></li>
           </ul>
         </div>
       </div>
 
-      <!-- Title -->
-      <h2 class="fw-bold mb-3 text-warm-dark">{{ article.title }}</h2>
+      <header class="article-hero">
+        <h1 class="fw-bold text-warm-dark">{{ article.title }}</h1>
+        <div class="article-meta-row">
+          <span>{{ formatAuthors(article.authors) }}</span>
+          <span aria-hidden="true">•</span>
+          <span>{{ formatDateDisplay(article.pub_date) }}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a :href="article.pubmed_url" target="_blank" class="article-link-chip">
+            PMID: {{ article.pmid }}
+            <ExternalLink :size="12" />
+          </a>
+          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="article-link-chip">
+            DOI: {{ article.doi }}
+            <ExternalLink :size="12" />
+          </a>
+        </div>
+      </header>
 
-      <!-- Authors (no prefix, with et al.) -->
-      <p class="text-muted mb-2">
-        {{ formatAuthors(article.authors) }}
-      </p>
-
-      <!-- Publication Date (simplified) -->
-      <p class="text-muted small mb-3">
-        {{ formatDateDisplay(article.pub_date) }}
-      </p>
-
-      <!-- Metadata Links (PMID, DOI) -->
-      <div class="d-flex gap-3 flex-wrap mb-4 small">
-        <a :href="article.pubmed_url" target="_blank" class="text-link">
-          PMID: {{ article.pmid }}
-          <ExternalLink :size="12" class="ms-1" />
-        </a>
-        <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="text-link">
-          DOI: {{ article.doi }}
-          <ExternalLink :size="12" class="ms-1" />
-        </a>
-      </div>
-
-      <!-- Abstract -->
-      <div class="abstract-section my-4 pt-4">
+      <section class="article-section">
         <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
         <p class="mb-0 abstract-text">
           {{ article.abstract || 'Abstract not available for this article.' }}
         </p>
-      </div>
+      </section>
 
-      <!-- Footer Navigation -->
       <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
         <a
           v-if="hasPrev"
           @click.prevent="navigateTo(-1)"
           href="#"
-          class="text-link d-flex align-items-center gap-1"
+          class="article-link-chip"
         >
           <ArrowLeft :size="14" />
           Previous
@@ -100,7 +88,7 @@
           v-if="hasNext"
           @click.prevent="navigateTo(1)"
           href="#"
-          class="text-link d-flex align-items-center gap-1"
+          class="article-link-chip"
         >
           Next
           <ArrowRight :size="14" />
@@ -292,38 +280,24 @@ onMounted(() => {
 
 <style scoped>
 .article-content {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
-}
-
-.abstract-section {
-  border-top: 1px solid var(--warm-200);
+  padding: var(--space-6);
 }
 
 .abstract-text {
-  line-height: 1.8;
-  text-align: justify;
+  line-height: 1.85;
+  text-align: left;
   white-space: pre-wrap;
   color: var(--warm-700);
-}
-
-.text-link {
-  color: var(--terracotta-500);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.text-link:hover {
-  text-decoration: underline;
-  color: var(--terracotta-600);
 }
 
 .badge-journal {
   background-color: var(--terracotta-100);
   color: var(--terracotta-600);
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 </style>
