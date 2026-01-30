@@ -1,3 +1,4 @@
+import html
 import weasyprint
 from datetime import datetime
 from typing import List, Dict, Any
@@ -263,6 +264,7 @@ def _generate_html_content(articles: List[Dict[str, Any]], profile_name: str) ->
                 font-size: 10pt;
                 line-height: 1.7;
                 text-indent: 0;
+                white-space: pre-wrap;
             }}
 
             .divider {{
@@ -417,20 +419,33 @@ def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
     except:
         formatted_date = str(pub_date)
 
+    def _escape_html(value: str) -> str:
+        return html.escape(value, quote=True)
+
+    safe_title = _escape_html(str(title))
+    safe_journal = _escape_html(str(journal))
+    safe_authors = _escape_html(str(authors_display))
+    safe_date = _escape_html(str(formatted_date))
+
     links_html = ""
     if pubmed_id:
         pubmed_url = f"https://pubmed.ncbi.nlm.nih.gov/{pubmed_id}/"
-        links_html += f'<a href="{pubmed_url}" class="link">PMID: {pubmed_id}</a>'
+        safe_pubmed_url = _escape_html(pubmed_url)
+        safe_pubmed_id = _escape_html(str(pubmed_id))
+        links_html += f'<a href="{safe_pubmed_url}" class="link">PMID: {safe_pubmed_id}</a>'
     if doi:
         doi_url = f"https://doi.org/{doi}"
-        links_html += f'<a href="{doi_url}" class="link">DOI: {doi}</a>'
+        safe_doi_url = _escape_html(doi_url)
+        safe_doi = _escape_html(str(doi))
+        links_html += f'<a href="{safe_doi_url}" class="link">DOI: {safe_doi}</a>'
 
     abstract_html = ""
     if abstract and abstract.strip():
+        safe_abstract = _escape_html(str(abstract))
         abstract_html = f"""
             <div class="abstract">
                 <div class="abstract-label">Abstract</div>
-                <div class="abstract-text">{abstract}</div>
+                <div class="abstract-text">{safe_abstract}</div>
             </div>
         """
     else:
@@ -441,13 +456,13 @@ def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
             </div>
         """
 
-    html = f"""
+    article_html = f"""
             <div id="article-{article_num}" class="article">
-                <div class="article-journal">{journal}</div>
-                <div class="article-title">{title}</div>
+                <div class="article-journal">{safe_journal}</div>
+                <div class="article-title">{safe_title}</div>
                 <div class="article-meta">
-                    <div class="authors">{authors_display}</div>
-                    <div class="published">Published: {formatted_date}</div>
+                    <div class="authors">{safe_authors}</div>
+                    <div class="published">Published: {safe_date}</div>
                     <div class="links">{links_html}</div>
                 </div>
                 {abstract_html}
@@ -455,4 +470,4 @@ def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
             <div class="divider"></div>
     """
 
-    return html
+    return article_html
