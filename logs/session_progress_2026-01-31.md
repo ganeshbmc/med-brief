@@ -13,6 +13,7 @@
 - Removed the abstract badge from dashboard article cards.
 - Kept the abstracts-only label and count on a single line.
 - Aligned PDF styling with print-safe serif/sans typography and terracotta link accents.
+- Replaced action-only links with buttons for consistent UI semantics and accessibility.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -35,6 +36,10 @@
 - frontend/src/views/Dashboard.vue: removed abstract badge from article cards.
 - frontend/src/assets/main.css: prevented abstracts-only label wrapping.
 - backend/app/services/pdf_generator.py: tightened margins and refreshed typography/colors for PDF output.
+- frontend/src/views/Dashboard.vue: replaced action links with buttons in dropdowns.
+- frontend/src/views/Article.vue: replaced dropdown actions and nav chips with buttons.
+- frontend/src/components/StickyArticleNavigation.vue: replaced anchor navigation with buttons.
+- frontend/src/App.vue: replaced logout link with a button.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
