@@ -133,6 +133,29 @@
   background: transparent;
 }
 
+.input-group-pill {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--warm-200);
+  background: #FFFFFF;
+  padding: 0.2rem 0.4rem;
+  box-shadow: var(--shadow-1);
+}
+
+.input-group-pill .input-group-text {
+  border: none;
+  background: transparent;
+}
+
+.input-group-pill .form-control {
+  border: none;
+  box-shadow: none;
+}
+
+.input-group-pill .btn {
+  border: none;
+  border-radius: var(--radius-pill);
+}
+
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -178,6 +201,78 @@
   justify-items: center;
   gap: var(--space-2);
   padding: var(--space-8) 0;
+}
+
+.auth-shell {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+}
+
+.auth-card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  background: var(--surface-card);
+  border: 1px solid var(--warm-200);
+  box-shadow: var(--shadow-2);
+}
+
+.auth-header {
+  display: grid;
+  gap: var(--space-2);
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--warm-900);
+}
+
+.auth-subtitle {
+  color: var(--warm-500);
+  font-size: var(--text-sm);
+}
+
+.auth-footer-link {
+  color: var(--warm-500);
+}
+
+.article-hero {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.article-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--warm-500);
+  font-size: var(--text-sm);
+}
+
+.article-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--warm-200);
+  background: #FFFFFF;
+  color: var(--warm-700);
+  text-decoration: none;
+}
+
+.article-link-chip:hover {
+  border-color: rgba(224, 122, 95, 0.3);
+  color: var(--terracotta-600);
+}
+
+.article-section {
+  border-top: 1px solid var(--warm-200);
+  padding-top: var(--space-4);
 }
 
 .fade-enter-active,
