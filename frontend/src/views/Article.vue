@@ -54,14 +54,14 @@
           <span aria-hidden="true">•</span>
           <span>{{ formatDateDisplay(article.pub_date) }}</span>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-          <a :href="article.pubmed_url" target="_blank" class="article-link-chip">
+        <div class="d-flex flex-wrap gap-3 small">
+          <a :href="article.pubmed_url" target="_blank" class="text-link">
             PMID: {{ article.pmid }}
-            <ExternalLink :size="12" />
+            <ExternalLink :size="12" class="ms-1" />
           </a>
-          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="article-link-chip">
+          <a v-if="article.doi" :href="`https://doi.org/${article.doi}`" target="_blank" class="text-link">
             DOI: {{ article.doi }}
-            <ExternalLink :size="12" />
+            <ExternalLink :size="12" class="ms-1" />
           </a>
         </div>
       </header>
@@ -299,5 +299,16 @@ onMounted(() => {
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.text-link {
+  color: var(--terracotta-500);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+  color: var(--terracotta-600);
 }
 </style>
