@@ -9,6 +9,8 @@
 - Updated the landing page to an editorial pre-login experience with refreshed feature cards.
 - Consolidated dashboard profile stats into a single row with a streamlined default indicator.
 - Cleaned the profile switcher label styling, removed count badge, and broadened preference default range options.
+- Updated dashboard profile truncation and refined the abstracts-only filter control.
+- Removed the abstract badge from dashboard article cards.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -26,6 +28,9 @@
 - frontend/src/views/Home.vue: redesigned pre-login landing page hero and feature cards.
 - frontend/src/views/Dashboard.vue: consolidated profile summary row and added default/profile count indicators.
 - backend/app/routers/preferences.py: expanded allowed default date ranges to include daily.
+- frontend/src/views/Dashboard.vue: clamped profile label to two lines and restyled the abstracts-only toggle.
+- frontend/src/assets/main.css: added clamp and toggle utility styles.
+- frontend/src/views/Dashboard.vue: removed abstract badge from article cards.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
