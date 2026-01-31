@@ -67,7 +67,7 @@
       </header>
 
       <section class="article-section">
-        <h5 class="fw-semibold mb-3 text-warm-dark">Abstract</h5>
+        <h5 class="fw-semibold mb-3 text-warm-dark">{{ abstractHeading }}</h5>
         <p class="mb-0 abstract-text">
           {{ article.abstract || 'Abstract not available for this article.' }}
         </p>
@@ -129,6 +129,12 @@ const errorMessage = ref('')
 
 const hasPrev = computed(() => currentIndex.value > 0)
 const hasNext = computed(() => currentIndex.value < articles.value.length - 1)
+const abstractHeading = computed(() => {
+  if (article.value?.abstract_source === 'publisher') {
+    return 'Publisher Abstract'
+  }
+  return 'Abstract'
+})
 
 // User preferences classes
 const preferencesClasses = computed(() => {
@@ -208,7 +214,8 @@ async function exportAs(format) {
   let mimeType = 'text/plain'
 
   if (format === 'txt') {
-    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\nAbstract:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
+    const abstractLabel = a.abstract_source === 'publisher' ? 'Publisher Abstract' : 'Abstract'
+    content = `Title: ${a.title}\n\nAuthors: ${a.authors?.join(', ') || 'N/A'}\n\nJournal: ${a.journal}\n\nDate: ${formatDateDisplay(a.pub_date)}\n\nPMID: ${a.pmid}\n\n${abstractLabel}:\n${a.abstract || 'N/A'}\n\nPubMed URL: ${a.pubmed_url}`
     filename += '.txt'
   } else if (format === 'ris') {
     content = `TY  - JOUR\nTI  - ${a.title}\n${a.authors?.map(auth => `AU  - ${auth}`).join('\n') || ''}\nJO  - ${a.journal}\nPY  - ${a.pub_date?.split('-')[0] || ''}\nAB  - ${a.abstract || ''}\nAN  - ${a.pmid}\nUR  - ${a.pubmed_url}\nER  - `

@@ -159,6 +159,7 @@ def _parse_pubmed_xml(xml_text: str) -> List[dict]:
 
             # Abstract - join all AbstractText elements (for structured abstracts)
             abstract_parts = []
+            abstract_source = ""
             for abs_elem in article.findall(".//AbstractText"):
                 label = abs_elem.get("Label") or abs_elem.get("NlmCategory") or ""
                 text = _get_element_text(abs_elem)
@@ -166,6 +167,22 @@ def _parse_pubmed_xml(xml_text: str) -> List[dict]:
                     abstract_parts.append(f"{label}: {text}")
                 else:
                     abstract_parts.append(text)
+
+            if any(part for part in abstract_parts if part):
+                abstract_source = "standard"
+            else:
+                # If no standard abstract, fall back to OtherAbstract (e.g., publisher abstract)
+                for abs_elem in article.findall(".//OtherAbstract/AbstractText"):
+                    label = abs_elem.get("Label") or abs_elem.get("NlmCategory") or ""
+                    text = _get_element_text(abs_elem)
+                    if label:
+                        abstract_parts.append(f"{label}: {text}")
+                    else:
+                        abstract_parts.append(text)
+
+                if any(part for part in abstract_parts if part):
+                    abstract_source = "publisher"
+
             abstract = "\n\n".join([part for part in abstract_parts if part]) if abstract_parts else ""
 
             # DOI
@@ -182,6 +199,7 @@ def _parse_pubmed_xml(xml_text: str) -> List[dict]:
                 "journal": journal,
                 "pub_date": pub_date,
                 "abstract": abstract,
+                "abstract_source": abstract_source or None,
                 "doi": doi,
                 "pubmed_url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
             })

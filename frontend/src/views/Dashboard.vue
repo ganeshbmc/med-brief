@@ -207,10 +207,10 @@
                 v-model="showAbstractOnly"
               />
               <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
-                Abstracts available
+                Has abstract
               </label>
             </div>
-            <span class="badge-soft">{{ articlesWithAbstract.length }} available</span>
+            <span class="badge-soft">Has abstract: {{ articlesWithAbstract.length }}</span>
           </div>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top flex-wrap gap-2">
@@ -336,9 +336,10 @@
                 <div class="article-meta mb-2">
                   <span>{{ article.authors?.slice(0, 3).join(', ') }}{{ article.authors?.length > 3 ? ' et al.' : '' }}</span>
                 </div>
-                <p v-if="article.abstract" class="card-text text-muted small flex-grow-1 abstract-preview">
-                  {{ truncateAbstract(article.abstract) }}
-                </p>
+              <p v-if="article.abstract" class="card-text text-muted small flex-grow-1 abstract-preview">
+                <span v-if="article.abstract_source === 'publisher'" class="badge-soft me-2">Publisher Abstract</span>
+                {{ truncateAbstract(article.abstract) }}
+              </p>
                 <div class="article-actions mt-3">
                   <small class="text-muted d-flex align-items-center gap-1">
                     <Calendar :size="14" />
@@ -797,6 +798,10 @@ function clearSelection() {
   selectionMode.value = false
 }
 
+function getAbstractLabel(article) {
+  return article?.abstract_source === 'publisher' ? 'Publisher Abstract' : 'Abstract'
+}
+
 async function exportSelectedArticles(format) {
   const selectedList = filteredArticles.value.filter(a => selectedArticles.value.includes(a.pmid))
   if (!selectedList.length) return
@@ -825,9 +830,10 @@ async function exportSelectedArticles(format) {
   let filename = `selected_articles_${selectedArticles.value.length}`
 
   if (format === 'txt') {
-    content = selectedList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
-    ).join('\n\n')
+    content = selectedList.map(a => {
+      const abstractLabel = getAbstractLabel(a)
+      return `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nDOI: ${a.doi || 'N/A'}\n${abstractLabel}: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+    }).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
     content = selectedList.map(a => 
@@ -877,9 +883,10 @@ async function exportAllArticles(format) {
   let filename = `articles_${store.fromDate}_${store.toDate}`
 
   if (format === 'txt') {
-    content = articlesList.map(a => 
-      `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\nAbstract: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
-    ).join('\n\n')
+    content = articlesList.map(a => {
+      const abstractLabel = getAbstractLabel(a)
+      return `Title: ${a.title}\nAuthors: ${a.authors?.join(', ') || 'N/A'}\nJournal: ${a.journal}\nDate: ${formatDateDisplay(a.pub_date)}\nPMID: ${a.pmid}\n${abstractLabel}: ${a.abstract || 'N/A'}\nURL: ${a.pubmed_url}\n${'='.repeat(80)}`
+    }).join('\n\n')
     filename += '.txt'
   } else if (format === 'ris') {
     content = articlesList.map(a => 

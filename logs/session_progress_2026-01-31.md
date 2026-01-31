@@ -15,6 +15,9 @@
 - Aligned PDF styling with print-safe serif/sans typography and terracotta link accents.
 - Replaced action-only links with buttons for consistent UI semantics and accessibility.
 - Highlighted the active dashboard profile in terracotta and clarified the abstract filter label.
+- Renamed the dashboard abstract availability label to "Has abstract" for brevity.
+- Added a PubMed parser fallback to capture publisher abstracts when standard abstracts are missing.
+- Labeled publisher abstracts in the UI and TXT/PDF exports.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -42,6 +45,12 @@
 - frontend/src/components/StickyArticleNavigation.vue: replaced anchor navigation with buttons.
 - frontend/src/App.vue: replaced logout link with a button.
 - frontend/src/views/Dashboard.vue: highlighted active profile text and updated the abstract filter label.
+- frontend/src/views/Dashboard.vue: updated abstract availability text to "Has abstract".
+- backend/app/services/pubmed.py: added parsing for OtherAbstract publisher abstracts when AbstractText is missing.
+- backend/app/routers/briefs.py: exposed abstract_source in brief responses.
+- backend/app/services/pdf_generator.py: labeled publisher abstracts in PDF output.
+- frontend/src/views/Article.vue: labeled publisher abstracts in the abstract section and TXT export.
+- frontend/src/views/Dashboard.vue: surfaced publisher abstract badges and labeled TXT export output.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
@@ -56,3 +65,4 @@
 - Refresh article detail layout
 - Refresh auth and onboarding layouts
 - None (Issue 77 changes not committed)
+- None (no commits in this session)

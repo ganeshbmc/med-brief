@@ -398,6 +398,7 @@ def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
     pubmed_id = article.get('pmid')
     doi = article.get('doi')
     abstract = article.get('abstract')
+    abstract_source = article.get('abstract_source')
 
     # Format authors (truncate with et al. like in the UI)
     if authors_list and len(authors_list) > 0:
@@ -439,19 +440,20 @@ def _generate_article_html(article: Dict[str, Any], article_num: int) -> str:
         safe_doi = _escape_html(str(doi))
         links_html += f'<a href="{safe_doi_url}" class="link">DOI: {safe_doi}</a>'
 
+    abstract_label = "Publisher Abstract" if abstract_source == "publisher" else "Abstract"
     abstract_html = ""
     if abstract and abstract.strip():
         safe_abstract = _escape_html(str(abstract))
         abstract_html = f"""
             <div class="abstract">
-                <div class="abstract-label">Abstract</div>
+                <div class="abstract-label">{abstract_label}</div>
                 <div class="abstract-text">{safe_abstract}</div>
             </div>
         """
     else:
         abstract_html = f"""
             <div class="abstract">
-                <div class="abstract-label">Abstract</div>
+                <div class="abstract-label">{abstract_label}</div>
                 <div class="abstract-text">No abstract available for this article.</div>
             </div>
         """
