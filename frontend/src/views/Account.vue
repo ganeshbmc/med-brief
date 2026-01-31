@@ -2,7 +2,10 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-md-10 col-lg-8">
-        <h2 class="fw-bold text-warm-dark mb-4">Account Settings</h2>
+        <div class="mb-4">
+          <h2 class="fw-bold text-warm-dark mb-1">Account</h2>
+          <p class="text-muted mb-0">Manage your profile details and preferences.</p>
+        </div>
         
         <div class="settings-grid">
           <!-- User Details Card -->
@@ -24,7 +27,7 @@
               <Settings :size="24" />
             </div>
             <div class="card-content">
-              <h4>User Preferences</h4>
+              <h4>Preferences</h4>
               <p class="text-muted mb-0">Customize font size, line spacing, and default date range</p>
             </div>
             <ArrowRight :size="20" class="card-arrow" />
@@ -49,7 +52,7 @@
             </div>
             <div class="card-content">
               <h4>Go to Dashboard</h4>
-              <p class="text-muted mb-0">View your research briefs</p>
+              <p class="text-muted mb-0">View your research dashboard</p>
             </div>
             <ArrowRight :size="20" class="card-arrow" />
           </router-link>
@@ -178,23 +181,24 @@ async function handleSave() {
 }
 
 .settings-card {
-  background: white;
+  background: #FFFFFF;
   border: 1px solid var(--warm-200);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-standard);
   min-height: 140px;
+  box-shadow: var(--shadow-1);
 }
 
 .settings-card:hover {
-  border-color: var(--terracotta-500);
+  border-color: rgba(224, 122, 95, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-2);
   color: inherit;
 }
 
@@ -227,7 +231,7 @@ async function handleSave() {
   flex-shrink: 0;
   margin-top: 0.25rem;
   opacity: 0.5;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 
 .settings-card:hover .card-arrow {

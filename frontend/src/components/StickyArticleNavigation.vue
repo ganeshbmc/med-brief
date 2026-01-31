@@ -1,26 +1,26 @@
 <template>
   <div class="sticky-article-nav" v-if="visible">
     <div class="nav-container">
-      <a 
+      <button 
         v-if="hasPrev" 
-        @click.prevent="navigateTo(-1)" 
-        href="#"
+        type="button"
+        @click="navigateTo(-1)" 
         class="nav-button"
       >
         <ArrowLeft :size="16" />
         <span class="d-none d-sm-inline">Previous</span>
-      </a>
+      </button>
       <div v-else class="spacer d-none d-sm-block"></div>
       
-      <a 
+      <button 
         v-if="hasNext" 
-        @click.prevent="navigateTo(1)" 
-        href="#"
+        type="button"
+        @click="navigateTo(1)" 
         class="nav-button"
       >
         <span class="d-none d-sm-inline">Next</span>
         <ArrowRight :size="16" />
-      </a>
+      </button>
       <div v-else class="spacer d-none d-sm-block"></div>
     </div>
   </div>

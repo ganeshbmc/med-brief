@@ -1,12 +1,12 @@
 <template>
   <div class="container py-5">
     <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="card p-4 p-md-5">
+      <div class="col-lg-9">
+        <div class="section-card p-4 p-md-5">
           <div class="text-center mb-4">
             <img src="/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="width: 64px; height: 64px;" />
-            <h2 class="fw-bold text-warm-dark">Welcome to MedBrief!</h2>
-            <p class="text-muted">Let's personalize your experience</p>
+            <h2 class="fw-bold text-warm-dark">Welcome to MedBrief</h2>
+            <p class="text-muted">Set up your first profile in a few steps.</p>
           </div>
 
           <!-- Progress Steps -->
@@ -52,14 +52,11 @@
             
             <!-- Search Box -->
             <div class="mb-4">
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <Search :size="18" class="icon-muted" />
-                </span>
+              <div class="input-icon">
+                <Search :size="18" class="icon-muted" />
                 <input 
                   v-model="searchQuery" 
                   type="text" 
-                  class="form-control" 
                   placeholder="Search journals by name or ISSN..."
                   @input="debouncedSearch"
                 />
@@ -141,7 +138,7 @@
             
             <!-- Selected Count -->
             <div v-if="totalSelectedCount > 0" class="mt-3 text-center">
-              <span class="badge bg-primary">{{ totalSelectedCount }} journal(s) selected</span>
+              <span class="badge-soft">{{ totalSelectedCount }} journal(s) selected</span>
             </div>
           </div>
 
@@ -149,14 +146,11 @@
           <div v-if="step === 3" class="step-content">
             <h5 class="mb-4 fw-semibold text-warm-dark">Name your profile</h5>
             <div class="mb-4">
-              <div class="input-group">
-                <span class="input-group-text bg-white">
-                  <FileText :size="18" class="icon-muted" />
-                </span>
+              <div class="input-icon">
+                <FileText :size="18" class="icon-muted" />
                 <input 
                   v-model="profileName" 
                   type="text" 
-                  class="form-control form-control-lg" 
                   placeholder="e.g., My Cardiology Feed"
                 />
               </div>
@@ -378,29 +372,30 @@ async function nextStep() {
   background: var(--warm-200);
   color: var(--warm-500);
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all var(--duration-medium) var(--ease-standard);
 }
 
 .step-indicator.active {
   background: var(--terracotta-500);
-  color: white;
+  color: #FFFFFF;
 }
 
 .step-indicator.completed {
   background: var(--sage-500);
-  color: white;
+  color: #FFFFFF;
 }
 
 .specialty-card,
 .journal-card {
-  border: 2px solid var(--warm-200);
+  border: 1px solid var(--warm-200);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-standard);
+  background: #FFFFFF;
 }
 
 .specialty-card:hover,
 .journal-card:hover {
-  border-color: var(--terracotta-500);
+  border-color: rgba(224, 122, 95, 0.4);
   background: var(--terracotta-100);
 }
 
@@ -412,7 +407,7 @@ async function nextStep() {
 
 .specialty-card.custom-highlight {
   background: var(--terracotta-500);
-  color: white;
+  color: #FFFFFF;
   border-color: transparent;
 }
 
@@ -428,12 +423,10 @@ async function nextStep() {
   text-overflow: ellipsis;
 }
 
-.input-group-text {
-  border-color: var(--warm-200);
-  border-right: none;
-}
-
-.input-group .form-control {
-  border-left: none;
+@media (max-width: 767.98px) {
+  .step-indicator {
+    width: 36px;
+    height: 36px;
+  }
 }
 </style>

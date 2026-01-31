@@ -1,30 +1,31 @@
 <template>
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-5">
-        <div class="card p-4">
-          <div class="text-center mb-4">
-            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="mb-3 logo-icon" style="height: 48px;" />
-            <h2 class="fw-bold text-warm-dark">New Password</h2>
-            <p class="text-muted">Enter your new password</p>
+  <div class="container auth-shell py-5">
+    <div class="row justify-content-center w-100">
+      <div class="col-md-6 col-lg-5">
+        <div class="auth-card">
+          <div class="auth-header">
+            <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 52px;" />
+            <div class="auth-title">Set a new password</div>
+            <div class="auth-subtitle">Choose a strong password for your MedBrief account.</div>
           </div>
 
           <form v-if="!success" @submit.prevent="handleSubmit">
             <div class="mb-3">
               <label class="form-label">New Password</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
+              <div class="input-group input-group-pill">
+                <span class="input-group-text">
                   <Lock :size="18" class="icon-muted" />
                 </span>
                 <input
                   v-model="password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="form-control form-control-lg"
+                  class="form-control"
                   placeholder="••••••••"
+                  autocomplete="new-password"
                   required
                   minlength="8"
                 />
-                <button type="button" class="btn btn-outline-secondary" @click="showPassword = !showPassword">
+                <button type="button" class="btn btn-outline-secondary" @click="showPassword = !showPassword" aria-label="Toggle password visibility">
                   <Eye :size="18" v-if="!showPassword" />
                   <EyeOff :size="18" v-else />
                 </button>
@@ -33,15 +34,16 @@
 
             <div class="mb-4">
               <label class="form-label">Confirm Password</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white">
+              <div class="input-group input-group-pill">
+                <span class="input-group-text">
                   <Lock :size="18" class="icon-muted" />
                 </span>
                 <input
                   v-model="confirmPassword"
                   :type="showPassword ? 'text' : 'password'"
-                  class="form-control form-control-lg"
+                  class="form-control"
                   placeholder="••••••••"
+                  autocomplete="new-password"
                   required
                 />
               </div>
@@ -70,7 +72,7 @@
             <div class="mb-4">
               <CheckCircle :size="48" class="text-success" />
             </div>
-            <h4 class="fw-bold text-warm-dark mb-3">Password Reset</h4>
+            <h4 class="fw-bold text-warm-dark mb-3">Password reset</h4>
             <p class="text-muted mb-4">
               Your password has been reset successfully.
             </p>
@@ -123,28 +125,4 @@ async function handleSubmit() {
 }
 </script>
 
-<style scoped>
-.input-group-text {
-  border-color: var(--warm-200);
-  border-right: none;
-}
-
-.input-group .form-control {
-  border-left: none;
-}
-
-.input-group .form-control:focus {
-  border-color: var(--warm-200);
-  box-shadow: none;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 0.2rem var(--terracotta-100);
-  border-radius: 0.375rem;
-}
-
-.input-group:focus-within .input-group-text,
-.input-group:focus-within .form-control {
-  border-color: var(--terracotta-500);
-}
-</style>
+<style scoped></style>

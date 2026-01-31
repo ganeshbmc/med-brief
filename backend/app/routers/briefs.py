@@ -22,6 +22,7 @@ class ArticleOut(BaseModel):
     journal: str
     pub_date: str
     abstract: Optional[str]
+    abstract_source: Optional[str]
     doi: Optional[str]
     pubmed_url: str
 
