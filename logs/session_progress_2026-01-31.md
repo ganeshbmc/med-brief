@@ -18,6 +18,7 @@
 - Renamed the dashboard abstract availability label to "Has abstract" for brevity.
 - Added a PubMed parser fallback to capture publisher abstracts when standard abstracts are missing.
 - Labeled publisher abstracts in the UI and TXT/PDF exports.
+- Adjusted the abstract availability badge to show "x available".
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -51,6 +52,7 @@
 - backend/app/services/pdf_generator.py: labeled publisher abstracts in PDF output.
 - frontend/src/views/Article.vue: labeled publisher abstracts in the abstract section and TXT export.
 - frontend/src/views/Dashboard.vue: surfaced publisher abstract badges and labeled TXT export output.
+- frontend/src/views/Dashboard.vue: updated abstract availability badge copy.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.

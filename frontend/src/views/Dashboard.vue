@@ -210,7 +210,7 @@
                 Has abstract
               </label>
             </div>
-            <span class="badge-soft">Has abstract: {{ articlesWithAbstract.length }}</span>
+            <span class="badge-soft">{{ articlesWithAbstract.length }} available</span>
           </div>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top flex-wrap gap-2">
