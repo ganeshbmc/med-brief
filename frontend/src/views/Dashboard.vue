@@ -25,7 +25,7 @@
           <div class="summary-label">Active profile</div>
           <div class="dropdown">
             <button
-              class="btn btn-link text-decoration-none p-0 fw-semibold text-warm-dark dropdown-toggle summary-value summary-value--clamp text-start"
+              class="btn btn-link text-decoration-none p-0 fw-semibold text-terracotta dropdown-toggle summary-value summary-value--clamp text-start"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -207,7 +207,7 @@
                 v-model="showAbstractOnly"
               />
               <label class="form-check-label small text-warm-dark fw-medium" for="abstractOnly">
-                Abstracts only
+                Abstracts available
               </label>
             </div>
             <span class="badge-soft">{{ articlesWithAbstract.length }} available</span>

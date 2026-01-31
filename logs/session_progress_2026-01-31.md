@@ -14,6 +14,7 @@
 - Kept the abstracts-only label and count on a single line.
 - Aligned PDF styling with print-safe serif/sans typography and terracotta link accents.
 - Replaced action-only links with buttons for consistent UI semantics and accessibility.
+- Highlighted the active dashboard profile in terracotta and clarified the abstract filter label.
 
 ## Changes
 - frontend/src/assets/theme.css: new design tokens, typography, button/input/card styles, and accessibility refinements.
@@ -40,6 +41,7 @@
 - frontend/src/views/Article.vue: replaced dropdown actions and nav chips with buttons.
 - frontend/src/components/StickyArticleNavigation.vue: replaced anchor navigation with buttons.
 - frontend/src/App.vue: replaced logout link with a button.
+- frontend/src/views/Dashboard.vue: highlighted active profile text and updated the abstract filter label.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
@@ -53,3 +55,4 @@
 - Update shared auth and article utilities
 - Refresh article detail layout
 - Refresh auth and onboarding layouts
+- None (Issue 77 changes not committed)
