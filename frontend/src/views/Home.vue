@@ -8,7 +8,7 @@
         <p class="hero-kicker">Medical research, distilled</p>
         <h1 class="display-3 fw-bold mb-3 text-warm-dark">Build a reading habit across the journals you trust.</h1>
         <p class="lead mb-3 text-muted">
-          Follow your favorite journals in one place, keep a steady reading rhythm, and share highlights in seconds.
+          Keep your reading focused and current with a calm, purpose-built briefing space.
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap mt-3">
           <router-link to="/register" class="btn btn-primary btn-lg px-4 fw-semibold d-flex align-items-center gap-2">
@@ -20,18 +20,19 @@
             Sign In
           </router-link>
         </div>
-        <div class="install-callout d-inline-flex align-items-center gap-2 mt-3">
+        <router-link to="/install" class="install-callout d-inline-flex align-items-center gap-2 mt-3">
           <Smartphone :size="18" />
           <span>Install on iOS/Android for one-tap access (mobile only).</span>
-          <router-link to="/install" class="text-terracotta fw-semibold">Learn how</router-link>
-        </div>
+        </router-link>
       </div>
     </div>
 
     <div class="landing-advantages mt-5">
       <div class="landing-advantages__header">
         <h2 class="fw-bold text-warm-dark mb-2">Key advantages, distilled.</h2>
-        <p class="text-muted mb-0">Everything you need to stay current, without the overhead.</p>
+        <p class="text-muted mb-0">
+          Follow your favorite journals in one place, keep a steady reading rhythm, and share highlights in seconds.
+        </p>
       </div>
       <div class="row g-3 mt-2">
         <div class="col-md-6">
@@ -170,13 +171,10 @@ import {
   font-size: 0.9rem;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.install-callout a {
   text-decoration: none;
 }
 
-.install-callout a:hover {
+.install-callout:hover {
   text-decoration: underline;
 }
 
