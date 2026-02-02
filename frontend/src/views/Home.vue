@@ -6,11 +6,47 @@
           <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 80px;" />
         </div>
         <p class="hero-kicker">Medical research, distilled</p>
-        <h1 class="display-3 fw-bold mb-4 text-warm-dark">Your research brief, on your schedule.</h1>
-        <p class="lead mb-5 text-muted">
-          A premium, calm reading experience that turns dense publication streams into a personalized dashboard.
+        <h1 class="display-3 fw-bold mb-4 text-warm-dark">Build a reading habit across the journals you trust.</h1>
+        <p class="lead mb-4 text-muted">
+          MedBrief keeps new issues in one calm dashboard, so you avoid hopping across publisher sites and share key
+          reads with friends and colleagues in seconds.
         </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <div class="row g-3 justify-content-center advantage-strip">
+          <div class="col-md-4">
+            <div class="advantage-card h-100">
+              <div class="advantage-icon">
+                <Calendar :size="20" />
+              </div>
+              <div>
+                <h3 class="advantage-title">Habit-friendly cadence</h3>
+                <p class="advantage-text">Stay consistent with focused, scheduled reading windows.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="advantage-card h-100">
+              <div class="advantage-icon">
+                <Globe :size="20" />
+              </div>
+              <div>
+                <h3 class="advantage-title">No site hopping</h3>
+                <p class="advantage-text">Everything you follow lives in one streamlined workspace.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="advantage-card h-100">
+              <div class="advantage-icon">
+                <Share2 :size="20" />
+              </div>
+              <div>
+                <h3 class="advantage-title">Easy sharing</h3>
+                <p class="advantage-text">Send briefs to teams or peers without extra steps.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
           <router-link to="/register" class="btn btn-primary btn-lg px-4 fw-semibold d-flex align-items-center gap-2">
             <UserPlus :size="20" />
             Get Started
@@ -31,10 +67,9 @@
     <div class="editorial-panel mt-5">
       <div class="row align-items-center gy-4">
         <div class="col-lg-6">
-          <h3 class="fw-bold text-warm-dark mb-3">A research ritual, not a backlog.</h3>
+          <h3 class="fw-bold text-warm-dark mb-3">A focused ritual, without the overhead.</h3>
           <p class="text-muted mb-0">
-            Track the journals that matter to you, apply your reading preferences, and export what you need —
-            without context switching across tabs.
+            Track the journals that matter, apply your reading preferences, and export what you need from one place.
           </p>
         </div>
         <div class="col-lg-6">
@@ -76,20 +111,20 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="feature-icon mb-3">
-            <Clock :size="34" />
+          <div class="card feature-card h-100">
+            <div class="feature-icon mb-3">
+              <Download :size="34" />
+            </div>
+            <h5 class="fw-bold text-warm-dark">Export-ready briefs</h5>
+            <p class="text-muted">Shareable PDF, RIS, and NBIB exports for teams and citations.</p>
           </div>
-          <h5 class="fw-bold text-warm-dark">Flexible cadence</h5>
-          <p class="text-muted">Catch up in minutes with curated windows and export-ready briefs.</p>
         </div>
       </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { UserPlus, LogIn, Microscope, Users, Clock, Smartphone } from 'lucide-vue-next'
+import { UserPlus, LogIn, Microscope, Users, Download, Smartphone, Calendar, Globe, Share2 } from 'lucide-vue-next'
 </script>
 
 <style scoped>
@@ -111,6 +146,48 @@ import { UserPlus, LogIn, Microscope, Users, Clock, Smartphone } from 'lucide-vu
   border-radius: 24px;
   padding: 2.5rem;
   box-shadow: var(--shadow-1);
+}
+
+.advantage-strip {
+  max-width: 960px;
+  margin: 0 auto 2.5rem;
+}
+
+.advantage-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.2rem 1.4rem;
+  border-radius: 18px;
+  background: #FFFFFF;
+  border: 1px solid var(--warm-200);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+}
+
+.advantage-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--terracotta-100);
+  color: var(--terracotta-600);
+  flex-shrink: 0;
+}
+
+.advantage-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--warm-900);
+  margin-bottom: 0.3rem;
+}
+
+.advantage-text {
+  color: var(--warm-600);
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .hero-metrics {
