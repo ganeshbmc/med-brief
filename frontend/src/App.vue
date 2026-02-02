@@ -175,6 +175,10 @@ main {
     color: var(--terracotta-600);
   }
 
+  .install-pill {
+    align-self: center;
+  }
+
   .nav-auth-actions {
     width: 100%;
   }
