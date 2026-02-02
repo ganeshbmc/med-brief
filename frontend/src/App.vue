@@ -66,7 +66,7 @@
                   <li>
                   <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2 w-100 text-start" @click="handleLogout()">
                     <LogOut :size="16" />
-                    Logout
+                    Sign Out
                   </button>
                 </li>
                 </ul>
@@ -78,7 +78,7 @@
                 <span>Install</span>
               </router-link>
               <div class="nav-auth-actions d-flex flex-column flex-lg-row align-items-center gap-2">
-                <router-link class="btn btn-outline-terracotta btn-sm" to="/login">Login</router-link>
+                <router-link class="btn btn-outline-terracotta btn-sm" to="/login">Sign In</router-link>
                 <router-link class="btn btn-primary btn-sm" to="/register">Register</router-link>
               </div>
             </template>

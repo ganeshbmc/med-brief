@@ -48,7 +48,7 @@
               Didn't receive the email? Check your spam folder or try again.
             </p>
             <router-link to="/login" class="btn btn-outline-terracotta">
-              Back to Login
+              Back to Sign In
             </router-link>
           </div>
 

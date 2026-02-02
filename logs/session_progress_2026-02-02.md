@@ -9,6 +9,8 @@
 - Added a mobile-only install callout on the pre-login homepage.
 - Scoped mobile Install alignment to pre-login menu only.
 - Refreshed the landing page to lead with habit, no site hopping, and easy sharing benefits.
+- Rebuilt the landing page layout to prioritize CTA rows and a single, crisp advantage list.
+- Updated login/logout wording to sign in/sign out for consistency.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
@@ -19,6 +21,14 @@
 - frontend/src/views/Home.vue: added an install callout under the hero CTA.
 - frontend/src/App.vue: scoped mobile Install alignment to guest nav.
 - frontend/src/views/Home.vue: revamped hero copy and added a top advantage strip.
+- frontend/src/views/Home.vue: simplified hero layout and swapped to a single advantage grid.
+- frontend/src/App.vue: updated auth labels to sign in/sign out.
+- frontend/src/views/Dashboard.vue: updated unauthenticated CTA to sign in.
+- frontend/src/views/ForgotPassword.vue: updated back link copy to sign in.
+- frontend/src/stores/auth.js: updated auth error wording.
+- frontend/src/stores/dashboard.js: updated session-expired wording.
+- frontend/src/services/api.js: updated session-expired wording.
+- instruction_files/UI_STYLE_GUIDE.md: aligned auth terminology.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.

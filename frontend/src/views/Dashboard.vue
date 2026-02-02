@@ -84,7 +84,7 @@
       <p class="text-muted">{{ store.profilesError }}</p>
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-primary" @click="retryProfiles">Retry</button>
-        <router-link v-if="!authStore.isAuthenticated" to="/login" class="btn btn-outline-secondary">Log in</router-link>
+        <router-link v-if="!authStore.isAuthenticated" to="/login" class="btn btn-outline-secondary">Sign In</router-link>
       </div>
     </div>
 
