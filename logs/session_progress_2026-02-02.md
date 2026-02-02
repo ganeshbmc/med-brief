@@ -17,6 +17,7 @@
 - Removed the install page help footer note.
 - Hid the Back to Home link for signed-in users on the install page.
 - Aligned install topbar links left/right on all screens and simplified auth actions to Sign In only.
+- Kept install topbar links on a single row for small screens.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
@@ -40,6 +41,7 @@
 - frontend/src/views/Install.vue: added top nav links and removed footer help note.
 - frontend/src/views/Install.vue: hid Back to Home for authenticated users.
 - frontend/src/views/Install.vue: aligned topbar layout and removed Register link.
+- frontend/src/views/Install.vue: enforced single-row topbar on mobile.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.

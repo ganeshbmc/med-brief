@@ -2,14 +2,12 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-9">
-        <div class="install-topbar row align-items-center g-2 mb-4">
-          <div class="col-12 col-md-6 text-start">
-            <router-link v-if="!authStore.isAuthenticated" to="/" class="install-topbar__link d-inline-flex align-items-center gap-2">
-              <ArrowLeft :size="16" />
-              Back to Home
-            </router-link>
-          </div>
-          <div class="col-12 col-md-6 text-end">
+        <div class="install-topbar d-flex align-items-center justify-content-between gap-3 mb-4">
+          <router-link v-if="!authStore.isAuthenticated" to="/" class="install-topbar__link d-inline-flex align-items-center gap-2">
+            <ArrowLeft :size="16" />
+            Back to Home
+          </router-link>
+          <div class="install-topbar__right ms-auto">
             <router-link v-if="authStore.isAuthenticated" to="/dashboard" class="install-topbar__link d-inline-flex align-items-center gap-2">
               Go to Dashboard
               <ArrowRight :size="16" />
@@ -126,6 +124,7 @@ const authStore = useAuthStore()
   color: var(--warm-700);
   text-decoration: none;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .install-topbar__link:hover {
@@ -182,7 +181,7 @@ const authStore = useAuthStore()
   }
 
   .install-topbar {
-    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
   }
 }
 </style>
