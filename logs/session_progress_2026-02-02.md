@@ -8,6 +8,7 @@
 - Centered the Install link in the mobile pre-login navbar to match auth button alignment.
 - Added a mobile-only install callout on the pre-login homepage.
 - Scoped mobile Install alignment to pre-login menu only.
+- Refreshed the landing page to lead with habit, no site hopping, and easy sharing benefits.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
@@ -17,6 +18,7 @@
 - frontend/src/App.vue: centered the Install nav item on mobile.
 - frontend/src/views/Home.vue: added an install callout under the hero CTA.
 - frontend/src/App.vue: scoped mobile Install alignment to guest nav.
+- frontend/src/views/Home.vue: revamped hero copy and added a top advantage strip.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
