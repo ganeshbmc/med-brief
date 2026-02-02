@@ -20,6 +20,11 @@
             Sign In
           </router-link>
         </div>
+        <div class="install-callout d-inline-flex align-items-center gap-2 mt-4">
+          <Smartphone :size="18" />
+          <span>Install on iOS/Android for one-tap access (mobile only).</span>
+          <router-link to="/install" class="text-terracotta fw-semibold">Learn how</router-link>
+        </div>
       </div>
     </div>
 
@@ -84,7 +89,7 @@
 </template>
 
 <script setup>
-import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
+import { UserPlus, LogIn, Microscope, Users, Clock, Smartphone } from 'lucide-vue-next'
 </script>
 
 <style scoped>
@@ -158,6 +163,25 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
   background: var(--terracotta-100);
   border-radius: 999px;
   color: var(--terracotta-600);
+}
+
+.install-callout {
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--warm-200);
+  color: var(--warm-600);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.install-callout a {
+  text-decoration: none;
+}
+
+.install-callout a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 767.98px) {
