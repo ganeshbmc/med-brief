@@ -28,7 +28,7 @@ async function request(endpoint, options = {}) {
         sessionStorage.removeItem('dashboardArticles')
         sessionStorage.removeItem('selectedProfileId')
         window.location.replace('/login?reason=session-expired')
-        throw new Error('Session expired. Please log in again.')
+        throw new Error('Session expired. Please sign in again.')
     }
 
     if (!response.ok) {
