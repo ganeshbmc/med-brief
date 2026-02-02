@@ -164,6 +164,17 @@ main {
 }
 
 @media (max-width: 991.98px) {
+  .install-pill {
+    background: transparent;
+    border: none;
+    color: var(--warm-700);
+  }
+
+  .install-pill:hover {
+    background: transparent;
+    color: var(--terracotta-600);
+  }
+
   .nav-auth-actions {
     width: 100%;
   }
