@@ -6,11 +6,8 @@
           <img src="@/assets/medbrief_icon.png" alt="MedBrief" class="logo-icon" style="height: 80px;" />
         </div>
         <p class="hero-kicker">Medical research, distilled</p>
-        <h1 class="display-3 fw-bold mb-4 text-warm-dark">Your research brief, on your schedule.</h1>
-        <p class="lead mb-5 text-muted">
-          A premium, calm reading experience that turns dense publication streams into a personalized dashboard.
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <h1 class="display-3 fw-bold mb-3 text-warm-dark">Build a reading habit across the journals you trust.</h1>
+        <div class="d-flex gap-3 justify-content-center flex-wrap mt-3">
           <router-link to="/register" class="btn btn-primary btn-lg px-4 fw-semibold d-flex align-items-center gap-2">
             <UserPlus :size="20" />
             Get Started
@@ -20,63 +17,75 @@
             Sign In
           </router-link>
         </div>
+        <router-link to="/install" class="install-callout d-inline-flex align-items-center gap-2 mt-3">
+          <Smartphone :size="18" />
+          <span>Install on iOS/Android for one-tap access (mobile only).</span>
+          <span class="install-callout__cta">Learn how</span>
+        </router-link>
       </div>
     </div>
 
-    <div class="editorial-panel mt-5">
-      <div class="row align-items-center gy-4">
-        <div class="col-lg-6">
-          <h3 class="fw-bold text-warm-dark mb-3">A research ritual, not a backlog.</h3>
-          <p class="text-muted mb-0">
-            Track the journals that matter to you, apply your reading preferences, and export what you need —
-            without context switching across tabs.
-          </p>
-        </div>
-        <div class="col-lg-6">
-          <div class="hero-metrics">
-            <div class="metric-tile">
-              <span class="metric-label">Profiles</span>
-              <span class="metric-value">Tailored feeds by specialty</span>
-            </div>
-            <div class="metric-tile">
-              <span class="metric-label">Filters</span>
-              <span class="metric-value">Dates, journals, abstracts</span>
-            </div>
-            <div class="metric-tile">
-              <span class="metric-label">Exports</span>
-              <span class="metric-value">PDF, RIS, NBIB in one click</span>
+    <div class="landing-advantages mt-5">
+      <div class="landing-advantages__header">
+        <h2 class="fw-bold text-warm-dark mb-2">Key advantages, distilled.</h2>
+        <p class="text-muted mb-0">
+          Follow your favorite journals in one place, keep a steady reading rhythm, and share highlights in seconds.
+        </p>
+      </div>
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <Calendar :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">Habit-first cadence</h3>
+              <p class="advantage-text">Stay consistent with scheduled reading windows that fit your rhythm.</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="row mt-5 pt-3 g-4">
-      <div class="col-md-4">
-        <div class="card feature-card feature-card--accent h-100">
-          <div class="feature-icon mb-3">
-            <Microscope :size="34" />
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <Compass :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">No site hopping</h3>
+              <p class="advantage-text">All your journals in one clean workspace instead of scattered tabs.</p>
+            </div>
           </div>
-          <h5 class="fw-bold text-warm-dark">Journal signal</h5>
-          <p class="text-muted">Stay ahead with focused coverage from the journals you already trust.</p>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="feature-icon mb-3">
-            <Users :size="34" />
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <Share2 :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">Easy sharing</h3>
+              <p class="advantage-text">Send briefs to friends, teams, or colleagues in a few clicks.</p>
+            </div>
           </div>
-          <h5 class="fw-bold text-warm-dark">Profile-driven</h5>
-          <p class="text-muted">Separate surgery, cardiology, or trials into clean, navigable feeds.</p>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card feature-card h-100">
-          <div class="feature-icon mb-3">
-            <Clock :size="34" />
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <Users :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">Profile-driven feeds</h3>
+              <p class="advantage-text">Separate specialties into focused views you can return to daily.</p>
+            </div>
           </div>
-          <h5 class="fw-bold text-warm-dark">Flexible cadence</h5>
-          <p class="text-muted">Catch up in minutes with curated windows and export-ready briefs.</p>
+        </div>
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <SlidersHorizontal :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">Smart filters</h3>
+              <p class="advantage-text">Narrow by dates, journals, and abstract availability in seconds.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="advantage-item">
+            <Download :size="18" class="advantage-icon" />
+            <div>
+              <h3 class="advantage-title">Export-ready briefs</h3>
+              <p class="advantage-text">PDF, RIS, and NBIB exports for sharing and citations.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -84,7 +93,17 @@
 </template>
 
 <script setup>
-import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
+import {
+  UserPlus,
+  LogIn,
+  Users,
+  Download,
+  Smartphone,
+  Calendar,
+  Share2,
+  Compass,
+  SlidersHorizontal
+} from 'lucide-vue-next'
 </script>
 
 <style scoped>
@@ -100,7 +119,7 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
   margin-bottom: 1rem;
 }
 
-.editorial-panel {
+.landing-advantages {
   background: var(--surface-elevated);
   border: 1px solid var(--warm-200);
   border-radius: 24px;
@@ -108,61 +127,63 @@ import { UserPlus, LogIn, Microscope, Users, Clock } from 'lucide-vue-next'
   box-shadow: var(--shadow-1);
 }
 
-.hero-metrics {
-  display: grid;
-  gap: 1rem;
+.landing-advantages__header {
+  max-width: 560px;
 }
 
-.metric-tile {
-  background: #FFFFFF;
+.advantage-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
   border-radius: 16px;
-  padding: 1rem 1.25rem;
-  border: 1px solid rgba(231, 226, 220, 0.9);
+  background: #FFFFFF;
+  border: 1px solid var(--warm-200);
 }
 
-.metric-label {
-  display: block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--warm-500);
-  margin-bottom: 0.35rem;
+.advantage-icon {
+  color: var(--terracotta-600);
+  flex-shrink: 0;
+  margin-top: 0.2rem;
 }
 
-.metric-value {
+.advantage-title {
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--warm-900);
+  margin-bottom: 0.2rem;
 }
 
-.feature-card {
-  padding: 2rem 1.75rem;
-  border-radius: 20px;
-  border: 1px solid var(--warm-200);
-  transition: transform var(--duration-medium) var(--ease-standard),
-    box-shadow var(--duration-medium) var(--ease-standard);
+.advantage-text {
+  color: var(--warm-600);
+  margin: 0;
+  font-size: 0.9rem;
 }
 
-.feature-card--accent {
-  background: linear-gradient(140deg, rgba(224, 122, 95, 0.15), rgba(255, 255, 255, 0.9));
-  border-color: rgba(224, 122, 95, 0.25);
-}
-
-.feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-2);
-}
-
-.feature-icon {
-  display: inline-flex;
-  padding: 0.9rem;
-  background: var(--terracotta-100);
+.install-callout {
+  padding: 0.6rem 1.1rem;
   border-radius: 999px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--warm-200);
+  color: var(--warm-600);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.install-callout__cta {
   color: var(--terracotta-600);
+  font-weight: 600;
+}
+
+.install-callout:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 767.98px) {
-  .editorial-panel {
-    padding: 2rem;
+  .landing-advantages {
+    padding: 1.8rem;
   }
 }
 </style>

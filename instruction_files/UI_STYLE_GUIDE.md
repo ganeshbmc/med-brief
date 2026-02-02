@@ -89,7 +89,7 @@ A warm, modern reading experience that feels like a premium news app. The design
 | Profiles | `Users` |
 | Export | `Download` |
 | Article | `FileText` |
-| Logout | `LogOut` |
+| Sign Out | `LogOut` |
 | Calendar | `Calendar` |
 | Journal | `Newspaper` |
 | External Link | `ExternalLink` |

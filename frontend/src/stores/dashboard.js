@@ -79,7 +79,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
             if (lowerMessage.includes('invalid token') || lowerMessage.includes('user not found') || lowerMessage.includes('401')) {
                 const authStore = useAuthStore()
                 authStore.logout()
-                profilesError.value = 'Your session expired. Please log in again.'
+                profilesError.value = 'Your session expired. Please sign in again.'
             } else {
                 profilesError.value = message
             }
