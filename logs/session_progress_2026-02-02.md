@@ -11,6 +11,7 @@
 - Refreshed the landing page to lead with habit, no site hopping, and easy sharing benefits.
 - Rebuilt the landing page layout to prioritize CTA rows and a single, crisp advantage list.
 - Updated login/logout wording to sign in/sign out for consistency.
+- Moved the key hero supporting line under the advantages header and made the install pill fully clickable.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
@@ -29,6 +30,7 @@
 - frontend/src/stores/dashboard.js: updated session-expired wording.
 - frontend/src/services/api.js: updated session-expired wording.
 - instruction_files/UI_STYLE_GUIDE.md: aligned auth terminology.
+- frontend/src/views/Home.vue: relocated hero supporting copy and made install callout a full link.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
