@@ -2,26 +2,22 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-9">
-        <div class="install-topbar d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-          <router-link v-if="!authStore.isAuthenticated" to="/" class="install-topbar__link d-inline-flex align-items-center gap-2">
-            <ArrowLeft :size="16" />
-            Back to Home
-          </router-link>
-          <div class="install-topbar__actions d-flex align-items-center gap-3">
+        <div class="install-topbar row align-items-center g-2 mb-4">
+          <div class="col-12 col-md-6 text-start">
+            <router-link v-if="!authStore.isAuthenticated" to="/" class="install-topbar__link d-inline-flex align-items-center gap-2">
+              <ArrowLeft :size="16" />
+              Back to Home
+            </router-link>
+          </div>
+          <div class="col-12 col-md-6 text-end">
             <router-link v-if="authStore.isAuthenticated" to="/dashboard" class="install-topbar__link d-inline-flex align-items-center gap-2">
               Go to Dashboard
               <ArrowRight :size="16" />
             </router-link>
-            <template v-else>
-              <router-link to="/login" class="install-topbar__link d-inline-flex align-items-center gap-2">
-                Sign In
-                <ArrowRight :size="16" />
-              </router-link>
-              <router-link to="/register" class="install-topbar__link d-inline-flex align-items-center gap-2">
-                Register
-                <ArrowRight :size="16" />
-              </router-link>
-            </template>
+            <router-link v-else to="/login" class="install-topbar__link d-inline-flex align-items-center gap-2">
+              Sign In
+              <ArrowRight :size="16" />
+            </router-link>
           </div>
         </div>
         <div class="install-hero mb-4">
@@ -186,12 +182,7 @@ const authStore = useAuthStore()
   }
 
   .install-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .install-topbar__actions {
-    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
   }
 }
 </style>
