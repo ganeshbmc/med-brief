@@ -7,9 +7,6 @@
         </div>
         <p class="hero-kicker">Medical research, distilled</p>
         <h1 class="display-3 fw-bold mb-3 text-warm-dark">Build a reading habit across the journals you trust.</h1>
-        <p class="lead mb-3 text-muted">
-          Keep your reading focused and current with a calm, purpose-built briefing space.
-        </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap mt-3">
           <router-link to="/register" class="btn btn-primary btn-lg px-4 fw-semibold d-flex align-items-center gap-2">
             <UserPlus :size="20" />
@@ -23,6 +20,7 @@
         <router-link to="/install" class="install-callout d-inline-flex align-items-center gap-2 mt-3">
           <Smartphone :size="18" />
           <span>Install on iOS/Android for one-tap access (mobile only).</span>
+          <span class="install-callout__cta">Learn how</span>
         </router-link>
       </div>
     </div>
@@ -172,6 +170,11 @@ import {
   flex-wrap: wrap;
   justify-content: center;
   text-decoration: none;
+}
+
+.install-callout__cta {
+  color: var(--terracotta-600);
+  font-weight: 600;
 }
 
 .install-callout:hover {
