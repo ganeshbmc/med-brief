@@ -5,12 +5,14 @@
 - Highlighted the new Install entry in the navbar for both authenticated and guest users.
 - Wired the new public route and ensured consistent warm-neutral styling across the experience.
 - Adjusted the pre-login mobile nav styling so the Install link blends with other menu items.
+- Centered the Install link in the mobile pre-login navbar to match auth button alignment.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
 - frontend/src/views/Install.vue: created the install instructions view with platform toggles and stepwise guidance.
 - frontend/src/App.vue: added the Install navbar link and accent styling.
 - frontend/src/App.vue: softened mobile Install nav styling for pre-login menus.
+- frontend/src/App.vue: centered the Install nav item on mobile.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
