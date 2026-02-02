@@ -73,7 +73,7 @@
               </div>
             </template>
             <template v-else>
-              <router-link class="nav-link nav-pill install-pill d-flex align-items-center gap-1" to="/install">
+              <router-link class="nav-link nav-pill install-pill install-pill--guest d-flex align-items-center gap-1" to="/install">
                 <Download :size="18" />
                 <span>Install</span>
               </router-link>
@@ -175,7 +175,7 @@ main {
     color: var(--terracotta-600);
   }
 
-  .install-pill {
+  .install-pill--guest {
     align-self: center;
   }
 
