@@ -12,6 +12,7 @@ import Profiles from '../views/Profiles.vue'
 import Article from '../views/Article.vue'
 import Account from '../views/Account.vue'
 import Preferences from '../views/Preferences.vue'
+import Install from '../views/Install.vue'
 
 const routes = [
     { path: '/', name: 'Home', component: Home },
@@ -25,6 +26,7 @@ const routes = [
     { path: '/article/:pmid', name: 'Article', component: Article, meta: { requiresAuth: true } },
     { path: '/account', name: 'Account', component: Account, meta: { requiresAuth: true } },
     { path: '/preferences', name: 'Preferences', component: Preferences, meta: { requiresAuth: true } },
+    { path: '/install', name: 'Install', component: Install },
 ]
 
 const router = createRouter({

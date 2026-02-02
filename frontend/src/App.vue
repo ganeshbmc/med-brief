@@ -37,6 +37,10 @@
                 <SlidersHorizontal :size="18" />
                 <span>Preferences</span>
               </router-link>
+              <router-link class="nav-link nav-pill install-pill d-flex align-items-center gap-1" to="/install">
+                <Download :size="18" />
+                <span>Install</span>
+              </router-link>
 
               
               <!-- User Dropdown -->
@@ -69,6 +73,10 @@
               </div>
             </template>
             <template v-else>
+              <router-link class="nav-link nav-pill install-pill d-flex align-items-center gap-1" to="/install">
+                <Download :size="18" />
+                <span>Install</span>
+              </router-link>
               <div class="nav-auth-actions d-flex flex-column flex-lg-row align-items-center gap-2">
                 <router-link class="btn btn-outline-terracotta btn-sm" to="/login">Login</router-link>
                 <router-link class="btn btn-primary btn-sm" to="/register">Register</router-link>
@@ -89,7 +97,7 @@
 import { useAuthStore } from './stores/auth'
 import { useDashboardStore } from './stores/dashboard'
 import { useRouter } from 'vue-router'
-import { LayoutDashboard, Users, LogOut, Menu, User, Settings, SlidersHorizontal } from 'lucide-vue-next'
+import { LayoutDashboard, Users, LogOut, Menu, User, Settings, SlidersHorizontal, Download } from 'lucide-vue-next'
 import Toast from '@/components/Toast.vue'
 
 const authStore = useAuthStore()
@@ -142,6 +150,17 @@ main {
 .nav-auth-actions .btn {
   min-width: 120px;
   justify-content: center;
+}
+
+.install-pill {
+  color: var(--terracotta-600);
+  background: rgba(224, 122, 95, 0.14);
+  border: 1px solid rgba(224, 122, 95, 0.3);
+}
+
+.install-pill:hover {
+  color: var(--terracotta-700);
+  background: rgba(224, 122, 95, 0.2);
 }
 
 @media (max-width: 991.98px) {
