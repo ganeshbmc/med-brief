@@ -2,6 +2,28 @@
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-9">
+        <div class="install-topbar d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+          <router-link v-if="!authStore.isAuthenticated" to="/" class="install-topbar__link d-inline-flex align-items-center gap-2">
+            <ArrowLeft :size="16" />
+            Back to Home
+          </router-link>
+          <div class="install-topbar__actions d-flex align-items-center gap-3">
+            <router-link v-if="authStore.isAuthenticated" to="/dashboard" class="install-topbar__link d-inline-flex align-items-center gap-2">
+              Go to Dashboard
+              <ArrowRight :size="16" />
+            </router-link>
+            <template v-else>
+              <router-link to="/login" class="install-topbar__link d-inline-flex align-items-center gap-2">
+                Sign In
+                <ArrowRight :size="16" />
+              </router-link>
+              <router-link to="/register" class="install-topbar__link d-inline-flex align-items-center gap-2">
+                Register
+                <ArrowRight :size="16" />
+              </router-link>
+            </template>
+          </div>
+        </div>
         <div class="install-hero mb-4">
           <div class="install-badge d-inline-flex align-items-center gap-2 mb-3">
             <Download :size="18" />
@@ -82,13 +104,6 @@
             </div>
           </div>
         </div>
-
-        <div class="install-footer mt-4">
-          <div class="install-footnote">
-            Need help? Look for “Add to Home Screen” or “Add to phone” in your browser menu.
-          </div>
-          <router-link to="/" class="btn btn-link text-terracotta ps-0">Back to Home</router-link>
-        </div>
       </div>
     </div>
   </div>
@@ -96,9 +111,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Download, Smartphone, Phone, Info } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth'
+import { ArrowLeft, ArrowRight, Download, Smartphone, Phone, Info } from 'lucide-vue-next'
 
 const selectedPlatform = ref('android')
+const authStore = useAuthStore()
 </script>
 
 <style scoped>
@@ -107,6 +124,16 @@ const selectedPlatform = ref('android')
   border-radius: 24px;
   background: linear-gradient(140deg, rgba(224, 122, 95, 0.12), rgba(255, 255, 255, 0.95));
   border: 1px solid rgba(224, 122, 95, 0.2);
+}
+
+.install-topbar__link {
+  color: var(--warm-700);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.install-topbar__link:hover {
+  color: var(--terracotta-600);
 }
 
 .install-badge {
@@ -149,19 +176,6 @@ const selectedPlatform = ref('android')
   margin-bottom: 0;
 }
 
-.install-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.install-footnote {
-  color: var(--warm-500);
-  font-size: 0.9rem;
-}
-
 @media (max-width: 767.98px) {
   .install-hero {
     padding: 1.5rem;
@@ -169,6 +183,15 @@ const selectedPlatform = ref('android')
 
   .install-panel .card-body {
     padding: 1.5rem;
+  }
+
+  .install-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .install-topbar__actions {
+    flex-wrap: wrap;
   }
 }
 </style>

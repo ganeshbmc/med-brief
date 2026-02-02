@@ -13,6 +13,9 @@
 - Updated login/logout wording to sign in/sign out for consistency.
 - Moved the key hero supporting line under the advantages header and made the install pill fully clickable.
 - Removed the extra hero subline and restored the Learn how label inside the install pill.
+- Added top install page navigation with Back to Home and auth-aware Sign In/Register or Dashboard.
+- Removed the install page help footer note.
+- Hid the Back to Home link for signed-in users on the install page.
 
 ## Changes
 - frontend/src/router/index.js: added the public `/install` route.
@@ -33,6 +36,8 @@
 - instruction_files/UI_STYLE_GUIDE.md: aligned auth terminology.
 - frontend/src/views/Home.vue: relocated hero supporting copy and made install callout a full link.
 - frontend/src/views/Home.vue: removed hero subline and restored install callout label.
+- frontend/src/views/Install.vue: added top nav links and removed footer help note.
+- frontend/src/views/Install.vue: hid Back to Home for authenticated users.
 
 ## Verification
 - Ran `bash scripts/restart-dev.sh`.
