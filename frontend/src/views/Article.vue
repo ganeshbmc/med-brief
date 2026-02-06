@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File, FileText } from 'lucide-vue-next'
@@ -279,9 +279,38 @@ watch(() => route.params.pmid, (newPmid) => {
   }
 })
 
+// Handle page show event (when returning from external link on mobile PWA)
+function handlePageShow(event) {
+  // Check if page was persisted (BFCache) or if articles list is empty
+  if (event.persisted || articles.value.length === 0) {
+    const storedArticles = sessionStorage.getItem('dashboardArticles')
+    if (storedArticles) {
+      try {
+        const parsed = JSON.parse(storedArticles)
+        const pmid = route.params.pmid
+        const newIndex = parsed.findIndex(a => String(a.pmid) === String(pmid))
+        if (newIndex >= 0) {
+          articles.value = parsed
+          currentIndex.value = newIndex
+          article.value = parsed[newIndex]
+          console.log('Article navigation restored from sessionStorage')
+        }
+      } catch (e) {
+        console.warn('Failed to restore articles on page show', e)
+      }
+    }
+  }
+}
+
 onMounted(() => {
   window.scrollTo(0, 0)
   loadArticle()
+  // Listen for pageshow to restore state when returning from external links
+  window.addEventListener('pageshow', handlePageShow)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('pageshow', handlePageShow)
 })
 </script>
 

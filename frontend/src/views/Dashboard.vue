@@ -735,6 +735,27 @@ onMounted(async () => {
   store.initializeDateRange()
   
   await store.loadProfiles()
+  
+  // Issue #96: Restore articles from sessionStorage if store cache is empty
+  // This happens when user returns from article page after following external link
+  if (!store.hasCache && !store.hasLoadedArticles) {
+    const storedArticles = sessionStorage.getItem('dashboardArticles')
+    const storedProfileId = sessionStorage.getItem('selectedProfileId')
+    if (storedArticles && storedProfileId) {
+      try {
+        const parsed = JSON.parse(storedArticles)
+        // Only restore if profile matches current selection
+        if (String(storedProfileId) === String(store.selectedProfileId)) {
+          store.articles = parsed
+          store.hasLoadedArticles = true
+          console.log('Issue #96: Restored articles from sessionStorage:', parsed.length)
+        }
+      } catch (e) {
+        console.warn('Issue #96: Failed to parse stored articles', e)
+      }
+    }
+  }
+  
   if (store.selectedProfileId) {
     await loadData()
   }
