@@ -115,7 +115,7 @@ import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File, FileText }
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
-import { getArticleByPmid, generateBrief } from '@/services/api'
+import { getArticleByPmid, generateBrief, getProfiles } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -265,7 +265,24 @@ async function loadArticle() {
 
   // Second try: fetch articles from dashboard API to get navigation context
   // This handles direct URL access or when sessionStorage is cleared
-  const profileId = storedProfileId || dashboardStore.selectedProfileId
+  let profileId = storedProfileId || dashboardStore.selectedProfileId
+  
+  // If no profileId, load profiles first
+  if (!profileId) {
+    try {
+      console.log('No profileId available, loading profiles...')
+      const profiles = await getProfiles()
+      if (profiles && profiles.length > 0) {
+        // Use default profile or first profile
+        const defaultProfile = profiles.find(p => p.is_default)
+        profileId = defaultProfile ? defaultProfile.id : profiles[0].id
+        console.log('Loaded profileId:', profileId)
+      }
+    } catch (e) {
+      console.warn('Failed to load profiles:', e)
+    }
+  }
+  
   if (profileId) {
     try {
       console.log('Fetching articles from dashboard API for profile:', profileId)
