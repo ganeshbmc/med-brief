@@ -110,15 +110,17 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useDashboardStore } from '@/stores/dashboard'
 import { ArrowLeft, ArrowRight, Download, ExternalLink, Share2, File, FileText } from 'lucide-vue-next'
 import { formatDateDisplay } from '@/utils/dateFormatter'
 import { generateArticleShareText, shareContent, useToast } from '@/utils/shareUtils'
 import StickyArticleNavigation from '@/components/StickyArticleNavigation.vue'
-import { getArticleByPmid } from '@/services/api'
+import { getArticleByPmid, generateBrief } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const dashboardStore = useDashboardStore()
 const { show } = useToast()
 
 const article = ref(null)
@@ -242,8 +244,10 @@ async function loadArticle() {
   currentIndex.value = -1
 
   const storedArticles = sessionStorage.getItem('dashboardArticles')
+  const storedProfileId = sessionStorage.getItem('selectedProfileId')
   const pmid = route.params.pmid
 
+  // First try: restore from sessionStorage
   if (storedArticles) {
     try {
       articles.value = JSON.parse(storedArticles)
@@ -251,6 +255,7 @@ async function loadArticle() {
       if (currentIndex.value >= 0) {
         article.value = articles.value[currentIndex.value]
         isLoading.value = false
+        console.log('Article loaded from sessionStorage:', articles.value.length, 'articles')
         return
       }
     } catch (e) {
@@ -258,7 +263,39 @@ async function loadArticle() {
     }
   }
 
+  // Second try: fetch articles from dashboard API to get navigation context
+  // This handles direct URL access or when sessionStorage is cleared
+  const profileId = storedProfileId || dashboardStore.selectedProfileId
+  if (profileId) {
+    try {
+      console.log('Fetching articles from dashboard API for profile:', profileId)
+      const fetchedArticles = await generateBrief(profileId, {
+        fromDate: dashboardStore.fromDate,
+        toDate: dashboardStore.toDate
+      })
+      
+      if (fetchedArticles && fetchedArticles.length > 0) {
+        articles.value = fetchedArticles
+        currentIndex.value = articles.value.findIndex(a => String(a.pmid) === String(pmid))
+        
+        if (currentIndex.value >= 0) {
+          article.value = articles.value[currentIndex.value]
+          // Save to sessionStorage for future navigation
+          sessionStorage.setItem('dashboardArticles', JSON.stringify(fetchedArticles))
+          sessionStorage.setItem('selectedProfileId', profileId)
+          console.log('Articles loaded from API:', fetchedArticles.length, 'articles')
+          isLoading.value = false
+          return
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch articles from dashboard API:', e)
+    }
+  }
+
+  // Fallback: fetch single article (no navigation possible)
   try {
+    console.log('Falling back to single article fetch')
     const fetchedArticle = await getArticleByPmid(pmid)
     article.value = fetchedArticle
     articles.value = [fetchedArticle]
@@ -280,9 +317,9 @@ watch(() => route.params.pmid, (newPmid) => {
 })
 
 // Handle page show event (when returning from external link on mobile PWA)
-function handlePageShow(event) {
+async function handlePageShow(event) {
   // Check if page was persisted (BFCache) or if articles list is empty
-  if (event.persisted || articles.value.length === 0) {
+  if (event.persisted || articles.value.length <= 1) {
     const storedArticles = sessionStorage.getItem('dashboardArticles')
     if (storedArticles) {
       try {
@@ -293,11 +330,47 @@ function handlePageShow(event) {
           articles.value = parsed
           currentIndex.value = newIndex
           article.value = parsed[newIndex]
-          console.log('Article navigation restored from sessionStorage')
+          console.log('Article navigation restored from pageshow event')
+          return
         }
       } catch (e) {
         console.warn('Failed to restore articles on page show', e)
       }
+    }
+    
+    // If no sessionStorage or article not found, try fetching from API
+    if (articles.value.length <= 1) {
+      console.log('pageshow: Attempting to fetch articles from API')
+      await loadArticle()
+    }
+  }
+}
+
+// Handle visibility change (for mobile PWA when app returns from background)
+async function handleVisibilityChange() {
+  if (document.visibilityState === 'visible' && articles.value.length <= 1) {
+    console.log('visibilitychange: Page visible, checking articles')
+    const storedArticles = sessionStorage.getItem('dashboardArticles')
+    if (storedArticles) {
+      try {
+        const parsed = JSON.parse(storedArticles)
+        const pmid = route.params.pmid
+        const newIndex = parsed.findIndex(a => String(a.pmid) === String(pmid))
+        if (newIndex >= 0 && parsed.length > articles.value.length) {
+          articles.value = parsed
+          currentIndex.value = newIndex
+          article.value = parsed[newIndex]
+          console.log('Article navigation restored from visibilitychange')
+          return
+        }
+      } catch (e) {
+        console.warn('Failed to restore articles on visibility change', e)
+      }
+    }
+    
+    // Try API if no sessionStorage or not enough articles
+    if (articles.value.length <= 1) {
+      await loadArticle()
     }
   }
 }
@@ -307,10 +380,13 @@ onMounted(() => {
   loadArticle()
   // Listen for pageshow to restore state when returning from external links
   window.addEventListener('pageshow', handlePageShow)
+  // Listen for visibilitychange for mobile PWA background/foreground transitions
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onUnmounted(() => {
   window.removeEventListener('pageshow', handlePageShow)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
 
