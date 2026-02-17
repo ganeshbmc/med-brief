@@ -4,7 +4,11 @@
       <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
         <div>
           <h1 class="masthead-title">Your research brief</h1>
-          <p class="masthead-subtitle">{{ formatDateRange(store.fromDate, store.toDate) }} · Curated from your profile journals</p>
+          <p class="masthead-subtitle">Showing articles from {{ formatDateDisplay(store.fromDate) }} to {{ formatDateDisplay(store.toDate) }}</p>
+          <p v-if="authStore.isAuthenticated" class="text-muted d-flex align-items-center gap-2 mb-0">
+            <Calendar :size="14" />
+            <span>{{ lastLoginLabel }}</span>
+          </p>
         </div>
         <div class="d-flex align-items-center gap-2">
           <button
@@ -390,7 +394,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDashboardStore } from '../stores/dashboard'
 import { useAuthStore } from '../stores/auth'
-import { formatDateDisplay, formatDateRange } from '@/utils/dateFormatter'
+import { formatDateDisplay, formatDateTimeDisplay, daysAgoFromNow } from '@/utils/dateFormatter'
 import {
   FileText, Check, Plus, RefreshCw, Search, Newspaper,
   AlertTriangle, CheckSquare, Square, X, Download,
@@ -414,6 +418,14 @@ const preferencesClasses = computed(() => {
     'line-normal': prefs.lineSpacing === 'normal' || !prefs.lineSpacing,
     'line-relaxed': prefs.lineSpacing === 'relaxed',
   }
+})
+
+const lastLoginLabel = computed(() => {
+  const lastLoginAt = authStore.user?.last_login_at
+  if (!lastLoginAt) return 'First login - welcome back!'
+  const daysAgo = daysAgoFromNow(lastLoginAt)
+  const dayLabel = daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`
+  return `Last visited on ${formatDateTimeDisplay(lastLoginAt)} (${dayLabel})`
 })
 
 // Get default days from user preferences
