@@ -23,6 +23,7 @@ class User(Base):
     reset_token = Column(String(64), nullable=True)
     reset_token_expires_at = Column(DateTime, nullable=True)
     last_login_at = Column(DateTime, nullable=True)
+    previous_login_at = Column(DateTime, nullable=True)
 
     profiles = relationship("Profile", back_populates="user")
 

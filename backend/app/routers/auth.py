@@ -77,6 +77,7 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     if not user or not pwd_context.verify(form.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    user.previous_login_at = user.last_login_at
     user.last_login_at = datetime.utcnow()
     await db.commit()
     token = create_access_token({"sub": str(user.id)})
@@ -105,6 +106,7 @@ class UserOut(BaseModel):
     full_name: str | None = None
     preferences: Optional[Dict] = None
     last_login_at: datetime | None = None
+    previous_login_at: datetime | None = None
 
     class Config:
         from_attributes = True

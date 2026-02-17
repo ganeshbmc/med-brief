@@ -421,11 +421,11 @@ const preferencesClasses = computed(() => {
 })
 
 const lastLoginLabel = computed(() => {
-  const lastLoginAt = authStore.user?.last_login_at
-  if (!lastLoginAt) return 'First login - welcome back!'
-  const daysAgo = daysAgoFromNow(lastLoginAt)
+  const previousLoginAt = authStore.user?.previous_login_at
+  if (!previousLoginAt) return 'First login - welcome back!'
+  const daysAgo = daysAgoFromNow(previousLoginAt)
   const dayLabel = daysAgo === 1 ? '1 day ago' : `${daysAgo} days ago`
-  return `Last visited on ${formatDateTimeDisplay(lastLoginAt)} (${dayLabel})`
+  return `Previous login on ${formatDateTimeDisplay(previousLoginAt)} (${dayLabel})`
 })
 
 // Get default days from user preferences
